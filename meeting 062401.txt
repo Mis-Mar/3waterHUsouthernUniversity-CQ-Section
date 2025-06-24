@@ -5,18 +5,19 @@
     P VS P（original
     E VS E
 
-stage1：扩张——未视野
-stage2：维护——已视野
-stage3：战斗
-    以上三：形成agent，
-            大模型调用小模型
-                 easy way：概率分布
-    评价和交互
-    &评估：AI助手
-        经营、战斗、防御
-        综合状态to选择
-        大模型
-    设计综合评分逻辑
+3agent
+    stage1：扩张——未视野
+    stage2：维护——已视野
+    stage3：战斗
+        以上三：形成agent，
+                大模型调用小模型
+                    easy way：概率分布
+        评价和交互
+        &评估：AI助手
+            经营、战斗、防御
+            综合状态to选择
+            大模型
+        设计综合评分逻辑
 
 player
     不选择
