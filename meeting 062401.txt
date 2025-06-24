@@ -1,3 +1,10 @@
+分阶段评价、&工作
+    P VS None
+    P VS static
+    P VS E
+    P VS P（original
+    E VS E
+
 stage1：扩张——未视野
 stage2：维护——已视野
 stage3：战斗
@@ -41,3 +48,12 @@ agent
     
 &看学习如何构建agent
 开源工作……（看不清）
+
+search：
+    如何构建agent、大模型
+    智能体？
+    Ask DeepSeek
+
+包装思路：
+    from    游戏
+    to      分析、模拟型
