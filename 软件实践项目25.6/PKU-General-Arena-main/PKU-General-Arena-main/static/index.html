@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generals MVP</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <img src="/static/img/logo.png" alt="Generals Logo" class="logo">
+    <h1>Generals Game</h1>
+    <div class="game-container">
+        <div id="game-board"></div>
+        <div id="game-info">
+            <div class="player-avatars">
+                <img src="/static/img/player1.png" alt="Player 1" class="avatar">
+                <img src="/static/img/player2.png" alt="Player 2" class="avatar">
+            </div>
+            <p><strong>当前回合: </strong><span id="turn-counter">0</span></p>
+            <button id="new-game">新游戏</button>
+        </div>
+    </div>
+    <script src="/static/game.js"></script>
+</body>
+</html>

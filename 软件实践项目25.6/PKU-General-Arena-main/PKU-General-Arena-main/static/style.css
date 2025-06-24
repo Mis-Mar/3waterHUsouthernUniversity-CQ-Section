@@ -1,0 +1,120 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.game-container {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(15, 30px);
+    grid-gap: 1px;
+    background: #ddd;
+    padding: 5px;
+}
+
+.cell {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid #999;
+}
+
+.empty { background-color: #f0f0f0; }
+.player1 { background-color: #ff9999; }
+.player2 { background-color: #9999ff; }
+.mountain { background-color: #666; }
+.selected { border: 2px solid yellow; }
+
+#game-info {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#new-game {
+    margin-top: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.logo {
+    width: 180px;
+    margin-bottom: 10px;
+}
+
+.player-avatars {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+}
+
+.cell {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 0;
+    background: none;
+    border: none;
+    box-sizing: border-box;
+    /* 防止图片撑大格子 */
+    overflow: hidden;
+}
+
+.cell-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.army-count {
+    position: relative;
+    z-index: 2;
+    color: #222;
+    font-weight: bold;
+    font-size: 14px;
+    text-align: center;
+    width: 100%;
+    line-height: 30px;
+    pointer-events: none;
+}
+
+.cell.selected {
+    border: 2px solid #FFD600;
+    box-shadow: 0 0 8px 2px #FFD60088;
+    z-index: 3;
+}
+
+.cell:hover {
+    outline: 2px dashed #888;
+    z-index: 2;
+} 
