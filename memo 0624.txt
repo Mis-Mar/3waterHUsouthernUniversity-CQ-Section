@@ -1,0 +1,44 @@
+集群算法实现ai进攻
+
+设计模式
+
+holopix ai
+
+集群算法实现ai集中
+
+哎我巢里来来的路径算法只有单对单情况
+
+流场寻路算法
+
+图论、算法、书籍
+
+deepseek JPS
+
+寻路算法可视化网站：https://qiao.github.io/PathFinding.js/visual/
+游戏开发者大会GDC《JPS+: Over 100x Faster than A*》：https://www.gdcvault.com/play/1022094/JPS-Over-100x-Faster-than
+JPS算法论文：http://grastien.net/ban/articles/hg-aaai11.pdf
+
+热力图 权重 相乘 状态转移 动态规划
+
+JPS+ 跳点 障碍
+
+梯度
+
+KD树求解临近
+
+四叉树 KD树
+
+预处理
+
+选取可能初始位置
+
+逆向A*梯度
+
+分开集中和占领
+
+反向动态规划
+
+SDF
+
+六角格卷积：六角格为核
+
