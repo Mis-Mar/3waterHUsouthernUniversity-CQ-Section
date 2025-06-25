@@ -8,5 +8,6 @@ https://finance.sina.com.cn/tech/roll/2023-09-11/doc-imzmikmf9106891.shtml
 https://github.com/touilleMan/godot-python
 https://github.com/limbonaut/limboai
 
+https://www.redblobgames.com/grids/parts/#hexagons
 
 clash verge
