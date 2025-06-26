@@ -5,3 +5,16 @@
 
 
 每一帧都要刷新并重新显示地图
+
+
+Axial coordinates
+
+    directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1,-1), (1, 1)]
+
+    def _heuristic_cost(self, node, source_points):
+        """计算当前节点到所有源点的曼哈顿距离之和"""
+        return sum( self.HEX_distance(node.x,node.y,sx,sy) for sx, sy, _ in source_points)
+
+    def HEX_distance(self, x1, y1, x2, y2):
+        """计算两个HEX格子之间的距离"""
+        return abs(x1-x2)+abs(y1-y2)+abs((x1+y1)-(x2+y2))
