@@ -161,9 +161,9 @@ class M2S_Search_Algorithm:
         accumulated_value = 0  # 累计价值
 
         # 初始化：将起始节点加入open表
-        open_list.put((-start_node.final_influence, start_node))
+        open_list.put((-start_node.final_influence, str((start_node.x, start_node.y)), start_node))
         while not open_list.empty():
-            _, current = open_list.get()  # 取出堆顶节点
+            _, _, current = open_list.get()  # 取出堆顶节点
             if (current.x, current.y) in close_list:
                 continue
             close_list.add((current.x, current.y))
@@ -180,7 +180,7 @@ class M2S_Search_Algorithm:
             # 扩展邻居节点
             for neighbor in self.board.get_neighbors(current):
                 if (neighbor.x, neighbor.y) not in close_list:
-                    open_list.put((-neighbor.final_influence, neighbor))
+                    open_list.put((-neighbor.final_influence, str((neighbor.x, neighbor.y)), neighbor))
 
         return source_points
 
@@ -250,7 +250,6 @@ class M2S_Search_Algorithm:
             if search_tree.contains(node_id):  # 检查节点是否存在
                 search_tree.remove_node(node_id)
 
-
     def _postorder_traversal(self, search_tree):
         """后序遍历形成路径操作序列"""
         path_operations = []
@@ -258,7 +257,11 @@ class M2S_Search_Algorithm:
         def postorder_traverse(node):
             for child in search_tree.children(node):
                 postorder_traverse(child.identifier)
-            path_operations.append(node)
+            #    path_operations.append((child.identifier, node))
+            # 添加当前节点与其父节点的边（如果存在父节点）
+            parent = search_tree.parent(node)
+            if parent:
+                path_operations.append((node, parent.identifier))
 
         root = search_tree.root
         postorder_traverse(root)
@@ -296,14 +299,40 @@ class Visualizer:
         plt.legend()
         plt.show()
 
+    def plot_board_with_paths(self, path_operations):
+        """绘制棋盘并显示路径操作序列"""
+        grid_values = np.zeros((self.board.size, self.board.size))
+        for row in self.board.grid:
+            for node in row:
+                grid_values[node.x][node.y] = node.final_influence
+
+        plt.figure(figsize=(10, 10))
+        plt.imshow(grid_values, cmap='viridis', interpolation='nearest')
+        plt.colorbar(label='Final Influence')
+
+        # 在每个格子中显示数值
+        for i in range(self.board.size):
+            for j in range(self.board.size):
+                plt.text(j, i, f"{grid_values[i][j]:.2f}", ha='center', va='center', color='white', fontsize=8)
+
+        # 绘制路径箭头
+        for idx, (child_id, parent_id) in enumerate(path_operations):
+            child_node = self.board.grid[int(child_id[1])][int(child_id[4])]
+            parent_node = self.board.grid[int(parent_id[1])][int(parent_id[4])]
+            plt.annotate(str(idx + 1), xy=(parent_node.y, parent_node.x),
+                         xytext=(child_node.y, child_node.x),
+                         arrowprops=dict(arrowstyle='->', color='red', lw=2))
+        plt.title("Final Influence Values on Board with Paths")
+        plt.show()
+
 
 # 示例输入
 if __name__ == "__main__":
     size = 10
     obstacles = [(2, 3), (4, 5), (6, 7)]
-    value_points = [(1, 1, 10), (8, 2, 20), (4, 2, 10), (2, 8, 20), (1, 5, 15), (7, 1, 10)]
+    value_points = [(1, 1, 10), (8, 2, 20), (4, 2, 10), (2, 8, 40), (1, 5, 15), (7, 1, 10)]
     #value_points = [(5, 2, 10), (6, 8, 15)]
-    target_points = [(5, 5, 30)]
+    target_points = [(5, 5, 40)]
 
     board = Board(size)
     board.set_obstacles(obstacles)
@@ -317,3 +346,5 @@ if __name__ == "__main__":
 
     visualizer = Visualizer(board)
     visualizer.plot_board(target_points, value_points)
+    visualizer.plot_board_with_paths(path_operations)
+
