@@ -1,0 +1,24 @@
+面向对象memo
+
+    def _heuristic_cost(self, node, source_points):
+        """计算当前节点到所有源点的曼哈顿距离之和"""
+        return sum(abs(node.x - sx) + abs(node.y - sy) for sx, sy, _ in source_points)
+    距离单独做函数放在node节点里
+
+    def get_neighbors(self, node):
+        """获取邻居节点"""
+        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+        neighbors = []
+        for dx, dy in directions:
+            nx, ny = node.x + dx, node.y + dy
+            if 0 <= nx < self.size and 0 <= ny < self.size and not self.grid[nx][ny].obstacle:
+                neighbors.append(self.grid[nx][ny])
+        return neighbors
+    方向单独做static存放，作为六角格
+
+M2S = muti to single
+
+M2S算法用在防御及进攻AI中
+    底层逻辑相同
+
+构建智能体agent扩张，面向对象

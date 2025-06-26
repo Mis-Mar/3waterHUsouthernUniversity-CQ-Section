@@ -1,4 +1,5 @@
 import math
+import treelib
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import deque
@@ -49,11 +50,72 @@ class Board:
         return neighbors
 
 
-class Algorithm:
+class M2S_Search_Algorithm:
+
     def __init__(self, board, tunable_param, threshold):
         self.board = board
         self.tunable_param = tunable_param
         self.threshold = threshold
+
+    def M2S_Search(self, target_points):
+        """
+        主函数：整合前向BFS和反向A*算法
+        :param target_points: 目标点列表 [(x, y, 需求值), ...]
+        :return: 源点列表 [(x, y, 当前节点价值), ...], 路径操作序列
+        """
+        source_points = []
+        path_operations = []
+        # 前向BFS：计算所有节点的最终影响值并获取源点表
+        source_points = algorithm.forward_bfs_algorithm(target_points)
+        # 反向A*算法：根据源点表和目标点进行路径规划
+        path_operations = algorithm.backward_Astar_algorithm(target_points, source_points)
+        return source_points, path_operations
+        
+
+    def forward_bfs_algorithm(self, target_points):
+        """
+        主函数：整合前向BFS和反向BFS，计算所有节点的最终影响值并获取源点表
+        :param target_points: 目标点列表 [(x, y, 需求值), ...]
+        :return: 源点列表 [(x, y, 当前节点价值), ...]
+        """
+        # 前向BFS：计算所有节点的最终影响值
+        self.compute_final_influences(target_points)
+
+        # 反向BFS：从目标点出发获取源点表
+        source_points = []
+        source_points = self.get_source_points(target_points)
+        return source_points
+
+    def backward_Astar_algorithm(self, target_points, source_points):
+        """
+        主函数：整合反向A*算法，根据源点表和目标点进行路径规划
+        :param target_points: 目标点列表 [(x, y, 需求值), ...]
+        :param source_points: 源点列表 [(x, y, 当前节点价值), ...]
+        :return: 路径操作序列
+        """
+        # 构建A*搜索树
+        search_tree = self._build_astar_search_tree(target_points, source_points)
+
+        # 剪枝操作删除多余节点
+        self._prune_tree(search_tree, source_points)
+
+        # 后序遍历形成路径操作序列
+        path_operations = self._postorder_traversal(search_tree)
+
+        return path_operations
+
+    def compute_final_influences(self, target_points):
+        """主函数，计算所有节点的最终影响值"""
+        for x, y, _ in target_points:
+            self.bfs_distance(self.board.grid[x][y])
+        self.calculate_influence()
+
+    def get_source_points(self, target_points):
+        """主函数，反向BFS获取出发源点"""
+        source_points = []
+        for x, y, demand in target_points:
+            source_points.extend(self.reverse_bfs(self.board.grid[x][y], demand))
+        return source_points
 
     def bfs_distance(self, start_node):
         """从目标点出发进行BFS，计算每个节点的距离"""
@@ -89,12 +151,6 @@ class Algorithm:
                 for neighbor in self.board.get_neighbors(current):
                     queue.append((neighbor, dist + 1))
 
-    def compute_final_influences(self, target_points):
-        """主函数，计算所有节点的最终影响值"""
-        for x, y, _ in target_points:
-            self.bfs_distance(self.board.grid[x][y])
-        self.calculate_influence()
-
     def reverse_bfs(self, start_node, demand_threshold):
         """
         反向BFS搜索，返回满足需求值的源点列表
@@ -128,26 +184,85 @@ class Algorithm:
 
         return source_points
 
-    def forward_bfs_algorithm(self, target_points, demand_threshold):
-        """
-        主函数：整合前向BFS和反向BFS
-        :param target_points: 目标点列表 [(x, y, 需求值), ...]
-        :param demand_threshold: 需求值阈值
-        :return: 源点列表 [(x, y, 当前节点价值), ...]
-        """
-        # 前向BFS：计算所有节点的最终影响值
-        self.compute_final_influences(target_points)
+    def _heuristic_cost(self, node, source_points):
+        """计算当前节点到所有源点的曼哈顿距离之和"""
+        return sum(abs(node.x - sx) + abs(node.y - sy) for sx, sy, _ in source_points)
 
-        # 反向BFS：从目标点出发获取源点表
-        source_points = []
-        for x, y, demand in target_points:
+    def _build_astar_search_tree(self, target_points, source_points):
+        """构建A*搜索树"""
+        search_tree = treelib.Tree()
+        open_list = PriorityQueue()
+        close_list = set()
+
+        for x, y, _ in target_points:
             start_node = self.board.grid[x][y]
-            source_points.extend(self.reverse_bfs(start_node, demand))
+            search_tree.create_node(identifier=str((start_node.x, start_node.y)), data=start_node)
+            open_list.put((0, str((start_node.x, start_node.y)), start_node))  # 使用字符串标识符
 
-        return source_points
+        while not open_list.empty():
+            _, _, current = open_list.get()  # 忽略标识符
+            if (current.x, current.y) in close_list:
+                continue
+            close_list.add((current.x, current.y))
+
+            for neighbor in self.board.get_neighbors(current):
+                if (neighbor.x, neighbor.y) in close_list:
+                    continue
+
+                g_cost = current.distance + 1
+                h_cost = self._heuristic_cost(neighbor, source_points)
+                f_cost = g_cost + h_cost
+
+                # 检查节点是否已经存在于搜索树中
+                if not search_tree.contains(str((neighbor.x, neighbor.y))):  # 确保标识符是字符串类型
+                    search_tree.create_node(identifier=str((neighbor.x, neighbor.y)), data=neighbor,
+                                            parent=str((current.x, current.y)))
+                open_list.put((f_cost, str((neighbor.x, neighbor.y)), neighbor))  # 使用字符串标识符
+
+        return search_tree
+
+    def _prune_tree(self, search_tree, source_points):
+        """剪枝操作删除多余节点"""
+        # 提取源点位置
+        source_positions = {(sx, sy) for sx, sy, _ in source_points}
+
+        def contains_source(node_id):
+            """递归检查子树是否包含源点"""
+            node_data = search_tree.get_node(node_id).data
+            if (node_data.x, node_data.y) in source_positions:
+                return True
+            for child_id in search_tree.children(node_id):
+                if contains_source(child_id.identifier):
+                    return True
+            return False
+
+        # 初始化待删除节点列表
+        nodes_to_remove = []
+
+        # 遍历搜索树
+        for node_id in search_tree.expand_tree(mode=treelib.Tree.DEPTH):
+            if not contains_source(node_id):
+                nodes_to_remove.append(node_id)
+
+        # 删除多余节点
+        for node_id in nodes_to_remove:
+            # 确保节点仍然存在于树中再进行删除
+            if search_tree.contains(node_id):  # 检查节点是否存在
+                search_tree.remove_node(node_id)
 
 
+    def _postorder_traversal(self, search_tree):
+        """后序遍历形成路径操作序列"""
+        path_operations = []
 
+        def postorder_traverse(node):
+            for child in search_tree.children(node):
+                postorder_traverse(child.identifier)
+            path_operations.append(node)
+
+        root = search_tree.root
+        postorder_traverse(root)
+        return path_operations
 
 class Visualizer:
     def __init__(self, board):
@@ -182,7 +297,6 @@ class Visualizer:
         plt.show()
 
 
-
 # 示例输入
 if __name__ == "__main__":
     size = 10
@@ -196,9 +310,10 @@ if __name__ == "__main__":
     board.set_value_points(value_points)
     board.set_target_points(target_points)
 
-    algorithm = Algorithm(board, tunable_param=3, threshold=1)
-    source_points = algorithm.forward_bfs_algorithm(target_points, demand_threshold=8)
+    algorithm = M2S_Search_Algorithm(board, tunable_param=3, threshold=1)
+    source_points , path_operations = algorithm.M2S_Search(target_points)
     print("源点表:", source_points)
+    print("路径操作序列:", path_operations)
 
     visualizer = Visualizer(board)
     visualizer.plot_board(target_points, value_points)
