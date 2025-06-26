@@ -1,7 +1,7 @@
 [gd_scene load_steps=9 format=4 uid="uid://d01cjwopboxhv"]
 
 [ext_resource type="Texture2D" uid="uid://bj2sc6xcdrnmm" path="res://Assets/sprites/world_tileset.png" id="1_kosem"]
-[ext_resource type="Script" path="res://Scripts/game_multi.gd" id="1_wwbyi"]
+[ext_resource type="Script" uid="uid://blar688wsx471" path="res://Scripts/game_multi.gd" id="1_wwbyi"]
 [ext_resource type="PackedScene" uid="uid://dmc5riwk8i3e2" path="res://Scenes/killzone.tscn" id="3_e6wtb"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_3y4if"]
@@ -306,7 +306,7 @@ scale = Vector2(0.5, 0.5)
 text = "发送"
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
-_spawnable_scenes = PackedStringArray("res://Scenes/player.tscn")
+_spawnable_scenes = PackedStringArray("uid://8etighmxswye")
 spawn_path = NodePath("../players")
 
 [connection signal="button_down" from="UI/create" to="." method="_on_create_button_down"]
