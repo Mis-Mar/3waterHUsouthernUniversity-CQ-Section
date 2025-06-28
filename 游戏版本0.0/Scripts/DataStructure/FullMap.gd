@@ -62,12 +62,25 @@ func get_visible_tiles_for_player(player_id: int) -> Array[Vector2i]:
 	return result
 
 # 输入一个格子坐标，返回与它相邻的存在于地图中的坐标集
+# state0: 排除山地
 func get_neighbors_state0(center: Vector2i) -> Array[Vector2i]:
 	var neighbors: Array[Vector2i] = []
 	for dir in HEX_DIRECTIONS:
-		var neighbor_coords :Vector2i= center + dir
-		if grid_map.has(neighbor_coords) and self.get_cell(neighbor_coords).terrain_type != Global.TERRAIN_MOUNTAIN:
-			neighbors.append(neighbor_coords)
+		var neighbor_coords :Vector2i = center + dir
+		if grid_map.has(neighbor_coords):
+			if self.get_cell(neighbor_coords).terrain_type != Global.TERRAIN_MOUNTAIN:
+				neighbors.append(neighbor_coords)
+	return neighbors
+	
+# state1: 排除山地和非己方节点
+func get_neighbors_state1(center: Vector2i,_player_id: int) -> Array[Vector2i]:
+	var neighbors: Array[Vector2i] = []
+	for dir in HEX_DIRECTIONS:
+		var neighbor_coords :Vector2i = center + dir
+		if grid_map.has(neighbor_coords):
+			if self.get_cell(neighbor_coords).terrain_type != Global.TERRAIN_MOUNTAIN:
+				if self.get_cell(neighbor_coords).owner == _player_id:
+					neighbors.append(neighbor_coords)
 	return neighbors
 
 

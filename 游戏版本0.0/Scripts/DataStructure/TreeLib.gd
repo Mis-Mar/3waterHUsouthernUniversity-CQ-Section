@@ -1,162 +1,166 @@
-class_name TreeLib
+# tree.gd
+class_name Treelib
 extends RefCounted
 
-# 树节点类
+# 节点类
 class TreeNode:
 	var identifier: String
 	var data: Variant
 	var children: Array[TreeNode] = []
 	var parent: TreeNode = null
-	
-	func _init(id: String, node_data: Variant, parent_node: TreeNode = null):
+	var depth: int = 0
+
+	func _init(id: String, node_data: Variant = null):
 		identifier = id
 		data = node_data
-		parent = parent_node
-	
+
 	# 添加子节点
-	func add_child(child: TreeNode) -> void:
-		children.append(child)
-	
-	# 深度优先遍历
-	func traverse_depth_first() -> Array[TreeNode]:
-		var result: Array[TreeNode] = [self]
-		for child in children:
-			result.append_array(child.traverse_depth_first())
-		return result
-	
-	# 广度优先遍历
-	func traverse_breadth_first() -> Array[TreeNode]:
-		var result: Array[TreeNode] = []
-		var queue: Array[TreeNode] = [self]
-		
-		while not queue.is_empty():
-			var current = queue.pop_front()
-			result.append(current)
-			for child in current.children:
-				queue.append(child)
-		
-		return result
-	
-	# 获取节点路径
-	func get_path() -> Array[TreeNode]:
-		var path: Array[TreeNode] = []
-		var current: TreeNode = self
-		while current != null:
-			path.push_front(current)
-			current = current.parent
-		return path
-
-# 主树类
-var _nodes: Dictionary = {}  # 节点字典 {identifier: TreeNode}
-var _root: TreeNode = null    # 根节点
-
-# 创建节点
-func create_node(identifier: String, data: Variant, parent_id: String = "") -> bool:
-	# 检查标识符是否已存在
-	if _nodes.has(identifier):
-		push_error("节点标识符已存在: " + identifier)
-		return false
-	
-	# 处理根节点情况
-	if parent_id.is_empty():
-		if _root != null:
-			push_error("根节点已存在")
-			return false
-		
-		var new_node = TreeNode.new(identifier, data)
-		_nodes[identifier] = new_node
-		_root = new_node
+	func add_child(node: TreeNode) -> bool:
+		if not node: return false
+		children.append(node)
+		node.parent = self
+		node.depth = depth + 1
 		return true
+
+	# 递归获取所有后代节点
+	func get_descendants() -> Array[TreeNode]:
+		var descendants: Array[TreeNode] = []
+		for child in children:
+			descendants.append(child)
+			descendants.append_array(child.get_descendants())
+		return descendants
+
+# 树结构主体
+var root: TreeNode
+var nodes: Dictionary = {}
+var _last_depth: int = -1
+var _output_buffer: String = ""
+
+# 创建根节点
+func create_root(root_id: String, data: Variant = null) -> TreeNode:
+	root = TreeNode.new(root_id, data)
+	nodes[root_id] = root
+	return root
 	
-	# 检查父节点是否存在
-	if not _nodes.has(parent_id):
-		push_error("父节点不存在: " + parent_id)
-		return false
+func get_root() -> TreeNode:
+	return root
+
+# 添加节点
+func add_node(node_id: String, parent_id: String, data: Variant = null) -> TreeNode:
+	if not parent_id in nodes:
+		push_error("Parent node not found: " + parent_id)
+		return null
 	
-	# 创建新节点
-	var parent_node = _nodes[parent_id]
-	var new_node = TreeNode.new(identifier, data, parent_node)
-	_nodes[identifier] = new_node
+	if node_id in nodes:
+		push_error("Node ID already exists: " + node_id)
+		return null
+	
+	var parent_node = nodes[parent_id]
+	var new_node = TreeNode.new(node_id, data)
 	parent_node.add_child(new_node)
-	return true
+	nodes[node_id] = new_node
+	return new_node
 
 # 获取节点
-func get_node(identifier: String) -> TreeNode:
-	return _nodes.get(identifier, null)
+func get_node(node_id: String) -> TreeNode:
+	return nodes.get(node_id)
 
-# 删除节点及其子树
-func remove_node(identifier: String) -> bool:
-	if not _nodes.has(identifier):
+func get_parent(node_id: String) -> TreeNode:
+	var	 node = get_node(node_id)
+	return node.parent
+
+# 获取子节点
+func children(node_id: String) -> Array[TreeNode]:
+	var node = get_node(node_id)
+	return node.children if node else []
+
+# 获取所有子节点（递归）
+func all_children(node_id: String) -> Array[TreeNode]:
+	var node = get_node(node_id)
+	return node.get_descendants() if node else []
+
+# 移动节点
+func move_node(source_id: String, dest_id: String) -> bool:
+	var src_node = get_node(source_id)
+	var dest_node = get_node(dest_id)
+	
+	if not src_node or not dest_node:
 		return false
 	
-	var node = _nodes[identifier]
+	# 从原父节点移除
+	if src_node.parent:
+		src_node.parent.children.erase(src_node)
 	
-	# 如果是根节点
-	if node == _root:
-		_root = null
-	
-	# 从父节点移除
-	if node.parent != null:
-		node.parent.children.erase(node)
-	
-	# 递归删除所有子节点
-	var to_remove = node.traverse_depth_first()
-	for n in to_remove:
-		_nodes.erase(n.identifier)
-	
+	# 添加到新父节点
+	dest_node.add_child(src_node)
 	return true
 
-# 获取根节点
-func get_root() -> TreeNode:
-	return _root
-
-# 检查节点是否存在
-func contains(identifier: String) -> bool:
-	return _nodes.has(identifier)
-
-# 获取树的大小（节点数量）
-func size() -> int:
-	return _nodes.size()
-
-# 判断树是否为空
-func is_empty() -> bool:
-	return _nodes.is_empty()
-
-# 清空树
-func clear() -> void:
-	_nodes.clear()
-	_root = null
-
-# 深度优先遍历
-func depth_first_traversal() -> Array[TreeNode]:
-	if _root == null:
-		return []
-	return _root.traverse_depth_first()
-
-# 广度优先遍历
-func breadth_first_traversal() -> Array[TreeNode]:
-	if _root == null:
-		return []
-	return _root.traverse_breadth_first()
-
-# 获取节点路径（从根到节点）
-func path_to_node(identifier: String) -> Array[TreeNode]:
-	if not _nodes.has(identifier):
-		return []
-	return _nodes[identifier].get_path()
-
-# 显示树结构（用于调试）
-func show_tree() -> void:
-	if _root == null:
-		print("树为空")
-		return
+# 删除节点
+func remove_node(node_id: String) -> bool:
+	var node = get_node(node_id)
+	if not node: 
+		return false
 	
-	print("树结构:")
-	_show_subtree(_root, 0)
+	# 删除所有子节点
+	for child in node.children.duplicate():
+		remove_node(child.identifier)
+	
+	# 从父节点移除
+	if node.parent:
+		node.parent.children.erase(node)
+	
+	# 从节点字典移除
+	nodes.erase(node_id)
+	return true
 
-# 递归显示子树
-func _show_subtree(node: TreeNode, depth: int) -> void:
-	var indent = "  ".repeat(depth)
-	print(indent + "├─ " + node.identifier + " (数据: " + str(node.data) + ")")
+# 获取子树深度
+func depth(node: TreeNode = null) -> int:
+	if not node:
+		node = root
+		if not node: 
+			return -1
+	
+	var max_depth = node.depth
 	for child in node.children:
-		_show_subtree(child, depth + 1)
+		max_depth = max(max_depth, depth(child))
+	return max_depth
+
+# 打印树结构
+func show(line_type: String = "ascii", show_data: bool = false) -> String:
+	_output_buffer = ""
+	_last_depth = -1
+	_print_node(root, "", true, line_type, show_data)
+	return _output_buffer
+
+# 内部递归打印方法
+func _print_node(node: TreeNode, prefix: String, is_last: bool, line_type: String, show_data: bool):
+	# 确定连接符号
+	var connectors := {
+		"ascii": ["|-- ", "`-- ", "|   ", "    "],
+		"utf8": ["├── ", "└── ", "│   ", "    "]
+	}
+	
+	var conn = connectors.get(line_type, connectors["ascii"])
+	
+	# 生成当前行
+	var node_line = conn[1] if is_last else conn[0]
+	var line = prefix + node_line + node.identifier
+	
+	# 添加数据展示
+	if show_data and node.data != null:
+		line += " [%s]" % str(node.data)
+	
+	_output_buffer += line + "\n"
+	
+	# 更新前缀
+	var new_prefix = prefix + (conn[3] if is_last else conn[2])
+	
+	# 递归子节点
+	for i in range(node.children.size()):
+		var last_child = (i == node.children.size() - 1)
+		_print_node(node.children[i], new_prefix, last_child, line_type, show_data)
+
+# 清除整棵树
+func clear():
+	nodes.clear()
+	root = null
