@@ -11,13 +11,13 @@ config_version=5
 [application]
 
 config/name="游戏版本0.0"
-run/main_scene="res://Scene/game_test.tscn"
+run/main_scene="res://Scene/game_algorithm.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
 
-Global="*res://Scripts/Global.gd"
+Global="*res://Scripts/DataStructure/Global.gd"
 
 [gui]
 

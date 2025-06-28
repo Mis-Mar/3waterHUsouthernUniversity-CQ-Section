@@ -1,4 +1,4 @@
-# 最高层脚本，游戏测试的玩家视角（显示迷雾）
+# 最高层脚本，上帝视角（无迷雾，拥有所有player权限）
 extends Node
 
 @onready var map: Node = $"../Map"
@@ -13,11 +13,11 @@ extends Node
 var fullmap=FullMap.new()
 
 func _ready() -> void:
-	fullmap.random_init(10,3,8)
+	fullmap=map.curr_map_to_fullmap()
 	main_layer.clear()
 	color_layer.clear()
 	timer_turn.start()  # 每秒自动调用 timeout
-	map. display_map_for_player(fullmap,1)
+	map.display_full_map(fullmap)
 
 var selected_tile_coords: Vector2i = Vector2i.ZERO  # 当前鼠标选中的格子
 
@@ -50,6 +50,8 @@ func _process(delta: float) -> void:
 
 
 func _on_timer_turn_timeout() -> void:
+	# 结算回合
 	fullmap.execute_turn()
-	map. display_map_for_player(fullmap, 1)  # 重新显示新状态
+	# 地图刷新
+	map. display_full_map(fullmap)  # 重新显示新状态
 	pass 

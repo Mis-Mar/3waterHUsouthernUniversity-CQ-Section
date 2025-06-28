@@ -6,24 +6,31 @@ extends Node
 var grid_map: Dictionary = {}  # Dictionary<Vector2i, GridCell>所有格子的字典，就当CellInfo类型的二维数组来用
 var owner_to_player: Dictionary = {}# 表格，一个owner有一个player，一个player对应多个owner 值为0表示未被控制,-1表示已经消灭
 var turn_count: int = 0  # 回合总数
-
-# 游戏进程辅助的数据
-var pending_actions: Array = []  # 操作队列，同布用
-var acted_owners: Dictionary = {}  # 记录已经行动过的 owner，key = owner_id
-
-# 六边形邻接向量，见global.gd有全局变量
-const HEX_DIRECTIONS := [
+const HEX_DIRECTIONS := [# 六边形邻接向量，见global.gd有全局变量
 	Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1),
 	Vector2i(-1, -1), Vector2i(0, -1), Vector2i(-1, 0)
 ]
 
+# 游戏逻辑辅助的数据
+var pending_actions: Array = []  # 操作队列，同步用
+var acted_owners: Dictionary = {}  # 记录已经行动过的 owner，key = owner_id，同步用
+
+# ——————————————————————————————————————————————————纯算法相关的方法
 # 返回对应坐标的CellInfo
 func get_cell(coords: Vector2i) -> CellInfo:
 	if grid_map.has(coords):
 		return grid_map[coords]
 	return null
 
-# 输入ownerid，输出一个坐标集 表示这个玩家的可见范围
+# 获取这个地图包含的全部坐标
+func get_all_coords() -> Array[Vector2i]:
+	return grid_map.keys()
+
+# 检查某个坐标是否存在
+func is_valid_coord(coord: Vector2i) -> bool:
+	return grid_map.has(coord)
+
+# 输入ownerid，输出一个坐标集 表示这个owner的可见范围
 func get_visible_tiles_for_owner(owner_id: int) -> Array[Vector2i]:
 	var visible_set := {}  # Dictionary 作为伪 Set
 	for coords: Vector2i in grid_map.keys():
@@ -53,6 +60,16 @@ func get_visible_tiles_for_player(player_id: int) -> Array[Vector2i]:
 	for key in visible_set.keys():
 		result.append(key)
 	return result
+
+# 输入一个格子坐标，返回与它相邻的存在于地图中的坐标集
+func get_neighbors(center: Vector2i) -> Array[Vector2i]:
+	var neighbors: Array[Vector2i] = []
+	for dir in HEX_DIRECTIONS:
+		var neighbor_coords :Vector2i= center + dir
+		if grid_map.has(neighbor_coords):
+			neighbors.append(neighbor_coords)
+	return neighbors
+
 
 # 随机创建地图，测试用，参数为：地图大小，玩家数量，owner数量
 func random_init(radius: int, player_count: int, owner_count: int) -> void:
@@ -102,7 +119,7 @@ func random_init(radius: int, player_count: int, owner_count: int) -> void:
 			owner_to_player[owner_id] = 0  # 0 表示未控制（你设定的默认值）
 
 
-#——————————————————————————————————————————————————————————————————————————————————这下面是游戏逻辑相关的，算法不需要这些
+#————————————————————————————————————————————————————————————————这下面是游戏逻辑相关的
 # 从某个坐标朝一个方向移动部分兵力,进行派兵操作并返回是否移动成功
 func move_power(from_coords: Vector2i, direction_index: int, ratio: float) -> bool:
 	# 边界检查
@@ -129,7 +146,7 @@ func move_power(from_coords: Vector2i, direction_index: int, ratio: float) -> bo
 		return false # 目标格子不存在
 
 	var to_cell: CellInfo = grid_map[to_coords]
-	if to_cell.terrain_type == -1:
+	if to_cell.terrain_type == Global.TERRAIN_MOUNTAIN:
 		return false # 山地，不可进入
 
 	# 起始格子兵力减少
@@ -195,14 +212,11 @@ func queue_action(from_coords: Vector2i, direction_index: int, ratio: float) -> 
 	})
 	acted_owners[owner_id] = true
 	return true
-# 执行玩家操作
+# 结算回合
 func execute_turn() -> void:
-	# 1. 执行所有owner操作
-	for action in pending_actions:
-		move_power(action["from"], action["dir"], action["ratio"])
-	pending_actions.clear()
-	acted_owners.clear()
-	# 2. 增加资源
+	#回合数更新
+	turn_count += 1
+	#更新资源
 	for coords in grid_map.keys():
 		var cell: CellInfo = grid_map[coords]
 		var _owner := cell.owner
@@ -222,5 +236,8 @@ func execute_turn() -> void:
 			if cell.power == 0:
 				# 防止某个块power为0但还是有owner
 				cell.owner = 0
-	# 3. 回合数更新
-	turn_count += 1
+	#执行所有owner操作
+	for action in pending_actions:
+		move_power(action["from"], action["dir"], action["ratio"])
+	pending_actions.clear()
+	acted_owners.clear()
