@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c0bb20d9-4e5e-4b68-a960-1a95abc86290" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/非代码工作资源/算法模版/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/非代码工作资源/算法模版/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/非代码工作资源/算法模版/M2S_SearchAlgorithm.py" beforeDir="false" afterPath="$PROJECT_DIR$/非代码工作资源/算法模版/M2S_SearchAlgorithm.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/游戏版本0.0/Scripts/DataStructure/AlgorithmMap.gd" beforeDir="false" afterPath="$PROJECT_DIR$/游戏版本0.0/Scripts/DataStructure/AlgorithmMap.gd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/游戏版本0.0/Scripts/DataStructure/FullMap.gd" beforeDir="false" afterPath="$PROJECT_DIR$/游戏版本0.0/Scripts/DataStructure/FullMap.gd" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,7 +53,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "settings.editor.selected.configurable": "editor.preferences.fonts.default",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -74,7 +75,7 @@
       <workItem from="1751036896628" duration="460000" />
       <workItem from="1751096903595" duration="150000" />
       <workItem from="1751097066671" duration="12000" />
-      <workItem from="1751097204379" duration="2620000" />
+      <workItem from="1751097204379" duration="14477000" />
     </task>
     <servers />
   </component>
@@ -82,8 +83,8 @@
     <option name="version" value="3" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/3waterHUsouthernUniversity_CQ_Section$M2S_SearchAlgorithm.coverage" NAME="M2S_SearchAlgorithm 覆盖结果" MODIFIED="1751099224503" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/非代码工作资源/算法模版" />
-    <SUITE FILE_PATH="coverage/3waterHUsouthernUniversity_CQ_Section$M2S_SearchAlgorithm_V1.coverage" NAME="M2S_SearchAlgorithm_V1 覆盖结果" MODIFIED="1751099829471" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Desktop" />
+    <SUITE FILE_PATH="coverage/3waterHUsouthernUniversity_CQ_Section$M2S_SearchAlgorithm_V1.coverage" NAME="M2S_SearchAlgorithm_V1 覆盖结果" MODIFIED="1751101858420" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Desktop" />
+    <SUITE FILE_PATH="coverage/3waterHUsouthernUniversity_CQ_Section$M2S_SearchAlgorithm.coverage" NAME="M2S_SearchAlgorithm 覆盖结果" MODIFIED="1751103441452" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/非代码工作资源/算法模版" />
     <SUITE FILE_PATH="coverage/3waterHUsouthernUniversity_CQ_Section$M2S_SearchAlgorithm_V0.coverage" NAME="M2S_SearchAlgorithm_V0 覆盖结果" MODIFIED="1751098426554" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Desktop" />
   </component>
 </project>
