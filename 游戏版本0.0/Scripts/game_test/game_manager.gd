@@ -12,12 +12,18 @@ extends Node
 
 var fullmap=FullMap.new()
 
-func _ready() -> void:
-	fullmap.random_init(10,3,8)
+var player_id=1
+
+func start()->void:
+	await get_tree().create_timer(0.1).timeout
+	fullmap.random_init(50,3,8)
 	main_layer.clear()
 	color_layer.clear()
 	timer_turn.start()  # 每秒自动调用 timeout
 	map. display_map_for_player(fullmap,1)
+
+func _ready() -> void:
+	start()
 
 var selected_tile_coords: Vector2i = Vector2i.ZERO  # 当前鼠标选中的格子
 
@@ -30,7 +36,7 @@ func _input(event: InputEvent) -> void:
 			var tile_coords = main_layer.local_to_map(local_pos)
 			selected_tile_coords = tile_coords
 			map. print_cell(tile_coords)
-	elif event is InputEventKey and event.pressed:
+	elif event is InputEventKey and event.pressed and fullmap.owner_to_player[fullmap.get_cell(selected_tile_coords).owner]==player_id :
 		var dir_index := -1
 		match event.keycode:
 			KEY_Q: dir_index = Global.DIR_UP_L     # (-1, 0) 左上

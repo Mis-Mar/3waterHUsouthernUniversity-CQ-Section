@@ -5,23 +5,34 @@ extends Node
 @onready var main_layer: TileMapLayer = $"../Map/MainLayer"
 @onready var color_layer: TileMapLayer = $"../Map/ColorLayer"
 @onready var number_labels: Control = $"../Map/NumberLabels"
-
 @onready var camera_2d: Camera2D = $"../Camera2D"
-
 @onready var timer_turn: Timer = $"../Timers/Timer_turn"
+@onready var auto_turn_button: Button = $"../UI/AutoTurnButton"
+
 
 var fullmap=FullMap.new()
+var is_auto_turn := false  # 默认是手动回合
 
-func _ready() -> void:
+# 开场的函数
+func start()->void:
+	await get_tree().create_timer(0.1).timeout
 	fullmap=map.curr_map_to_fullmap()
+	# 设置一个格子的函数
+	fullmap.set_power(Vector2i(-2,-2),-10)
 	main_layer.clear()
 	color_layer.clear()
 	timer_turn.start()  # 每秒自动调用 timeout
+	map.highlight_cell(Vector2i(-1,4))
 	map.display_full_map(fullmap)
+
+func _ready() -> void:
+	start()
+	pass
 
 var selected_tile_coords: Vector2i = Vector2i.ZERO  # 当前鼠标选中的格子
 
-func _input(event: InputEvent) -> void:
+func _unhandled_input(event: InputEvent) -> void:
+	# 鼠标左键选中
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			var screen_pos = event.position
@@ -30,6 +41,7 @@ func _input(event: InputEvent) -> void:
 			var tile_coords = main_layer.local_to_map(local_pos)
 			selected_tile_coords = tile_coords
 			map. print_cell(tile_coords)
+	# 移动选择
 	elif event is InputEventKey and event.pressed:
 		var dir_index := -1
 		match event.keycode:
@@ -42,6 +54,11 @@ func _input(event: InputEvent) -> void:
 		if dir_index != -1:
 			# fullmap.move_power(selected_tile_coords, dir_index, 1.0)
 			fullmap.queue_action(selected_tile_coords, dir_index, 1.0)
+	# 空格手动跳回合
+	if event is InputEventKey and event.pressed:
+		if event.keycode == KEY_SPACE and not is_auto_turn:
+			fullmap.execute_turn()
+			map.display_full_map(fullmap)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -50,8 +67,21 @@ func _process(delta: float) -> void:
 
 
 func _on_timer_turn_timeout() -> void:
-	# 结算回合
-	fullmap.execute_turn()
-	# 地图刷新
-	map. display_full_map(fullmap)  # 重新显示新状态
+	if is_auto_turn:
+		# 结算回合
+		fullmap.execute_turn()
+		# 地图刷新
+		map. display_full_map(fullmap)  # 重新显示新状态
 	pass 
+
+
+
+func _on_auto_turn_button_pressed() -> void:
+	is_auto_turn =! is_auto_turn
+	if is_auto_turn:
+		auto_turn_button.text = "自动"
+		timer_turn.start()  # 启动自动回合
+	else:
+		auto_turn_button.text = "手动(空格)"
+		timer_turn.stop()  # 停止自动回合
+	pass # Replace with function body.

@@ -30,6 +30,21 @@ func get_all_coords() -> Array[Vector2i]:
 func is_valid_coord(coord: Vector2i) -> bool:
 	return grid_map.has(coord)
 
+func check_cell_player(coord: Vector2i,player_id:int)->bool:
+	if is_valid_coord(coord):
+		return owner_to_player[get_cell(coord)]==player_id
+	else:
+		printerr("坐标超界")
+		return false
+
+# 设置一个格子的power
+func set_power(coord: Vector2i,new_power)->void:
+	if is_valid_coord(coord):
+		get_cell(coord).power=new_power
+	else:
+		printerr("坐标超界")
+	return
+
 # 输入ownerid，输出一个坐标集 表示这个owner的可见范围
 func get_visible_tiles_for_owner(owner_id: int) -> Array[Vector2i]:
 	var visible_set := {}  # Dictionary 作为伪 Set
@@ -135,28 +150,31 @@ func random_init(radius: int, player_count: int, owner_count: int) -> void:
 #————————————————————————————————————————————————————————————————这下面是游戏逻辑相关的
 # 从某个坐标朝一个方向移动部分兵力,进行派兵操作并返回是否移动成功
 func move_power(from_coords: Vector2i, direction_index: int, ratio: float) -> bool:
+	
 	# 边界检查
 	if not grid_map.has(from_coords):
 		return false
-
 	if direction_index < 0 or direction_index >= HEX_DIRECTIONS.size():
 		return false
-
-	var from_cell: CellInfo = grid_map[from_coords]
-	var total_power := from_cell.power
-
-	if total_power <= 1:
-		return false # 没有可以移动的兵力
-
-	var move_amount := int(clamp(total_power * ratio, 1, total_power - 1))
-	if move_amount <= 0:
-		return false # 移动量不足
-
 	var dir: Vector2i = HEX_DIRECTIONS[direction_index]
 	var to_coords: Vector2i = from_coords + dir
-
+	# 目标格子不存在
 	if not grid_map.has(to_coords):
-		return false # 目标格子不存在
+		return false 
+	
+	var from_cell: CellInfo = grid_map[from_coords]
+	var total_power := from_cell.power
+	
+	# 不能操作无owner的格子
+	if from_cell.owner==0:
+		return false
+	# 没有可以移动的兵力
+	if total_power <= 1:
+		return false 
+	# 移动量不足
+	var move_amount := int(clamp(total_power * ratio, 1, total_power - 1))
+	if move_amount <= 0:
+		return false 
 
 	var to_cell: CellInfo = grid_map[to_coords]
 	if to_cell.terrain_type == Global.TERRAIN_MOUNTAIN:
@@ -164,7 +182,6 @@ func move_power(from_coords: Vector2i, direction_index: int, ratio: float) -> bo
 
 	# 起始格子兵力减少
 	from_cell.power -= move_amount
-
 
 	if to_cell.owner == from_cell.owner:
 		# 友军地块，叠加兵力
@@ -225,6 +242,7 @@ func queue_action(from_coords: Vector2i, direction_index: int, ratio: float) -> 
 	})
 	acted_owners[owner_id] = true
 	return true
+
 # 结算回合
 func execute_turn() -> void:
 	#回合数更新
