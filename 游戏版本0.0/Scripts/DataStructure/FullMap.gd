@@ -48,6 +48,33 @@ func set_power(coord: Vector2i, new_power) -> void:
 		printerr("坐标超界")
 	return
 
+# 判断一个格子是否属于一个玩家
+func cell_belong_player(coords: Vector2i, player_id: int) -> bool:
+	var cell = grid_map.get(coords)
+	if cell == null:
+		return false  # 坐标非法或格子不存在
+	var owner_id = cell.get_owner()
+	return owner_to_player.get(owner_id, -1) == player_id
+
+# 判断一格子是否能被一个玩家看见
+func cell_visible_for_player(coords: Vector2i, player_id: int) -> bool:
+	if cell_belong_player(coords, player_id):
+		return true  # 自己的地块可见
+	# 检查邻接六个方向
+	for dir in HEX_DIRECTIONS:
+		var neighbor = coords + dir
+		if cell_belong_player(neighbor, player_id):
+			return true  # 邻居是自己的也可见
+	return false
+
+# 判断两个格子是否相邻,返回邻接向量序号
+func get_adjacent_vector_id(pos_a: Vector2i, pos_b: Vector2i) -> int:
+	for i in HEX_DIRECTIONS.size():
+		if pos_a + HEX_DIRECTIONS[i] == pos_b:
+			return i  # 返回邻接方向的索引
+	return -1  # 不相邻
+
+
 # 更新owner领地索引，游戏中每回合更新
 # 如果测试时手动改了数据但是没有刷新回合，要调用这个函数再使用get_visible_tiles_for_owner/player，不然显示更新数据以前的对应坐标集
 func update_owner_index() -> void:
