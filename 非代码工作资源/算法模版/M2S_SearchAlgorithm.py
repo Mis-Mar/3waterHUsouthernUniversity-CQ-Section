@@ -8,7 +8,7 @@ from queue import PriorityQueue
 
 
 class Node:
-    def __init__(self, x, y, value=0, demand=0, obstacle=False):
+    def __init__(self, x, y, value=-1, demand=0, obstacle=False):
         self.x = x
         self.y = y
         self.value = value  # 价值 V
@@ -104,8 +104,9 @@ class M2S_Search_Algorithm:
                 if node.value > 0:  # 如果是价值点
                     node.influence = (node.value ** 2 )* self.tunable_param
                     self._propagate_influence(node)
-                else
-                    node.influence = -node.value
+                else:
+                    node.influence = -(node.value ** 2 )* self.tunable_param
+                    node.final_influence += node.influence
 
     def _propagate_influence(self, start_node):
         """从价值点出发传播影响值"""
@@ -147,8 +148,9 @@ class M2S_Search_Algorithm:
             close_list.add((current.x, current.y))
 
             # 累计价值
+            accumulated_value += current.value
+
             if current.value > 0:  # 如果是价值点
-                accumulated_value += current.value
                 source_points.append((current.x, current.y, current.value))  # 记录源点
 
             # 如果累计价值超过需求值，则终止搜索

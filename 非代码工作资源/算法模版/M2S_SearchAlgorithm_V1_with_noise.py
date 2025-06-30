@@ -8,7 +8,7 @@ from queue import PriorityQueue
 
 
 class Node:
-    def __init__(self, x, y, value=0, demand=0, obstacle=False):
+    def __init__(self, x, y, value=-1, demand=0, obstacle=False):
         self.x = x
         self.y = y
         self.value = value  # 价值 V
@@ -221,16 +221,16 @@ class Visualizer:
         grid_values = np.zeros((self.board.size, self.board.size))
         for row in self.board.grid:
             for node in row:
-                grid_values[node.x][node.y] = node.final_influence
+                grid_values[node.x][node.y] = node.value
 
         plt.figure(figsize=(10, 10))
         plt.imshow(grid_values, cmap='viridis', interpolation='nearest')
-        plt.colorbar(label='Final Influence')
+        plt.colorbar(label='Value')
 
         # 在每个格子中显示数值
         for i in range(self.board.size):
             for j in range(self.board.size):
-                plt.text(j, i, f"{grid_values[i][j]:.2f}", ha='center', va='center', color='white', fontsize=8)
+                plt.text(j, i, f"{grid_values[i][j]:.2f}", ha='center', va='center', color='white', fontsize=10)
 
         # 标记目标点
         for x, y, _ in target_points:
@@ -277,15 +277,16 @@ if __name__ == "__main__":
     obstacles = [(2, 3), (4, 5), (6, 7)]
     value_points = [(1, 1, 10), (8, 2, 20), (4, 2, 10), (2, 8, 20), (1, 5, 15), (7, 1, 10)]
 
+
     # 随机生成障碍和价值点
     for x in range(size):
         for y in range(size):
             if np.random.rand() < 0.3 and (x, y) not in obstacles and (x, y) not in value_points:
-                value = np.random.randint(1, 6)
+                value = np.random.randint(1, 3)
                 value_points.append((x, y, value))
 
     #value_points = [(5, 2, 10), (6, 8, 15)]
-    target_points = [(8, 7, 70)]
+    target_points = [(8, 7, 50)]
 
     board = Board(size)
     board.set_obstacles(obstacles)
