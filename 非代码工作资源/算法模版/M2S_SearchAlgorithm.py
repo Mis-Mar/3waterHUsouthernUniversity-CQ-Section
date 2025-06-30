@@ -104,6 +104,8 @@ class M2S_Search_Algorithm:
                 if node.value > 0:  # 如果是价值点
                     node.influence = (node.value ** 2 )* self.tunable_param
                     self._propagate_influence(node)
+                else
+                    node.influence = -node.value
 
     def _propagate_influence(self, start_node):
         """从价值点出发传播影响值"""
@@ -221,11 +223,11 @@ class Visualizer:
         grid_values = np.zeros((self.board.size, self.board.size))
         for row in self.board.grid:
             for node in row:
-                grid_values[node.x][node.y] = node.final_influence
+                grid_values[node.x][node.y] = node.value
 
         plt.figure(figsize=(10, 10))
         plt.imshow(grid_values, cmap='viridis', interpolation='nearest')
-        plt.colorbar(label='Final Influence')
+        plt.colorbar(label='Value')
 
         # 在每个格子中显示数值
         for i in range(self.board.size):
@@ -277,7 +279,7 @@ if __name__ == "__main__":
     obstacles = [(2, 3), (4, 5), (6, 7)]
     value_points = [(1, 1, 10), (8, 2, 20), (4, 2, 10), (2, 8, 20), (1, 5, 15), (7, 1, 10)]
     #value_points = [(5, 2, 10), (6, 8, 15)]
-    target_points = [(8, 7, 70)]
+    target_points = [(8, 7, 60)]
 
     board = Board(size)
     board.set_obstacles(obstacles)
