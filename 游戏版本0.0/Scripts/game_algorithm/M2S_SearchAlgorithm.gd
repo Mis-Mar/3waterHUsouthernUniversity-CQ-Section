@@ -89,6 +89,9 @@ func calculate_influence(target_point: Vector2i) -> void:
 		if influence_map[coord] > 0 and coord != target_point:
 			influence_map[coord] = pow(influence_map[coord], 2) * self.value_param
 			self.propagate_influence(coord)
+		elif influence_map[coord] < 0 :
+			influence_map[coord] = -pow(influence_map[coord], 2) * self.value_param
+			final_influence_map[coord] += influence_map[coord]
 
 func value_preprocessing(target_point: Vector2i) -> void:
 	#预处理节点价值
@@ -98,7 +101,7 @@ func value_preprocessing(target_point: Vector2i) -> void:
 			if cell.get_owner() == self.player_id:
 				influence_map[coord] = cell.get_power() - 1
 			else:
-				influence_map[coord] = -cell.get_power()
+				influence_map[coord] = - (cell.get_power() + 1)
 		else:
 			influence_map[coord] = -INF
 
@@ -137,8 +140,10 @@ func reverse_bfs(start_point: Vector2i, demand: int) -> bool:
 			
 			#累计价值
 			var cell: CellInfo = self.get_cell(current)
-			if cell.get_power() > 1:
-				accumulated_value += cell.get_power() - 1
+			
+			accumulated_value += cell.get_power() - 1
+			
+			if(cell.get_power()>1):
 				source_points.append(current)
 			
 			#如果累计价值超过需求值，则终止搜索
