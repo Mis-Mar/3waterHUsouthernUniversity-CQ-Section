@@ -27,7 +27,7 @@ func _init(original: FullMap) -> void:
 	for coord in original.grid_map.keys():
 		grid_map[coord] = original.grid_map[coord].clone()
 		# 示例，获取所有格子构造value_map初始化value为0
-		value_map[coord] = self.get_cell(coord).power
+		value_map[coord] = self.get_cell(coord).get_power()
 		distance_map[coord] = INF
 	# 拷贝 owner_to_player 映射（深拷贝，避免污染）
 	owner_to_player = {}

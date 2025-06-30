@@ -5,9 +5,13 @@ extends Node
 @onready var high_light_layer: TileMapLayer = $HighLightLayer
 
 
+# 上一帧的可见格子集合，性能优化
+var last_visible_tiles: Dictionary = {}  
+
+
 # 单个可见格子输出地块层
 func display_cell_terrain(tile_coords: Vector2i, cell: CellInfo) -> void:
-	var terrain = cell.terrain_type
+	var terrain = cell.get_type()
 	if Global.TERRAIN_TILE_INFO.has(terrain):
 		var info = Global.TERRAIN_TILE_INFO[terrain]
 		main_layer.set_cell(
@@ -21,54 +25,59 @@ func display_cell_terrain(tile_coords: Vector2i, cell: CellInfo) -> void:
 
 # 单个可见格子输出owner层
 func display_cell_owner(tile_coords: Vector2i, cell: CellInfo) -> void:
-	var _owner = cell.owner
+	var _owner = cell.get_owner()
 	if _owner > 0:
 		color_layer.set_cell(tile_coords, 0, Vector2i(0, 0), _owner)
-		number_labels. update_label_on_tile(tile_coords, str(cell.power))
-	elif cell.terrain_type==Global.TERRAIN_CITY and _owner==0:
+		number_labels.update_label_on_tile(tile_coords, str(cell.get_power()))
+	elif cell.get_type() == Global.TERRAIN_CITY and _owner == 0:
 		color_layer.set_cell(tile_coords, 0, Vector2i(0, 0), 10)
-		number_labels.update_label_on_tile(tile_coords,str(cell.power))
-	elif cell.power!=0:
+		number_labels.update_label_on_tile(tile_coords, str(cell.get_power()))
+	elif cell.get_power() != 0:
 		color_layer.set_cell(tile_coords, 0, Vector2i(0, 0), 10)
-		number_labels.update_label_on_tile(tile_coords,str(cell.power))
+		number_labels.update_label_on_tile(tile_coords, str(cell.get_power()))
 	else:
 		color_layer.set_cell(tile_coords, -1, Vector2i(-1, -1), -1)
 
 # 单个格子输出标签层
-func display_cell_label(tile_coords: Vector2i, cell: CellInfo)-> void:
-	if cell.power!=0:
-		number_labels.update_label_on_tile(tile_coords,str(cell.power))
+func display_cell_label(tile_coords: Vector2i, cell: CellInfo) -> void:
+	if cell.get_power() != 0 or cell.get_type()==Global.TERRAIN_CITY:
+		number_labels.update_label_on_tile(tile_coords, str(cell.get_power()))
 	else:
 		number_labels.clear_label_on_tile(tile_coords)
 	pass
 
 # 单个格子设置高光
-func highlight_cell(coords:Vector2i)->void:
-	high_light_layer.set_cell(coords,0,Vector2i(0, 0),1)
-	pass
-# 单个格子取消高光
-func unhighlight_cell(coords:Vector2i)->void:
-	high_light_layer.set_cell(coords,-1, Vector2i(-1, -1), -1)
+func highlight_cell(coords: Vector2i) -> void:
+	high_light_layer.set_cell(coords, 0, Vector2i(0, 0), 1)
 	pass
 
-# 单个可见格子
+# 单个格子取消高光
+func unhighlight_cell(coords: Vector2i) -> void:
+	high_light_layer.set_cell(coords, -1, Vector2i(-1, -1), -1)
+	pass
+
+# 单个可见格子#脏数据优化
 func display_cell(tile_coords: Vector2i, cell: CellInfo) -> void:
-	display_cell_terrain(tile_coords, cell)
-	display_cell_owner(tile_coords, cell)
-	display_cell_label(tile_coords, cell)
+	if cell.is_dirty():
+		display_cell_terrain(tile_coords, cell)
+		display_cell_owner(tile_coords, cell)
+		display_cell_label(tile_coords, cell)
+		cell.clear_dirty_flag()
 
 # 单个迷雾格子
 func display_fog_cell(tile_coords: Vector2i, cell: CellInfo) -> void:
 	# 如果是城市，则主图层显示为山（模拟遮蔽）
-	if cell.terrain_type == Global.TERRAIN_CITY:
+	if cell.get_type() == Global.TERRAIN_CITY:
 		main_layer.set_cell(tile_coords, 27, Vector2i(0, 0), 0)  # 山地tile代替显示
+	else:
+		display_cell_terrain(tile_coords,cell)
 	# 迷雾颜色层统一显示颜色id为10（已经定义好的迷雾专用色）
 	color_layer.set_cell(tile_coords, 0, Vector2i(0, 0), 10)
 	# 移除标签（因为迷雾下不可显示数字）
-	number_labels. clear_label_on_tile(tile_coords)
+	number_labels.clear_label_on_tile(tile_coords)
 
 # 取消全部高光
-func unhighlight_all_cells()->void:
+func unhighlight_all_cells() -> void:
 	high_light_layer.clear()
 	pass
 
@@ -102,8 +111,8 @@ func curr_map_to_fullmap() -> FullMap:
 		var coords = capital_coords[i]
 		var id = i + 1  # 从 1 开始编号
 		var cell = new_map.grid_map[coords]
-		cell.owner = id
-		cell.power = 100  # 初始兵力
+		cell.set_owner(id)
+		cell.set_power(100)  # 初始兵力
 		new_map.owner_to_player[id] = id  # owner 和 player 对应
 	return new_map
 
@@ -112,26 +121,48 @@ func display_full_map(full_map: FullMap) -> void:
 	for tile_coords in full_map.grid_map.keys():
 		var cell: CellInfo = full_map.get_cell(tile_coords)
 		if cell:
-			display_cell(tile_coords,cell)
+			display_cell(tile_coords, cell)
+
+# 以“迷雾”方式显示整张地图（全图隐藏信息）(地图初始化时使用)
+func display_full_map_fog(full_map: FullMap) -> void:
+	for tile_coords in full_map.grid_map.keys():
+		var cell: CellInfo = full_map.get_cell(tile_coords)
+		if cell:
+			display_fog_cell(tile_coords, cell)
+
 
 # 玩家视角显示地图
 func display_map_for_player(full_map: FullMap, player_id: int) -> void:
-	var visible_tiles: Array[Vector2i] = full_map.get_visible_tiles_for_player(player_id)
+	# 性能优化测试时间var t0 := Time.get_ticks_msec()  # 起始时间
+	var current_visible_tiles: Array[Vector2i] = full_map.get_visible_tiles_for_player(player_id)
+	# var t1 := Time.get_ticks_msec()  # 结束时间
+	# print("获取可见表耗时: ", t1 - t0, " 毫秒")
 
-	# 手动构造一个可见格子的“伪集合”
-	var visible_set := {}
-	for v in visible_tiles:
-		visible_set[v] = true
+	# 当前帧可见格子 → 转为字典模拟集合
+	var current_visible_set := {}
+	for coord in current_visible_tiles:
+		current_visible_set[coord] = true
 
-	for tile_coords: Vector2i in full_map.grid_map.keys():
-		var cell: CellInfo = full_map.get_cell(tile_coords)
-		if visible_set.has(tile_coords):
-			display_cell(tile_coords, cell)
-		else:
-			display_fog_cell(tile_coords, cell)
+	# Step 1: 上一帧中但不在当前帧中的格子 → 设置迷雾
+	for coord in last_visible_tiles.keys():
+		if not current_visible_set.has(coord):
+			var cell := full_map.get_cell(coord)
+			if cell:
+				display_fog_cell(coord, cell)
+
+	# Step 2: 当前帧中所有可见格子 → 显示真实信息
+	for coord in current_visible_set.keys():
+		var cell := full_map.get_cell(coord)
+		if cell:
+			display_cell(coord, cell)
+
+	# 更新上一帧可见格子集合
+	last_visible_tiles = current_visible_set.duplicate()
+
+
 #测试__________________________________________________________________________________________________________________________________________________________________
 # 接受tile坐标，输出信息//测试用
-func print_cell(tile_coords: Vector2i)->void:
+func print_cell(tile_coords: Vector2i) -> void:
 	var source_id := main_layer.get_cell_source_id(tile_coords)
 	var atlas_coords := main_layer.get_cell_atlas_coords(tile_coords)
 	var alt_id := main_layer.get_cell_alternative_tile(tile_coords)
@@ -143,6 +174,4 @@ func print_cell(tile_coords: Vector2i)->void:
 	else:
 		print("点击的是空格子: ", tile_coords)
 	print(" ")
-	
-
 #测试__________________________________________________________________________________________________________________________________________________________________

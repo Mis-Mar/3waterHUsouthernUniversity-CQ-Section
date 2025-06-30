@@ -9,7 +9,10 @@ const DIR_DOWN := 2          # (1, 1)
 const DIR_UP := 3            # (-1, -1)
 const DIR_UP_R := 4          # (0, -1)
 const DIR_UP_L := 5          # (-1, 0)
-
+const HEX_DIRECTIONS := [# 六边形邻接向量
+	Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1),
+	Vector2i(-1, -1), Vector2i(0, -1), Vector2i(-1, 0)
+]
 # 地块信息相关  TERRAIN
 const TERRAIN_CAPITAL := 0   # 主城
 const TERRAIN_WATER := 1     # 水域

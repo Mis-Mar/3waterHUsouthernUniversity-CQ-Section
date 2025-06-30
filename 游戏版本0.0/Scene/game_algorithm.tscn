@@ -9,12 +9,12 @@
 [ext_resource type="Script" path="res://Scripts/game_test/camera_2d.gd" id="9_dcxq4"]
 [ext_resource type="Script" path="res://Scripts/game_algorithm/develop_manager.gd" id="10_nkllj"]
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_00cck"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4iqr3"]
 texture = ExtResource("2_kj7c1")
 texture_region_size = Vector2i(932, 810)
 0:0/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_1uj8y"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lvwk6"]
 texture = ExtResource("3_u3bhf")
 texture_region_size = Vector2i(932, 810)
 0:0/0 = 0
@@ -25,7 +25,7 @@ texture_region_size = Vector2i(932, 810)
 5:0/0 = 0
 6:0/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_uvc8k"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_3i4uf"]
 texture = ExtResource("4_m7qrc")
 texture_region_size = Vector2i(932, 810)
 0:0/0 = 0
@@ -35,7 +35,7 @@ texture_region_size = Vector2i(932, 810)
 4:0/0 = 0
 5:0/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_fymkt"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_21kap"]
 texture = ExtResource("5_qs5hu")
 texture_region_size = Vector2i(932, 810)
 0:0/0 = 0
@@ -44,7 +44,7 @@ texture_region_size = Vector2i(932, 810)
 3:0/0 = 0
 3:0/0/texture_origin = Vector2i(-47, -1)
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ahs3w"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_le5ah"]
 texture = ExtResource("6_s6xgc")
 texture_region_size = Vector2i(932, 810)
 0:0/0 = 0
@@ -63,11 +63,11 @@ tile_shape = 3
 tile_layout = 5
 tile_offset_axis = 1
 tile_size = Vector2i(477, 413)
-sources/0 = SubResource("TileSetAtlasSource_00cck")
-sources/15 = SubResource("TileSetAtlasSource_1uj8y")
-sources/22 = SubResource("TileSetAtlasSource_uvc8k")
-sources/27 = SubResource("TileSetAtlasSource_fymkt")
-sources/38 = SubResource("TileSetAtlasSource_ahs3w")
+sources/0 = SubResource("TileSetAtlasSource_4iqr3")
+sources/15 = SubResource("TileSetAtlasSource_lvwk6")
+sources/22 = SubResource("TileSetAtlasSource_3i4uf")
+sources/27 = SubResource("TileSetAtlasSource_21kap")
+sources/38 = SubResource("TileSetAtlasSource_le5ah")
 tile_proxies/coords_level = [[8, Vector2i(0, 0)], [15, Vector2i(0, 0)], [9, Vector2i(0, 0)], [15, Vector2i(1, 0)], [10, Vector2i(0, 0)], [15, Vector2i(2, 0)], [11, Vector2i(0, 0)], [15, Vector2i(3, 0)], [12, Vector2i(0, 0)], [15, Vector2i(4, 0)], [13, Vector2i(0, 0)], [15, Vector2i(5, 0)], [14, Vector2i(0, 0)], [15, Vector2i(6, 0)], [16, Vector2i(0, 0)], [22, Vector2i(0, 0)], [17, Vector2i(0, 0)], [22, Vector2i(1, 0)], [18, Vector2i(0, 0)], [22, Vector2i(2, 0)], [19, Vector2i(0, 0)], [22, Vector2i(3, 0)], [20, Vector2i(0, 0)], [22, Vector2i(4, 0)], [21, Vector2i(0, 0)], [22, Vector2i(5, 0)], [23, Vector2i(0, 0)], [27, Vector2i(0, 0)], [24, Vector2i(0, 0)], [27, Vector2i(1, 0)], [25, Vector2i(0, 0)], [27, Vector2i(2, 0)], [26, Vector2i(0, 0)], [27, Vector2i(3, 0)], [28, Vector2i(0, 0)], [38, Vector2i(0, 0)], [29, Vector2i(0, 0)], [38, Vector2i(1, 0)], [30, Vector2i(0, 0)], [38, Vector2i(2, 0)], [31, Vector2i(0, 0)], [38, Vector2i(3, 0)], [32, Vector2i(0, 0)], [38, Vector2i(4, 0)], [33, Vector2i(0, 0)], [38, Vector2i(5, 0)], [34, Vector2i(0, 0)], [38, Vector2i(6, 0)], [35, Vector2i(0, 0)], [38, Vector2i(7, 0)], [36, Vector2i(0, 0)], [38, Vector2i(8, 0)], [37, Vector2i(0, 0)], [38, Vector2i(9, 0)]]
 
 [node name="game_algorithm" type="Node2D"]
