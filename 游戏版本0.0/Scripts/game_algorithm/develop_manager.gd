@@ -17,14 +17,27 @@ func test_a()->void:
 	# 设置cell信息
 	fullmap.set_cell_power(Vector2i(-2,3) ,10)
 	fullmap.set_cell_owner(Vector2i(-2,3),1)
+	
+	fullmap.set_cell_power(Vector2i(-3,2) ,10)
+	fullmap.set_cell_owner(Vector2i(-3,2),1)
+	
+	fullmap.set_cell_power(Vector2i(-4,1) ,10)
+	fullmap.set_cell_owner(Vector2i(-4,1),1)
+	
+	fullmap.set_cell_power(Vector2i(-5,0) ,10)
+	fullmap.set_cell_owner(Vector2i(-5,0),1)
 	fullmap.update_owner_index()
 	
 	var almap=AlgorithmMap. new(fullmap)
 	var m2s=M2S_SearchAlgorithm. new(almap,1)
-	m2s.M2S_Search(Vector2i(-2,3),50,3,1,10,50)
+	var pt:Array = m2s.M2S_Search(Vector2i(-10,0),50,3,1,0,50)
+	print(pt)
 	var ans:Array[Vector2i]=m2s.get_path_coords() 
 	for coord in ans:
 		map.highlight_cell(coord)
+		
+	#for coord in m2s.final_influence_map.keys():
+	#	map.set_label(coord,str(m2s.final_influence_map[coord]))
 	
 
 # 开场的函数

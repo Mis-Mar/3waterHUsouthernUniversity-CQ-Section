@@ -145,18 +145,24 @@ func reverse_bfs(start_point: Vector2i, demand: int) -> bool:
 			#累计价值
 			var cell: CellInfo = self.get_cell(current)
 			
+			print(current)
+			print(cell.get_power())
+			print(influence_map[current])
+			print(final_influence_map[current])
 			accumulated_value += cell.get_power() - 1
+			
+			print(accumulated_value)
 			
 			if(cell.get_power()>1):
 				source_points.append(current)
+				#如果累计价值超过需求值，则终止搜索
+				if accumulated_value > demand:
+					has_solution = true
+					break
 			
-			#如果累计价值超过需求值，则终止搜索
-			if accumulated_value > demand:
-				has_solution = true
-				break
-			
-			var neighbors: Array[Vector2i] = self.get_neighbors_state1(current, self.player_id)
+			var neighbors: Array[Vector2i] = self.get_neighbors_state0(current)
 			for neighbor: Vector2i in neighbors:
+				print(neighbors)
 				if neighbor not in close_list:
 					if self.distance_map[neighbor] <= self.range_threshold:
 						if not self.search_tree.get_node(str(neighbor)):

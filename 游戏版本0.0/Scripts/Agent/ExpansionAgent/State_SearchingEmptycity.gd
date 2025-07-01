@@ -57,6 +57,7 @@ func is_vision_sufficient() -> bool:
 		
 		var cell: CellInfo = agent.full_map.get_cell(current)
 		if cell.get_type() == Global.TERRAIN_CITY and cell.get_owner() != agent.player_id and current not in Not_Found:
+			#TODO 玩家地图类
 			Not_Found.append(current)
 			agent.Not_Found.append(current)
 			Vision_Sufficient = false

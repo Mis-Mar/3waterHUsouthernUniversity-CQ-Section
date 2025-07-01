@@ -5,8 +5,10 @@ extends Control
 @onready var color_layer: TileMapLayer = $"../ColorLayer"
 
 var labels := {}  # 用于记录每个 tile 的 label: Dictionary<Vector2i, Label>
-var CHAR_WIDTH = 85
-var DEFAULT_LABEL_FONT_SIZE=200
+#var CHAR_WIDTH = 85
+#var DEFAULT_LABEL_FONT_SIZE=200
+var CHAR_WIDTH = 40
+var DEFAULT_LABEL_FONT_SIZE=80
 var DEFAULT_LABEL_COLOR=Color(1, 1, 1)# 标签颜色
 # 显示某格子数字（底层封装）
 func deep_update_label_on_tile(tile_coords: Vector2i, text: String, font_size: int, color: Color) -> void:

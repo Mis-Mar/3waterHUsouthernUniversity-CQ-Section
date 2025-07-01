@@ -83,6 +83,9 @@ func unhighlight_all_cells() -> void:
 	high_light_layer.clear()
 	pass
 
+func set_label(tile_coords: Vector2i, text: String)->void:
+	labels. update_label_on_tile(tile_coords, text)
+
 # ——————————————————————————————————————————外部接口
 # 通过现有的地图，转化为fullmap
 func curr_map_to_fullmap() -> FullMap:
