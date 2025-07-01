@@ -95,6 +95,7 @@ func calculate_influence(target_point: Vector2i) -> void:
 
 func value_preprocessing(target_point: Vector2i) -> void:
 	#预处理节点价值
+	#TODO 完成预处理功能
 	for coord in base_map.grid_map.keys():
 		var cell: CellInfo = self.get_cell(coord)
 		if cell.get_type() != Global.TERRAIN_MOUNTAIN:
@@ -135,6 +136,7 @@ func reverse_bfs(start_point: Vector2i, demand: int) -> bool:
 	
 	while not open_list.is_empty():
 		var current: Vector2i = open_list.pop()
+		#TODO range_threshold参数使用方法
 		if current not in close_list and distance_map[current] <= range_threshold:
 			close_list.append(current)
 			

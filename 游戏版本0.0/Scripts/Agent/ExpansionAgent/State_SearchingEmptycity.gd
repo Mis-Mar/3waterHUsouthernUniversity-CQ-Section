@@ -1,0 +1,78 @@
+extends BaseState_ExpansionAgent
+class_name State_SearchingEmptycity
+
+var Not_Found: Array[Vector2i]
+var Vision_Sufficient: bool = false
+var searh_path: Array[Vector2i]
+
+func enter() -> void:
+	if is_vision_sufficient():
+		if found_empty_city():
+			state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.EMPTYCITY_OCCUPY_JUDGING)
+		else:
+			#TODO 等待适当回合
+			state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.SEARCHING_EMPTYCITY)
+	else:
+		state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.EXPANSION_COMPLETE)
+
+func found_empty_city() -> bool:
+	if(search_empty_city(2,20)):
+		agent.act(searh_path)
+		#TODO 触发发现新城市，条件判断
+		#agent.Not_Occupy.append()
+		return true
+	return false
+
+func search_empty_city(jump_param: int,estimated_demand: int) -> bool:
+	#前往可抵达城市
+	var target_point = Not_Found.pop_front()
+	searh_path.clear()
+	#TODO 构建A*路径
+	var path_point: Array[Vector2i] = []
+	while !path_point.is_empty():
+		target_point = path_point.pop_front()
+		var path = agent.search_algorithm.M2S_Search(target_point,estimated_demand,3,1,20,20)
+		if path != [-1]:
+			searh_path = path
+			return true
+		else:
+			pass
+	return false
+
+func is_vision_sufficient() -> bool:
+	#添加可抵达城市（视野之外
+	Vision_Sufficient = true
+	Not_Found = agent.Not_Found
+	
+	var distance_map: Dictionary = {}
+	for coord in agent.full_map.grid_map.keys():
+		distance_map[coord] = INF
+		
+	var queue: Array[Vector2i] = [main_city]
+	distance_map[main_city] = 0
+	# 开始BFS遍历
+	while not queue.is_empty():
+		var current = queue.pop_front()  # 从队列头部取出
+		var current_distance = distance_map[current]
+		
+		var cell: CellInfo = agent.full_map.get_cell(current)
+		if cell.get_type() == Global.TERRAIN_CITY and cell.get_owner() != agent.player_id and current not in Not_Found:
+			Not_Found.append(current)
+			agent.Not_Found.append(current)
+			Vision_Sufficient = false
+			break
+		
+		# 获取所有邻居
+		var neighbors = agent.full_map.get_neighbors_state1(current,player_id)
+		#TODO 根据玩家视野改进
+		for neighbor in neighbors:
+			# 如果邻居尚未访问过 (距离为无穷大)
+			if distance_map[neighbor] == INF:
+				# 更新邻居距离
+				distance_map[neighbor] = current_distance + 1
+				# 将邻居加入队列
+				queue.append(neighbor)
+	if Vision_Sufficient == false:
+		return false
+	else:
+		return true

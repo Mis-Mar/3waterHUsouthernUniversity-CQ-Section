@@ -1,0 +1,48 @@
+class_name ExpansionAgent_StateMachine
+extends Node
+
+enum ExpansionAgent_State {
+	SEARCHING_EMPTYCITY,
+	EMPTYCITY_OCCUPY_JUDGING,
+	OCCUPYING_CITY_PROCESSING,
+	EXPANSION_COMPLETE
+}
+
+@export var initial_state: ExpansionAgent_State = ExpansionAgent_State.SEARCHING_EMPTYCITY
+@export var current_state: BaseState_ExpansionAgent  = null:
+	set(v):
+		owner.transition_state(current_state,v)
+		current_state=v
+@export var player_id: int
+var agent: ExpansionAgent = null
+var states: Dictionary
+
+func _ready() -> void:
+	# 初始化所有状态
+	states[ExpansionAgent_State.SEARCHING_EMPTYCITY] = $State_SearchingEmptycity
+	states[ExpansionAgent_State.EMPTYCITY_OCCUPY_JUDGING] = $State_EmptycityOccupyJudging
+	states[ExpansionAgent_State.OCCUPYING_CITY_PROCESSING] = $State_OccupyingCity
+	states[ExpansionAgent_State.EXPANSION_COMPLETE] = $State_ExpansionComplete
+	
+	# 设置状态机引用
+	for state in states.values():
+		state.state_machine = self
+
+	# 进入初始状态
+	self.transition_to(initial_state)
+	
+func transition_to(new_state_key: ExpansionAgent_State) -> void:
+	if current_state:
+		current_state.exit()
+
+	current_state = states[new_state_key]
+	current_state.enter()
+	
+# 主更新循环
+func _process(delta: float) -> void:
+	if current_state:
+		current_state.update(delta)
+
+func _physics_process(delta: float) -> void:
+	if current_state:
+		current_state.physics_update(delta)
