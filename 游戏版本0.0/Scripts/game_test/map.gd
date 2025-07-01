@@ -1,6 +1,7 @@
 extends Node
 @onready var main_layer: TileMapLayer = $MainLayer
-@onready var number_labels: Control = $NumberLabels
+# @onready var number_labels: Control = $NumberLabels
+@onready var labels: Control = $Labels
 @onready var color_layer: TileMapLayer = $ColorLayer
 @onready var high_light_layer: TileMapLayer = $HighLightLayer
 
@@ -28,22 +29,22 @@ func display_cell_owner(tile_coords: Vector2i, cell: CellInfo) -> void:
 	var _owner = cell.get_owner()
 	if _owner > 0:
 		color_layer.set_cell(tile_coords, 0, Vector2i(0, 0), _owner)
-		number_labels.update_label_on_tile(tile_coords, str(cell.get_power()))
+		labels.update_label_on_tile(tile_coords, str(cell.get_power()))
 	elif cell.get_type() == Global.TERRAIN_CITY and _owner == 0:
 		color_layer.set_cell(tile_coords, 0, Vector2i(0, 0), 10)
-		number_labels.update_label_on_tile(tile_coords, str(cell.get_power()))
+		labels.update_label_on_tile(tile_coords, str(cell.get_power()))
 	elif cell.get_power() != 0:
 		color_layer.set_cell(tile_coords, 0, Vector2i(0, 0), 10)
-		number_labels.update_label_on_tile(tile_coords, str(cell.get_power()))
+		labels.update_label_on_tile(tile_coords, str(cell.get_power()))
 	else:
 		color_layer.set_cell(tile_coords, -1, Vector2i(-1, -1), -1)
 
 # 单个格子输出标签层
 func display_cell_label(tile_coords: Vector2i, cell: CellInfo) -> void:
 	if cell.get_power() != 0 or cell.get_type()==Global.TERRAIN_CITY:
-		number_labels.update_label_on_tile(tile_coords, str(cell.get_power()))
+		labels.update_label_on_tile(tile_coords, str(cell.get_power()))
 	else:
-		number_labels.clear_label_on_tile(tile_coords)
+		labels.clear_label_on_tile(tile_coords)
 	pass
 
 # 单个格子设置高光
@@ -74,7 +75,8 @@ func display_fog_cell(tile_coords: Vector2i, cell: CellInfo) -> void:
 	# 迷雾颜色层统一显示颜色id为10（已经定义好的迷雾专用色）
 	color_layer.set_cell(tile_coords, 0, Vector2i(0, 0), 10)
 	# 移除标签（因为迷雾下不可显示数字）
-	number_labels.clear_label_on_tile(tile_coords)
+	labels.clear_label_on_tile(tile_coords)
+	cell.set_dirty_flag()
 
 # 取消全部高光
 func unhighlight_all_cells() -> void:
@@ -159,7 +161,16 @@ func display_map_for_player(full_map: FullMap, player_id: int) -> void:
 	# 更新上一帧可见格子集合
 	last_visible_tiles = current_visible_set.duplicate()
 
+func get_tile_coords_from_screen_pos(screen_pos: Vector2) -> Vector2i:
+	var world_pos = main_layer.get_viewport_transform().affine_inverse() * screen_pos
+	var local_pos = main_layer.to_local(world_pos)
+	return main_layer.local_to_map(local_pos)
 
+func clear()->void:
+	main_layer.clear()
+	labels.clear_all_labels()
+	color_layer.clear()
+	pass
 #测试__________________________________________________________________________________________________________________________________________________________________
 # 接受tile坐标，输出信息//测试用
 func print_cell(tile_coords: Vector2i) -> void:

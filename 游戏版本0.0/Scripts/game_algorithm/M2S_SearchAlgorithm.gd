@@ -12,7 +12,8 @@ var range_threshold: int
 var source_points: Array[Vector2i] = []
 var path_operations: Array = []
 
-var search_tree: Treelib
+#我添加了new（）初始化
+var search_tree: Treelib=Treelib.new()
 
 var player_id: int
 
@@ -127,7 +128,8 @@ func propagate_influence(start_point: Vector2i) -> void:
 
 func reverse_bfs(start_point: Vector2i, demand: int) -> bool:
 	self.search_tree.create_root(str(start_point), start_point)
-	var open_list: PriorityQueue
+	#我添加了new（）初始化
+	var open_list: PriorityQueue=PriorityQueue.new()
 	var close_list: Array[Vector2i] = []
 	var accumulated_value: int = 0
 	var has_solution: bool = false
@@ -195,3 +197,13 @@ func postorder_traverse(node_id: String) -> void:
 	var parent = self.search_tree.get_parent(node_id)
 	if parent:
 		self.path_operations.append([node_id, parent.identifier])
+		
+# 输出接口
+func get_path_coords() -> Array[Vector2i]:
+	var coords: Array[Vector2i] = []
+	for op: Array in path_operations:
+		var node_id: String = op[0]
+		var vec: Vector2i = search_tree.get_node(node_id).data
+		if vec not in coords:
+			coords.append(vec)
+	return coords

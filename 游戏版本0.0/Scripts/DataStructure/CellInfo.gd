@@ -48,7 +48,16 @@ func is_dirty() -> bool:
 func clear_dirty_flag() -> void:
 	_private_is_dirty = false
 
+func clone() -> CellInfo:
+	var new_cell := CellInfo.new()
+	new_cell._private_terrain_type = _private_terrain_type
+	new_cell._private_owner = _private_owner
+	new_cell._private_power = _private_power
+	new_cell._private_is_dirty = _private_is_dirty
+	return new_cell
 
+func set_dirty_flag() -> void:
+	_private_is_dirty = true
 
 	
 	

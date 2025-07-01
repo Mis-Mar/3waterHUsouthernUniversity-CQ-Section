@@ -64,7 +64,7 @@ script = ExtResource("1_xgifn")
 z_index = -1
 tile_set = SubResource("TileSet_rmo0q")
 
-[node name="NumberLabels" type="Control" parent="."]
+[node name="Labels" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0

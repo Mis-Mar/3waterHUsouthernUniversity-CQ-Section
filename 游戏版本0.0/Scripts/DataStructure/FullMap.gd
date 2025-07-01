@@ -41,9 +41,17 @@ func check_cell_player(coord: Vector2i, player_id: int) -> bool:
 		return false
 
 # 设置一个格子的power
-func set_power(coord: Vector2i, new_power) -> void:
+func set_cell_power(coord: Vector2i, new_power) -> void:
 	if is_valid_coord(coord):
 		get_cell(coord).set_power(new_power)
+	else:
+		printerr("坐标超界")
+	return
+	
+# 设置一个格子的owner
+func set_cell_owner(coord: Vector2i, new_owner) -> void:
+	if is_valid_coord(coord):
+		get_cell(coord).set_owner(new_owner)
 	else:
 		printerr("坐标超界")
 	return
@@ -81,12 +89,12 @@ func update_owner_index() -> void:
 	owner_to_coords.clear()
 	for coord in grid_map.keys():
 		var cell :CellInfo= grid_map[coord]
-		var owner := cell.get_owner()
-		if owner == 0:
+		var _owner := cell.get_owner()
+		if _owner == 0:
 			continue
-		if not owner_to_coords.has(owner):
-			owner_to_coords[owner] = []
-		(owner_to_coords[owner] as Array[Vector2i]).append(coord)
+		if not owner_to_coords.has(_owner):
+			owner_to_coords[_owner] = []
+		(owner_to_coords[_owner] as Array[Vector2i]).append(coord)
 
 
 
@@ -216,7 +224,7 @@ func move_power(from_coords: Vector2i, direction_index: int, ratio: float) -> bo
 		return false
 
 	from_cell.set_power(total_power - move_amount)
-
+	#同一个owner
 	if to_cell.get_owner() == from_cell.get_owner():
 		to_cell.set_power(to_cell.get_power() + move_amount)
 	else:
@@ -247,6 +255,7 @@ func occupy_owner(from_owner_id: int, to_owner_id: int) -> void:
 	var player_id: int = owner_to_player[from_owner_id]
 	owner_to_player[to_owner_id] = player_id
 
+# 玩家用这个函数进行操作，避免一回合操作多次
 func queue_action(from_coords: Vector2i, direction_index: int, ratio: float) -> bool:
 	if not grid_map.has(from_coords):
 		return false

@@ -19,9 +19,13 @@ config/icon="res://icon.svg"
 
 Global="*res://Scripts/DataStructure/Global.gd"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/Todo_Manager/plugin.cfg")
+
 [gui]
 
-theme/custom_font="res://Asserts/Fonts/PixelOperator.ttf"
+theme/custom_font="res://Asserts/Fonts/Unifont点阵黑.ttf"
 
 [input]
 

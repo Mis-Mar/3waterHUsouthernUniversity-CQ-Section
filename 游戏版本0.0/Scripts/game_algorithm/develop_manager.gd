@@ -13,17 +13,32 @@ extends Node
 var fullmap=FullMap.new()
 var is_auto_turn := false  # 默认是手动回合
 
+func test_a()->void:
+	# 设置cell信息
+	fullmap.set_cell_power(Vector2i(-2,3) ,10)
+	fullmap.set_cell_owner(Vector2i(-2,3),1)
+	fullmap.update_owner_index()
+	
+	var almap=AlgorithmMap. new(fullmap)
+	var m2s=M2S_SearchAlgorithm. new(almap,1)
+	m2s.M2S_Search(Vector2i(-2,3),50,3,1,10,50)
+	var ans:Array[Vector2i]=m2s.get_path_coords() 
+	for coord in ans:
+		map.highlight_cell(coord)
+	
+
 # 开场的函数
 func start()->void:
 	await get_tree().create_timer(0.1).timeout
 	fullmap=map.curr_map_to_fullmap()
-	# 设置一个格子的函数
-	fullmap.set_power(Vector2i(-2,-2),-10)
 	main_layer.clear()
 	color_layer.clear()
 	timer_turn.start()  # 每秒自动调用 timeout
-	map.highlight_cell(Vector2i(-1,4))
 	map.display_full_map(fullmap)
+	
+	test_a()
+	
+	
 
 func _ready() -> void:
 	start()
@@ -35,10 +50,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	# 鼠标左键选中
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
-			var screen_pos = event.position
-			var world_pos = main_layer.get_viewport_transform().affine_inverse() * screen_pos
-			var local_pos = main_layer.to_local(world_pos)
-			var tile_coords = main_layer.local_to_map(local_pos)
+			# 获取左键选中的格子
+			var tile_coords = map.get_tile_coords_from_screen_pos(event.position)
 			selected_tile_coords = tile_coords
 			map. print_cell(tile_coords)
 	# 移动选择

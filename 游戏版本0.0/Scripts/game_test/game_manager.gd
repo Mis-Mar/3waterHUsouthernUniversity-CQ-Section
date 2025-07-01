@@ -2,17 +2,12 @@
 extends Node
 
 @onready var map: Node = $"../Map"
-@onready var main_layer: TileMapLayer = $"../Map/MainLayer"
-@onready var color_layer: TileMapLayer = $"../Map/ColorLayer"
-@onready var number_labels: Control = $"../Map/NumberLabels"
 @onready var camera_2d: Camera2D = $"../Camera2D"
 @onready var timer_turn: Timer = $"../Timers/Timer_turn"
 
 var fullmap=FullMap.new()
 
 var player_id=1
-
-
 
 var selected_tile_coords: Vector2i = Vector2i.ZERO  # 当前鼠标选中的格子
 
@@ -22,8 +17,7 @@ var current_highlighted_tile: Vector2i = Vector2i(-9999, -9999)  # 默认非法�
 func start()->void:
 	await get_tree().create_timer(0.5).timeout
 	fullmap.random_init(100,3,8)
-	main_layer.clear()
-	color_layer.clear()
+	map.clear()
 	timer_turn.start()  # 每秒自动调用 timeout
 	map. display_full_map_fog(fullmap)
 	map. display_map_for_player(fullmap,1)
@@ -40,10 +34,7 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			# 获取左键选中的格子
-			var screen_pos = event.position
-			var world_pos = main_layer.get_viewport_transform().affine_inverse() * screen_pos
-			var local_pos = main_layer.to_local(world_pos)
-			var tile_coords = main_layer.local_to_map(local_pos)
+			var tile_coords = map.get_tile_coords_from_screen_pos(event.position)
 			# 如果选中的格子不可见的
 			if !fullmap.cell_visible_for_player(tile_coords,player_id):
 				return
