@@ -1,0 +1,67 @@
+防御Agent思路
+    1°确认城市间路径可达？
+        否：维护可达路径，M2S算法
+    2°确认关键节点可达？
+        关键节点：隘口……程序判断，预处理
+        否：维护可达路径
+    3°领地区域划分：空白节点BFS加入List
+        拓展（参数：领土占有率；周边节点延伸，遍历List,操作数为1时使用，优先占领代价小，否则跳过
+        过程中敌方节点侵入-> 回滚至1°
+    估价函数：
+        敌我领土兵力数值、分布
+        memo 0628：
+            集中程度
+            链接程度
+    集中操作函数
+        集中位置，集中数量
+        可周期性调用集中操作函数
+
+general交互
+    王城那就接管王城的general单独开一个
+    在防御agent中有一个区域list设定
+    友军兵力进入友方领地就视为被接管了    
+手动分配general区域
+
+将来进度：
+    1°重构map类
+    2°构建玩家实体 -- 对应服务器实体 and 网络功能
+        包含自己的playermap
+        包含自己的Agent
+        接受服务器更新并下达给Agent
+        完成general间交互
+        （general实体？、
+    类同
+        3°防御Agent
+            线性、跳跃
+        4°攻击Agent
+            方法类同扩张
+            关键在于估价函数设计
+        5°各种统计数据，用于general
+    6°游戏界面设计
+    7°美工（eg：general player 颜色显示 新函数
+    8°参数调优
+    9°教程
+    10°生成地图算法？
+
+玩家-服务器接口：
+    多个玩家=多个操作
+    一个操作=两个格子
+    一个格子=power、owner
+
+    #玩家、服务器本地存vision table
+    #玩家本地运算vision update
+
+    #玩家vision update传入服务器
+    #服务器vision table更新
+
+    玩家视野table（服务器计算
+    cell in table:
+        传出：vector2i,power,owner
+
+    玩家：
+        update vision
+            out of vision:
+                map.certaincCELLclear
+            in vision
+                UPDATE
+                下发给general\Agent

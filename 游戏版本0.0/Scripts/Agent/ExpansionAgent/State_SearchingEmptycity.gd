@@ -6,7 +6,7 @@ var Vision_Sufficient: bool = false
 var searh_path: Array[Vector2i]
 
 func enter() -> void:
-	if is_vision_sufficient():
+	if not is_vision_sufficient():
 		if found_empty_city():
 			state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.EMPTYCITY_OCCUPY_JUDGING)
 		else:
