@@ -32,11 +32,13 @@ func search_empty_city(jump_param: int,estimated_demand: int) -> bool:
 	while !path_point.is_empty():
 		target_point = path_point.pop_front()
 		var path = agent.search_algorithm.M2S_Search(target_point,estimated_demand,3,1,20,20)
+		var path_coords = agent.search_algorithm.get_path_coords()
 		if path != [-1]:
-			searh_path = path
+			searh_path = path_coords
+			send_path(path_coords)
 			return true
 		else:
-			pass
+			return false
 	return false
 
 func is_vision_sufficient() -> bool:
@@ -77,3 +79,7 @@ func is_vision_sufficient() -> bool:
 		return false
 	else:
 		return true
+
+func send_path(path_operations: Array[Vector2i]) -> void:
+	agent.path_add.emit(0, path_operations)
+	pass

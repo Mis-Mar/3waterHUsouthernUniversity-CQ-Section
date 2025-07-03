@@ -33,6 +33,7 @@ func test_a()->void:
 	var pt:Array = m2s.M2S_Search(Vector2i(-10,0),50,3,1,0,50)
 	print(pt)
 	var ans:Array[Vector2i]=m2s.get_path_coords() 
+	print(ans)
 	for coord in ans:
 		map.highlight_cell(coord)
 		
