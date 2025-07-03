@@ -1,0 +1,34 @@
+Agent使用player_map（继承自map_base
+
+map_base中方法：
+    两个点间A*路径
+        这个我来写
+
+player_map中方法：
+    getneighbor方法state？：
+        避障+获取自己势力邻居
+    getneighbor方法state？：
+        避障+获取自己势力邻居+获取空白平原
+    内存map，关于Not_Found
+    视野更新方法
+    回合更新方法
+        接收变更节点信息
+        修改视野
+        修改power，owner情况
+        广播至各general
+        
+
+player实体中方法：
+    手动操作方法
+    回合更新方法
+        输出路径操作
+        等待服务器响应
+        接受节点变更
+        修改player_map中信息
+    综合每回合各general路径操作的输出manager
+
+general实体中方法：
+    路径操作manager：
+        输出给player（1格
+        管理各Agent输出操作的标识
+    调用各Agent
