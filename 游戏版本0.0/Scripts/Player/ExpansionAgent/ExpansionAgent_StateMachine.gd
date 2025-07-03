@@ -3,8 +3,7 @@ extends Node
 
 enum ExpansionAgent_State {
 	SEARCHING_EMPTYCITY,
-	EMPTYCITY_OCCUPY_JUDGING,
-	OCCUPYING_CITY_PROCESSING,
+	EMPTYCITY_OCCUPY,
 	EXPANSION_COMPLETE
 }
 
@@ -20,8 +19,7 @@ var states: Dictionary
 func _ready() -> void:
 	# 初始化所有状态
 	states[ExpansionAgent_State.SEARCHING_EMPTYCITY] = $State_SearchingEmptycity
-	states[ExpansionAgent_State.EMPTYCITY_OCCUPY_JUDGING] = $State_EmptycityOccupyJudging
-	states[ExpansionAgent_State.OCCUPYING_CITY_PROCESSING] = $State_OccupyingCity
+	states[ExpansionAgent_State.EMPTYCITY_OCCUPY] = $State_EmptycityOccupy
 	states[ExpansionAgent_State.EXPANSION_COMPLETE] = $State_ExpansionComplete
 	
 	# 设置状态机引用

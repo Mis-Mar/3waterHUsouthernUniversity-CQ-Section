@@ -8,7 +8,7 @@ var searh_path: Array[Vector2i]
 func enter() -> void:
 	if not is_vision_sufficient():
 		if found_empty_city():
-			state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.EMPTYCITY_OCCUPY_JUDGING)
+			state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.EMPTYCITY_OCCUPY)
 		else:
 			#TODO 等待适当回合
 			state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.SEARCHING_EMPTYCITY)
@@ -80,6 +80,32 @@ func is_vision_sufficient() -> bool:
 	else:
 		return true
 
+func kamikaze_search(start_point: Vector2i, sight_range: int) -> void:
+	#TODO 记录已走节点
+	var cell: CellInfo = agent.full_map.get_cell(start_point)
+	var direction: Vector2i
+	while cell.get_power() > 1:
+		direction = Not_Found_in_sight_direction(start_point, sight_range)
+		start_point += direction
+		send_path([start_point])
+		#TODO 等待更新
+		cell = agent.full_map.get_cell(start_point)
+
+func Not_Found_in_sight_direction(start_point: Vector2i, sight_range: int) -> Vector2i:
+	var cells_in_sight: Array[Vector2i] = agent.full_map.cube_spiral(start_point, sight_range)
+	#TODO map中添加环遍历方法(螺旋环 https://www.redblobgames.com/grids/hexagons/
+	var direction_count: Dictionary = {}
+	var max_direction: Vector2i
+	for coord in cells_in_sight:
+		var cell: CellInfo = agent.full_map.get_cell(coord)
+		#TODO 范围判断
+		#TODO 加入direction_count中
+		#eg：
+		direction_count[Vector2i(-1,0)] += 1
+		if direction_count[Vector2i(-1,0)] > direction_count[max_direction]:
+			max_direction = Vector2i(-1,0)
+	return max_direction
+		
 func send_path(path_operations: Array[Vector2i]) -> void:
 	agent.path_add.emit(0, path_operations)
 	pass

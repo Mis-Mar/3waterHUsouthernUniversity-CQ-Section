@@ -6,13 +6,15 @@ var general_id: int
 var main_city: Vector2i
 var player_id: int
 var player_map: FullMap
-
-signal agent_path_output(agent_type: String, path: Vector2i)
-
 #TODO player_map
 
+var path_operations: Array[Vector2i]
 
-signal on_player_change(_player_id: int)
+signal agent_path_output(agent_type: String, path_operate: Vector2i)
+
+func _ready() -> void:
+	agent_path_output.connect(on_path_add)
+	_run()
 
 func _init(_general_id: int, _main_city:Vector2i, _player_id: int, _player_map: FullMap) -> void:
 	self.general_id = _general_id
@@ -20,18 +22,21 @@ func _init(_general_id: int, _main_city:Vector2i, _player_id: int, _player_map: 
 	self.player_id = _player_id
 	self.player_map = _player_map
 	Expansion_agent._init(player_id,main_city,player_map)
-	_run()
 	pass
 	
 func _run() -> void:
 	if player_id == 0:
 		pass
 	else:
-		Expansion_agent.run()
-		
-func update_player(_player_id: int) -> void:
-	self.player_id = _player_id
+		Expansion_agent._run()
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+func path_manager() -> void:
+	while !path_operations.is_empty():
+		var path_operate = path_operations.pop_front()
+		#TODO send to player
+		pass
+		
+func on_path_add(agent_type:String, path_operate: Vector2i) -> void:
+	#TODO agent调用、区分
+	path_operations.append(path_operate)
+	path_manager()

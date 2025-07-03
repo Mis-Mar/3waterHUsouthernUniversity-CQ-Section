@@ -30,7 +30,7 @@ func _init(_player_id: int,_main_city: Vector2i, _full_map: FullMap) -> void:
 	algorithm_map = AlgorithmMap.new(self.full_map)
 	search_algorithm = M2S_SearchAlgorithm.new(self.algorithm_map,self.player_id)
 
-func run() -> void:
+func _run() -> void:
 	state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.SEARCHING_EMPTYCITY)
 
 func _process(delta: float) -> void:
@@ -48,7 +48,6 @@ func path_manager() -> void:
 				break
 		#TODO 分类类比，单个输出
 		pass
-
 
 func on_path_add(_path_class: int, _path_operations: Array[Vector2i]) -> void:
 	#读入新操作，删除优先级为0的操作（空地占领
