@@ -81,7 +81,8 @@ func is_vision_sufficient() -> bool:
 		return true
 
 func kamikaze_search(start_point: Vector2i, sight_range: int) -> void:
-	#TODO 记录已走节点
+	var visited: Array[Vector2i] = [start_point]
+	#TODO 考虑是否有必要？
 	var cell: CellInfo = agent.full_map.get_cell(start_point)
 	var direction: Vector2i
 	while cell.get_power() > 1:
@@ -100,6 +101,7 @@ func Not_Found_in_sight_direction(start_point: Vector2i, sight_range: int) -> Ve
 		var cell: CellInfo = agent.full_map.get_cell(coord)
 		#TODO 范围判断
 		#TODO 加入direction_count中
+		#TODO 开关：是否节约power
 		#eg：
 		direction_count[Vector2i(-1,0)] += 1
 		if direction_count[Vector2i(-1,0)] > direction_count[max_direction]:
