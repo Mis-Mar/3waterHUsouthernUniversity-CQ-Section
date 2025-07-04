@@ -2,35 +2,39 @@
 extends Node
 
 @onready var map: Node = $"../Map"
-@onready var main_layer: TileMapLayer = $"../Map/MainLayer"
-@onready var color_layer: TileMapLayer = $"../Map/ColorLayer"
-@onready var number_labels: Control = $"../Map/NumberLabels"
 @onready var camera_2d: Camera2D = $"../Camera2D"
 @onready var timer_turn: Timer = $"../Timers/Timer_turn"
 @onready var auto_turn_button: Button = $"../UI/AutoTurnButton"
 
 
 var fullmap=FullMap.new()
+var playermap=PlayerMap.new()
 var is_auto_turn := false  # 默认是手动回合
 
 func test_a()->void:
 	# 设置cell信息
 	fullmap.set_cell_power(Vector2i(-2,3) ,10)
-	fullmap.set_cell_owner(Vector2i(-2,3),1)
+	fullmap.set_cell_general_id(Vector2i(-2,3),1)
 	
 	fullmap.set_cell_power(Vector2i(-3,2) ,10)
-	fullmap.set_cell_owner(Vector2i(-3,2),1)
+	fullmap.set_cell_general_id(Vector2i(-3,2),1)
 	
 	fullmap.set_cell_power(Vector2i(-4,1) ,10)
-	fullmap.set_cell_owner(Vector2i(-4,1),1)
+	fullmap.set_cell_general_id(Vector2i(-4,1),1)
 	
 	fullmap.set_cell_power(Vector2i(-5,0) ,10)
-	fullmap.set_cell_owner(Vector2i(-5,0),1)
-	fullmap.update_owner_index()
+	fullmap.set_cell_general_id(Vector2i(-5,0),1)
 	
-	var almap=AlgorithmMap. new(fullmap)
-	var m2s=M2S_SearchAlgorithm. new(almap,1)
-	var pt:Array = m2s.M2S_Search(Vector2i(-10,0),50,3,1,0,50)
+	fullmap.update_general_index()
+	fullmap.compute_player_deltas()
+
+	playermap.update_cell_from_delta(fullmap.export_player_delta(1))
+	
+	map.display_full_map(fullmap)
+	
+	var almap=AlgorithmMap. new(playermap)
+	var m2s=M2S_SearchAlgorithm. new(almap)
+	var pt:Array = m2s.M2S_Search(Vector2i(-2,4),30,3,1,0,50)
 	print(pt)
 	var ans:Array[Vector2i]=m2s.get_path_coords() 
 	print(ans)
@@ -45,8 +49,10 @@ func test_a()->void:
 func start()->void:
 	await get_tree().create_timer(0.1).timeout
 	fullmap=map.curr_map_to_fullmap()
-	main_layer.clear()
-	color_layer.clear()
+	fullmap.update_general_index()
+	print(fullmap.export_init_data_for_player(1))
+	playermap.init_from_dict(fullmap.export_init_data_for_player(1))
+	map.clear()
 	timer_turn.start()  # 每秒自动调用 timeout
 	map.display_full_map(fullmap)
 	
