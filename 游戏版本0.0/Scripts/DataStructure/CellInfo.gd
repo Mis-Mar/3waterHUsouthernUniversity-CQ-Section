@@ -2,15 +2,15 @@
 class_name CellInfo
 extends Resource
 
-var _private_terrain_type: int = 0     # 空地，山，水，主城，城市
-var _private_general_id: int = 0       # 0=未占领，1,2,... 表示不同玩家
+var _private_terrain_type: int = 0     # 0=空地，-1=山，-2=水，-3=主城，-4=城市
+var _private_owner: int = 0            # 0=未占领，1,2,... 表示不同玩家
 var _private_power: int = 0            # 空地/主城：当前兵力；城市：占领所需兵力
 # 使用了脏数据优化性能，以后只用函数来操作数据
 var _private_is_dirty: bool = true    # 默认 false，标记是否需要重绘或更新显示
 
-func _init(t := 0, g := 0, p := 0):
+func _init(t := 0, o := 0, p := 0):
 	_private_terrain_type = t
-	_private_general_id = g
+	_private_owner = o
 	_private_power = p
 	_private_is_dirty=true
 
@@ -23,13 +23,13 @@ func set_type(value: int) -> void:
 		_private_terrain_type = value
 		_private_is_dirty = true
 
-# 获取 / 设置 general
-func get_general_id() -> int:
-	return _private_general_id
+# 获取 / 设置 owner
+func get_owner() -> int:
+	return _private_owner
 
-func set_general_id(value: int) -> void:
-	if _private_general_id != value:
-		_private_general_id = value
+func set_owner(value: int) -> void:
+	if _private_owner != value:
+		_private_owner = value
 		_private_is_dirty = true
 
 # 获取 / 设置 power
@@ -48,29 +48,16 @@ func is_dirty() -> bool:
 func clear_dirty_flag() -> void:
 	_private_is_dirty = false
 
-func set_dirty_flag() -> void:
-	_private_is_dirty = true
-
 func clone() -> CellInfo:
 	var new_cell := CellInfo.new()
 	new_cell._private_terrain_type = _private_terrain_type
-	new_cell._private_general_id = _private_general_id
+	new_cell._private_owner = _private_owner
 	new_cell._private_power = _private_power
 	new_cell._private_is_dirty = _private_is_dirty
 	return new_cell
-	
-func to_dict() -> Dictionary:
-	return {
-		"type": _private_terrain_type,
-		"power": _private_power,
-		"general_id": _private_general_id
-	}
 
-static func from_dict(data: Dictionary) -> CellInfo:
-	var cell = CellInfo.new(data.get("type", 0),data.get("general_id", 0),data.get("power", 0))
-	return cell
-
-
+func set_dirty_flag() -> void:
+	_private_is_dirty = true
 
 	
 	

@@ -1,31 +1,162 @@
 # FullMap.gd
 class_name FullMap
-extends BaseMap
+extends Node 
 
 # 数据结构
-var general_count:int
-var player_count:int
+var grid_map: Dictionary = {}  # Dictionary<Vector2i, GridCell>所有格子的字典，就当CellInfo类型的二维数组来用
+var owner_to_player: Dictionary = {}# 表格，一个owner有一个player，一个player对应多个owner 值为0表示未被控制,-1表示已经消灭
+var turn_count: int = 0  # 回合总数
+const HEX_DIRECTIONS := [# 六边形邻接向量，见global.gd有全局变量
+	Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1),
+	Vector2i(-1, -1), Vector2i(0, -1), Vector2i(-1, 0)
+]
+
 # 游戏逻辑辅助的数据
-var general_actions: Array = []  # 操作队列，同步用
-var acted_generals: Dictionary = {}  # 记录已经行动过的 general，key = general_id，同步用
+var pending_actions: Array = []  # 操作队列，同步用
+var acted_owners: Dictionary = {}  # 记录已经行动过的 owner，key = owner_id，同步用
+# 性能优化，存储每个owner的领地集合，每回合刷新
+var owner_to_coords: Dictionary = {}
 
-# 因为玩家操作引起变化的格子
-var acted_coords: Dictionary = {}  # key: Vector2i, value: true
 
-# 性能优化，存储每个general的领地集合，每回合刷新
-var general_to_coords: Dictionary = {}
+# ——————————————————————————————————————————————————纯算法相关的方法
+# 返回对应坐标的CellInfo
+func get_cell(coords: Vector2i) -> CellInfo:
+	if grid_map.has(coords):
+		return grid_map[coords]
+	return null
 
-var last_visible_tiles: Dictionary = {}  # player_id → 上一回合的可见格子 Set
-var player_delta: Dictionary = {}  # player_id → delta 字典
+# 获取这个地图包含的全部坐标
+func get_all_coords() -> Array[Vector2i]:
+	return grid_map.keys()
 
-# ——————————初始化部分
+# 检查某个坐标是否存在
+func is_valid_coord(coord: Vector2i) -> bool:
+	return grid_map.has(coord)
 
-# 随机创建地图，测试用，参数为：地图大小，玩家数量，general数量
-func random_init(radius: int, _player_count: int, _general_count: int) -> void:
-	cell_map.clear()
-	general_to_player.clear()
-	general_count=_general_count
-	player_count=_player_count
+func check_cell_player(coord: Vector2i, player_id: int) -> bool:
+	if is_valid_coord(coord):
+		return owner_to_player[get_cell(coord).get_owner()] == player_id
+	else:
+		printerr("坐标超界")
+		return false
+
+# 设置一个格子的power
+func set_cell_power(coord: Vector2i, new_power) -> void:
+	if is_valid_coord(coord):
+		get_cell(coord).set_power(new_power)
+	else:
+		printerr("坐标超界")
+	return
+	
+# 设置一个格子的owner
+func set_cell_owner(coord: Vector2i, new_owner) -> void:
+	if is_valid_coord(coord):
+		get_cell(coord).set_owner(new_owner)
+	else:
+		printerr("坐标超界")
+	return
+
+# 判断一个格子是否属于一个玩家
+func cell_belong_player(coords: Vector2i, player_id: int) -> bool:
+	var cell = grid_map.get(coords)
+	if cell == null:
+		return false  # 坐标非法或格子不存在
+	var owner_id = cell.get_owner()
+	return owner_to_player.get(owner_id, -1) == player_id
+
+# 判断一格子是否能被一个玩家看见
+func cell_visible_for_player(coords: Vector2i, player_id: int) -> bool:
+	if cell_belong_player(coords, player_id):
+		return true  # 自己的地块可见
+	# 检查邻接六个方向
+	for dir in HEX_DIRECTIONS:
+		var neighbor = coords + dir
+		if cell_belong_player(neighbor, player_id):
+			return true  # 邻居是自己的也可见
+	return false
+
+# 判断两个格子是否相邻,返回邻接向量序号
+func get_adjacent_vector_id(pos_a: Vector2i, pos_b: Vector2i) -> int:
+	for i in HEX_DIRECTIONS.size():
+		if pos_a + HEX_DIRECTIONS[i] == pos_b:
+			return i  # 返回邻接方向的索引
+	return -1  # 不相邻
+
+
+# 更新owner领地索引，游戏中每回合更新
+# 如果测试时手动改了数据但是没有刷新回合，要调用这个函数再使用get_visible_tiles_for_owner/player，不然显示更新数据以前的对应坐标集
+func update_owner_index() -> void:
+	owner_to_coords.clear()
+	for coord in grid_map.keys():
+		var cell :CellInfo= grid_map[coord]
+		var _owner := cell.get_owner()
+		if _owner == 0:
+			continue
+		if not owner_to_coords.has(_owner):
+			owner_to_coords[_owner] = []
+		(owner_to_coords[_owner] as Array[Vector2i]).append(coord)
+
+
+
+# 输入ownerid，输出一个坐标集 表示这个owner的可见范围
+func get_visible_tiles_for_owner(owner_id: int) -> Array[Vector2i]:
+	var visible_set := {}
+
+	if not owner_to_coords.has(owner_id):
+		return []  # 没有格子直接返回空列表
+
+	for coord in owner_to_coords[owner_id]:
+		visible_set[coord] = true
+		for dir in HEX_DIRECTIONS:
+			var neighbor = coord + dir
+			if grid_map.has(neighbor):
+				visible_set[neighbor] = true
+	var result: Array[Vector2i] = []
+	for key in visible_set.keys():
+		result.append(key)
+	return result
+
+
+# 输入playerid，输出一个坐标集 表示这个player的可见范围
+func get_visible_tiles_for_player(player_id: int) -> Array[Vector2i]:
+	var visible_set := {}
+	for owner_id in owner_to_player.keys():
+		if owner_to_player[owner_id] == player_id:
+			var tiles = get_visible_tiles_for_owner(owner_id)
+			for tile in tiles:
+				visible_set[tile] = true
+	var result: Array[Vector2i] = []
+	for key in visible_set.keys():
+		result.append(key)
+	return result
+
+# 输入一个格子坐标，返回与它相邻的存在于地图中的坐标集
+# state0: 排除山地
+func get_neighbors_state0(center: Vector2i) -> Array[Vector2i]:
+	var neighbors: Array[Vector2i] = []
+	for dir in HEX_DIRECTIONS:
+		var neighbor_coords: Vector2i = center + dir
+		if grid_map.has(neighbor_coords):
+			if get_cell(neighbor_coords).get_type() != Global.TERRAIN_MOUNTAIN:
+				neighbors.append(neighbor_coords)
+	return neighbors
+
+# state1: 排除山地和非己方节点
+func get_neighbors_state1(center: Vector2i, _player_id: int) -> Array[Vector2i]:
+	var neighbors: Array[Vector2i] = []
+	for dir in HEX_DIRECTIONS:
+		var neighbor_coords: Vector2i = center + dir
+		if grid_map.has(neighbor_coords):
+			var cell := get_cell(neighbor_coords)
+			if cell.get_type() != Global.TERRAIN_MOUNTAIN and cell.get_owner() == _player_id:
+				neighbors.append(neighbor_coords)
+	return neighbors
+
+# 随机创建地图，测试用，参数为：地图大小，玩家数量，owner数量
+func random_init(radius: int, player_count: int, owner_count: int) -> void:
+	grid_map.clear()
+	owner_to_player.clear()
+
 	var candidate_coords: Array[Vector2i] = []
 
 	for dq in range(-radius, radius + 1):
@@ -45,166 +176,23 @@ func random_init(radius: int, _player_count: int, _general_count: int) -> void:
 					power = 10 + randi() % 21
 				if terrain == Global.TERRAIN_EMPTY:
 					candidate_coords.append(coord)
-				cell_map[coord] = CellInfo.new(terrain, 0, power)
+				grid_map[coord] = CellInfo.new(terrain, 0, power)
 
 	candidate_coords.shuffle()
-	var max_generals: int = min(_general_count, candidate_coords.size())
+	var max_owners: int = min(owner_count, candidate_coords.size())
 
-	for general_id in range(1, max_generals + 1):
-		var coord = candidate_coords[general_id - 1]
-		var cell: CellInfo = cell_map[coord]
+	for owner_id in range(1, max_owners + 1):
+		var coord = candidate_coords[owner_id - 1]
+		var cell: CellInfo = grid_map[coord]
 		cell.set_type(Global.TERRAIN_CAPITAL)
-		cell.set_general_id(general_id)
+		cell.set_owner(owner_id)
 		cell.set_power(100)
-		if general_id <= _player_count:
-			general_to_player[general_id] = general_id
+		if owner_id <= player_count:
+			owner_to_player[owner_id] = owner_id
 		else:
-			general_to_player[general_id] = 0
-	# 更新general的领土表
-	update_general_index()
-
-# 根据现有map构建fullmap，详情看map类
-
-# -------------------------------------------更新同步
-# 为玩家init导出数据，同步用
-func export_init_data_for_player(player_id: int) -> Dictionary:
-	var init_data: Dictionary = {}
-
-	init_data["turn_count"] = turn_count
-	init_data["general_to_player"] = general_to_player.duplicate()
-
-	# 导出地图范围 + 玩家可见区域的 cell_map 数据
-	var vis_coords = get_visible_tiles_for_player(player_id)
-	var cell_info_dict := {}
-	for coord in vis_coords:
-		if cell_map.has(coord):
-			cell_info_dict[str(coord)] = cell_map[coord].to_dict()
-	init_data["visible_cells"] = cell_info_dict
-
-	# 构建invis_state_map
-	var invis_state := {}
-	for coord in cell_map.keys():
-		var cell = cell_map[coord]
-		var state: int = -1
-		match cell.get_type():
-			Global.TERRAIN_MOUNTAIN, Global.TERRAIN_CITY:
-				state = Global.INVIS_MOUNTAIN
-			Global.TERRAIN_EMPTY, Global.TERRAIN_CAPITAL:
-				state = Global.INVIS_EMPTY
-			Global.TERRAIN_WATER:
-				state = Global.INVIS_WATER
-		invis_state[str(coord)] = state
-	init_data["invis_state_map"] = invis_state
-
-	return init_data
-
-func get_all_player_ids() -> Array[int]:
-	var result: Array[int] = []
-	for i in range(1, player_count + 1):
-		
-		result.append(i)
-	return result
-
-# 计算回合的玩家视野变化以及操作引起的变化量，然后存起来，便于调用
-func compute_player_deltas() -> void:
-	player_delta.clear()
-
-	for player_id in get_all_player_ids():
-		var current: Array = get_visible_tiles_for_player(player_id)
-		var last: Array = last_visible_tiles.get(player_id, [])
-
-		var current_set := {}
-		for c in current:
-			current_set[c] = true
-		var last_set := {}
-		for l in last:
-			last_set[l] = true
-
-		var newly_visible := {}
-		for c in current_set.keys():
-			if not last_set.has(c) and cell_map.has(c):
-				newly_visible[str(c)] = cell_map[c].to_dict()
-
-		var now_invisible: Array[String] = []
-		for l in last_set.keys():
-			if not current_set.has(l):
-				now_invisible.append(str(l))
-
-		var changed := {}
-		for coord in acted_coords.keys():
-			if current_set.has(coord) and cell_map.has(coord):
-				changed[str(coord)] = cell_map[coord].to_dict()
-
-		player_delta[player_id] = {
-			"newly_visible": newly_visible,
-			"now_invisible": now_invisible,
-			"changed": changed
-		}
-
-		last_visible_tiles[player_id] = current
-
-# 导出玩家视野变化以及操作引起的变化量，用于同步
-func export_player_delta(player_id: int) -> Dictionary:
-	return player_delta.get(player_id, {
-		"newly_visible": [],
-		"now_invisible": [],
-		"changed": []
-	})
-# 导出general_to_player表，用于同步
-func export_general_to_player() -> Dictionary:
-	return general_to_player.duplicate()
-
-# 同步部分结束——------————————————————————————————————————————
-
-
-# 更新general领地索引，游戏中每回合更新
-# 如果测试时手动改了数据但是没有刷新回合，要调用这个函数再使用get_visible_tiles_for_general/player，不然显示更新数据以前的对应坐标集
-func update_general_index() -> void:
-	general_to_coords.clear()
-	for coord in cell_map.keys():
-		var cell :CellInfo= cell_map[coord]
-		var _general := cell.get_general_id()
-		if _general == 0:
-			continue
-		if not general_to_coords.has(_general):
-			general_to_coords[_general] = []
-		(general_to_coords[_general] as Array[Vector2i]).append(coord)
-
-
-# 输入generalid，输出一个坐标集 表示这个general的可见范围
-func get_visible_tiles_for_general(general_id: int) -> Array[Vector2i]:
-	var visible_set := {}
-
-	if not general_to_coords.has(general_id):
-		return []  # 没有格子直接返回空列表
-
-	for coord in general_to_coords[general_id]:
-		visible_set[coord] = true
-		for dir in Global.HEX_DIRECTIONS:
-			var neighbor = coord + dir
-			if cell_map.has(neighbor):
-				visible_set[neighbor] = true
-	var result: Array[Vector2i] = []
-	for key in visible_set.keys():
-		result.append(key)
-	return result
-
-
-# 输入playerid，输出一个坐标集 表示这个player的可见范围
-func get_visible_tiles_for_player(player_id: int) -> Array[Vector2i]:
-	var visible_set := {}
-	# 从对应的general取并集到result
-	for general_id in general_to_player.keys():
-		if general_to_player[general_id] == player_id:
-			var tiles = get_visible_tiles_for_general(general_id)
-			for tile in tiles:
-				visible_set[tile] = true
-	var result: Array[Vector2i] = []
-	for key in visible_set.keys():
-		result.append(key)
-	return result
-
-
+			owner_to_player[owner_id] = 0
+	# 更新owner的领土表
+	update_owner_index()
 
 
 
@@ -212,97 +200,105 @@ func get_visible_tiles_for_player(player_id: int) -> Array[Vector2i]:
 # ————————————————————————————————————————————————————————这下面是游戏逻辑相关的
 
 func move_power(from_coords: Vector2i, direction_index: int, ratio: float) -> bool:
-	if not cell_map.has(from_coords):
+	if not grid_map.has(from_coords):
 		return false
-	if direction_index < 0 or direction_index >= Global.HEX_DIRECTIONS.size():
+	if direction_index < 0 or direction_index >= HEX_DIRECTIONS.size():
 		return false
-	
-	var dir: Vector2i = Global.HEX_DIRECTIONS[direction_index]
+	var dir: Vector2i = HEX_DIRECTIONS[direction_index]
 	var to_coords: Vector2i = from_coords + dir
-	return move_power_help(from_coords, to_coords, ratio)
-
-func move_power_help(from_coords: Vector2i, to_coords: Vector2i, ratio: float) -> bool:
-	if not cell_map.has(from_coords) or not cell_map.has(to_coords):
+	if not grid_map.has(to_coords):
 		return false
 	
-	var from_cell: CellInfo = cell_map[from_coords]
-	var to_cell: CellInfo = cell_map[to_coords]
-
-	if from_cell.get_general_id() == 0:
-		return false
-	if from_cell.get_power() <= 1:
-		return false
-	if to_cell.get_type() == Global.TERRAIN_MOUNTAIN:
-		return false
-
+	var from_cell: CellInfo = grid_map[from_coords]
 	var total_power := from_cell.get_power()
+	if from_cell.get_owner() == 0:
+		return false
+	if total_power <= 1:
+		return false
 	var move_amount := int(clamp(total_power * ratio, 1, total_power - 1))
 	if move_amount <= 0:
 		return false
-	# 判断为可以移动，fromcell减去兵力
+
+	var to_cell: CellInfo = grid_map[to_coords]
+	if to_cell.get_type() == Global.TERRAIN_MOUNTAIN:
+		return false
+
 	from_cell.set_power(total_power - move_amount)
-	#添加到操作引起的变动表，用于联网的同步优化
-	acted_coords[from_coords] = true
-	acted_coords[to_coords] = true
-	# 同一个 general，直接合兵
-	if to_cell.get_general_id() == from_cell.get_general_id():
+	#同一个owner
+	if to_cell.get_owner() == from_cell.get_owner():
 		to_cell.set_power(to_cell.get_power() + move_amount)
 	else:
 		var last_power = to_cell.get_power() - move_amount
 		if last_power > 0:
 			to_cell.set_power(last_power)
-		# 兵力相同，双方消耗兵力但是不能占领
 		elif last_power == 0:
-			to_cell.set_power(0)
-			# to_cell.set_general_id(0)原有的general不变，为了避免capital或者city变为general0的情况
+			to_cell.set_owner(0)
 		else:
 			if to_cell.get_type() == Global.TERRAIN_CAPITAL:
-				occupy_general(from_cell.get_general_id(), to_cell.get_general_id())
+				occupy_owner(from_cell.get_owner(), to_cell.get_owner())
 				from_cell.set_power(from_cell.get_power() + move_amount)
 				return true
 			to_cell.set_power(move_amount - to_cell.get_power())
-			to_cell.set_general_id(from_cell.get_general_id())
-			general_to_player[to_cell.get_general_id()] = general_to_player[from_cell.get_general_id()]
-	
+			to_cell.set_owner(from_cell.get_owner())
+			owner_to_player[to_cell.get_owner()] = owner_to_player[from_cell.get_owner()]
 	return true
 
-func occupy_general(from_general_id: int, to_general_id: int) -> void:
-	if from_general_id == to_general_id:
+func occupy_owner(from_owner_id: int, to_owner_id: int) -> void:
+	if from_owner_id == to_owner_id:
 		return
-	if not general_to_player.has(from_general_id):
-		push_error("占领失败：from_general_id 不存在")
+	if not owner_to_player.has(from_owner_id):
+		push_error("占领失败：from_owner_id 不存在")
 		return
-	if not general_to_player.has(to_general_id):
-		push_error("占领失败：to_general_id 不存在")
+	if not owner_to_player.has(to_owner_id):
+		push_error("占领失败：to_owner_id 不存在")
 		return
-	var player_id: int = general_to_player[from_general_id]
-	general_to_player[to_general_id] = player_id
+	var player_id: int = owner_to_player[from_owner_id]
+	owner_to_player[to_owner_id] = player_id
 
-
-# general用这个函数进行操作，避免一回合操作多次
-func add_general_action(from_coords: Vector2i, direction_index: int, ratio: float) -> bool:
-	if not cell_map.has(from_coords):
+# 玩家用这个函数进行操作，避免一回合操作多次
+func queue_action(from_coords: Vector2i, direction_index: int, ratio: float) -> bool:
+	if not grid_map.has(from_coords):
 		return false
-	var from_cell: CellInfo = cell_map[from_coords]
-	var general_id = from_cell.get_general_id()
-	if general_id == 0 or acted_generals.has(general_id):
+	var from_cell: CellInfo = grid_map[from_coords]
+	var owner_id = from_cell.get_owner()
+	if owner_id == 0 or acted_owners.has(owner_id):
 		return false
-	general_actions.append({
+	pending_actions.append({
 		"from": from_coords,
 		"dir": direction_index,
 		"ratio": ratio
 	})
-	acted_generals[general_id] = true
+	acted_owners[owner_id] = true
 	return true
 
 func execute_turn() -> void:
-	update_power_by_terrain()
-	# 结算玩家操作
-	for action in general_actions:
+	turn_count += 1
+	for coords in grid_map.keys():
+		var cell: CellInfo = grid_map[coords]
+		var _owner := cell.get_owner()
+		if _owner == 0:
+			continue
+		var player: int = owner_to_player.get(_owner, 0)
+		if player == 0:
+			continue
+
+		var cell_type := cell.get_type()
+
+		if cell_type == Global.TERRAIN_CITY or cell_type == Global.TERRAIN_CAPITAL:
+			cell.set_power(cell.get_power() + 1)
+		elif turn_count % 25 == 0 and cell_type == Global.TERRAIN_EMPTY:
+			cell.set_power(cell.get_power() + 1)
+		elif cell_type == Global.TERRAIN_WATER:
+			var power := cell.get_power()
+			if power > 0:
+				power -= 1
+				cell.set_power(power)
+				if power == 0:
+					cell.set_owner(0)
+	
+	for action in pending_actions:
 		move_power(action["from"], action["dir"], action["ratio"])
-	general_actions.clear()
-	acted_generals.clear()
-	# 更新general可见表
-	update_general_index()
-	# 更新玩家可见表，并计算玩家视野delta
-	compute_player_deltas()
+	pending_actions.clear()
+	acted_owners.clear()
+	
+	update_owner_index()

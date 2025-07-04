@@ -13,19 +13,14 @@ var selected_tile_coords: Vector2i = Vector2i.ZERO  # 当前鼠标选中的格�
 
 var current_highlighted_tile: Vector2i = Vector2i(-9999, -9999)  # 默认非法值
 
-var playermap=PlayerMap.new()
-
 # 启动函数
 func start()->void:
 	await get_tree().create_timer(0.5).timeout
-	fullmap.random_init(10,3,8)
-	#playermap.init_from_fullmap(fullmap,1)
-	playermap.init_from_dict(fullmap.export_init_data_for_player(1))
+	fullmap.random_init(100,3,8)
 	map.clear()
-	timer_turn.start()  # 每秒自动调用 timeout 
-	map. display_playermap_fog(playermap)
-	map. display_playermap(playermap)
-	# map. display_map_for_player(fullmap,1)
+	timer_turn.start()  # 每秒自动调用 timeout
+	map. display_full_map_fog(fullmap)
+	map. display_map_for_player(fullmap,1)
 func _ready() -> void:
 	start()
 
@@ -58,7 +53,7 @@ func _input(event: InputEvent) -> void:
 	elif event is InputEventKey and event.pressed:
 		var cell = fullmap.get_cell(selected_tile_coords)
 		if cell != null:
-			var general = cell.get_general_id()
+			var owner = cell.get_owner()
 			var dir_index := -1
 			match event.keycode:
 				KEY_Q: dir_index = Global.DIR_UP_L     # (-1, 0) 左上
@@ -70,7 +65,7 @@ func _input(event: InputEvent) -> void:
 
 			if dir_index != -1:
 				var target_tile_coords=selected_tile_coords+Global.HEX_DIRECTIONS[dir_index]
-				if general != 0 and fullmap.general_to_player.has(general) and fullmap.general_to_player[general] == player_id :
+				if owner != 0 and fullmap.owner_to_player.has(owner) and fullmap.owner_to_player[owner] == player_id :
 					fullmap.move_power(selected_tile_coords,dir_index,1.0)
 				if fullmap.cell_visible_for_player(target_tile_coords,player_id):
 					# 若目标可见，更新选中格子的位置和高亮
@@ -84,14 +79,6 @@ func _process(delta: float) -> void:
 	pass
 
 func _on_timer_turn_timeout() -> void:
-	
-	fullmap.execute_turn()
-	
-	playermap.update_player_map(fullmap.export_player_delta(1), fullmap.export_general_to_player())
-	
-	fullmap.acted_coords.clear()
-	
-	
-	map.display_playermap(playermap)
-	# map. display_map_for_player(fullmap, player_id)  # 重新显示新状态
+	await fullmap.execute_turn()
+	map. display_map_for_player(fullmap, player_id)  # 重新显示新状态
 	pass 

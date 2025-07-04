@@ -18,14 +18,8 @@ const TERRAIN_CAPITAL := 0   # 主城
 const TERRAIN_WATER := 1     # 水域
 const TERRAIN_MOUNTAIN := 2  # 山地
 const TERRAIN_EMPTY := 3     # 空地
-const TERRAIN_CITY := 4      # 空地
-#
-const INVIS_EMPTY   :=TERRAIN_EMPTY        #空地/主城 显示空地
-const INVIS_MOUNTAIN:=TERRAIN_MOUNTAIN     #山地/城市 显示山地
-const INVIS_WATER   :=TERRAIN_WATER        #水       显示水
+const TERRAIN_CITY := 4      # 城市
 
-
-# 地形材质
 const TERRAIN_TILE_INFO := {
 	TERRAIN_CAPITAL: {
 		"source_id": 0,
@@ -53,3 +47,5 @@ const TERRAIN_TILE_INFO := {
 		"alternative_tile": 0,
 	},
 }
+
+# 材质相关

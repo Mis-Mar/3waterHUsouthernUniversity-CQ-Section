@@ -15,22 +15,27 @@ var path_operations: Array = []
 #我添加了new（）初始化
 var search_tree: Treelib=Treelib.new()
 
+var player_id: int
+
 var influence_map: Dictionary = {}
 var final_influence_map: Dictionary = {}
 
-func _init(original: AlgorithmMap) -> void:
-	self.player_id = original.player_id
-	#引用原地图
-	cell_map=original.cell_map
-	base_map=original.base_map
-	# 拷贝almap的特有数据
-	for coord in original.cell_map.keys():
-		self.value_map[coord] = cell_map[coord].get_power()
+func _init(original: AlgorithmMap, _player_id: int) -> void:
+	base_map = original
+	self.player_id = _player_id
+	grid_map.clear()
+	# 拷贝格子数据
+	for coord in original.grid_map.keys():
+		var original_cell: CellInfo = original.grid_map[coord]
+		grid_map[coord] = original_cell.clone()
+		self.value_map[coord] = grid_map[coord].get_power()
 		self.distance_map[coord] = INF
 		self.influence_map[coord] = 0
 		self.final_influence_map[coord] = 0
-	# 引用 general_to_player 映射
-	general_to_player=original.general_to_player
+	# 拷贝 owner_to_player 映射（深拷贝，避免污染）
+	owner_to_player = {}
+	for key in original.owner_to_player.keys():
+		owner_to_player[key] = original.owner_to_player[key]
 	# 拷贝当前回合数
 	turn_count = original.turn_count
 
@@ -81,7 +86,7 @@ func calculate_influence(target_point: Vector2i) -> void:
 	#预处理节点价值
 	value_preprocessing(target_point)
 	#计算当前节点影响值和附加影响值
-	for coord in base_map.cell_map.keys():
+	for coord in base_map.grid_map.keys():
 		if influence_map[coord] > 0 and coord != target_point:
 			influence_map[coord] = pow(influence_map[coord], 2) * self.value_param
 			self.propagate_influence(coord)
@@ -92,10 +97,10 @@ func calculate_influence(target_point: Vector2i) -> void:
 func value_preprocessing(target_point: Vector2i) -> void:
 	#预处理节点价值
 	#TODO 完成预处理功能
-	for coord in base_map.cell_map.keys():
+	for coord in base_map.grid_map.keys():
 		var cell: CellInfo = self.get_cell(coord)
 		if cell.get_type() != Global.TERRAIN_MOUNTAIN:
-			if base_map.general_to_player[cell.get_general_id()]  == self.player_id:
+			if cell.get_owner() == self.player_id:
 				influence_map[coord] = cell.get_power() - 1
 			else:
 				influence_map[coord] = - (cell.get_power() + 1)
@@ -133,20 +138,14 @@ func reverse_bfs(start_point: Vector2i, demand: int) -> bool:
 	
 	while not open_list.is_empty():
 		var current: Vector2i = open_list.pop()
-		print(current)
 		#TODO range_threshold参数使用方法
 		if current not in close_list and distance_map[current] <= range_threshold:
 			close_list.append(current)
+			
 			#累计价值
 			var cell: CellInfo = self.get_cell(current)
 			
-			print(current)
-			print(cell.get_power())
-			print(influence_map[current])
-			print(final_influence_map[current])
 			accumulated_value += cell.get_power() - 1
-			
-			print(accumulated_value)
 			
 			if(cell.get_power()>1):
 				source_points.append(current)
@@ -157,7 +156,6 @@ func reverse_bfs(start_point: Vector2i, demand: int) -> bool:
 			
 			var neighbors: Array[Vector2i] = self.get_neighbors_state0(current)
 			for neighbor: Vector2i in neighbors:
-				print(neighbors)
 				if neighbor not in close_list:
 					if self.distance_map[neighbor] <= self.range_threshold:
 						if not self.search_tree.get_node(str(neighbor)):
