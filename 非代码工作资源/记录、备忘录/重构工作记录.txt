@@ -1,0 +1,33 @@
+cellinfo
+由于godot的rpc远程通信函数的参数不能传递自定义类，所以要将自定义类标准化为dictionary，cellinfo新定义了两个函数to_dict()，from_dict用来转化
+
+basemap
+内置一个cell_map灵活使用
+general_to_player，general到player的映射表，所有玩家都公开知道的
+turn_count 回合数，所有玩家都知道
+
+FullMap
+general_actions  # 操作队列，同步用
+acted_generals# 记录已经行动过的 general，key = general_id，同步用
+acted_coords: Dictionary = {}   因为玩家操作引起变化的坐标集
+general_to_coords: Dictionary = {}# 性能优化，存储每个general的领地集合，每回合刷新
+last_visible_tiles: Dictionary = {}  # player_id → 上一回合的可见格子 Set
+player_delta: Dictionary = {}  # player_id → delta 字典
+cell_map存储所有格子的信息
+通信逻辑（服务端）：
+	每回合结束后，fullmap要execute_turn，先依据地图刷新power，然后结算所有的玩家操作，并记录下操作成功的格子的坐标后	刷新general_to_coords
+	然后compute_player_deltas()，计算玩家的更新内容，其实是遍历了所有玩家id，分别通过general_to_coords获取视野，和last_visible_tiles对比，得到新获取的视野和丢失的视野
+	然后添加格子信息：主要包含: 新视野内的cellinfo，由于玩家操作而改变的cellinfo
+
+PLayerMap
+player_id# 表示这个地图归属的玩家
+var invis_state_map: Dictionary = {}  #存储区块不可见的状态id：（空地/主城？） （山地/城市？）(水域) 也存储了所有的地图key，可用于表示地图范围
+
+宏定义的状态表见Global.gd
+const INVIS_EMPTY   :=TERRAIN_EMPTY        #空地/主城 显示空地
+const INVIS_MOUNTAIN:=TERRAIN_MOUNTAIN     #山地/城市 显示山地
+const INVIS_WATER   :=TERRAIN_WATER        #水       显示水
+
+通信逻辑(客户端)
+	接受服务端信号决定什么时候更新回合
+	本地计算地图刷新power，接受服务端更新视野和玩家的结算变化量，理想情况不会出现偏差
