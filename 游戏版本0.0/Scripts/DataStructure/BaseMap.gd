@@ -5,6 +5,7 @@ class_name BaseMap
 # 数据结构
 var cell_map: Dictionary = {}  # Dictionary<Vector2i, GridCell>所有格子的字典，就当CellInfo类型的二维数组来用
 var general_to_player: Dictionary = {}# 表格，一个general有一个player，一个player对应多个general 值为0表示未被控制
+#TODO 更改描述
 var turn_count: int = 0  # 回合总数
  
 func get_cell(coords: Vector2i) -> CellInfo:
@@ -132,17 +133,6 @@ func get_neighbors_state0(center: Vector2i) -> Array[Vector2i]:
 		var neighbor_coords: Vector2i = center + dir
 		if cell_map.has(neighbor_coords):
 			if get_cell(neighbor_coords).get_type() != Global.TERRAIN_MOUNTAIN:
-				neighbors.append(neighbor_coords)
-	return neighbors
-
-# state1: 排除山地和非己方节点
-func get_neighbors_state1(center: Vector2i, _player_id: int) -> Array[Vector2i]:
-	var neighbors: Array[Vector2i] = []
-	for dir in Global.HEX_DIRECTIONS:
-		var neighbor_coords: Vector2i = center + dir
-		if cell_map.has(neighbor_coords):
-			var cell := get_cell(neighbor_coords)
-			if cell.get_type() != Global.TERRAIN_MOUNTAIN and cell.get_general() == _player_id:
 				neighbors.append(neighbor_coords)
 	return neighbors
 

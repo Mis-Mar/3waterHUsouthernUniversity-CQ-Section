@@ -117,7 +117,7 @@ func propagate_influence(start_point: Vector2i) -> void:
 			var additional_influence: float = influence_map[start_point] / sqrt((1 + dist) * self.distance_param)
 			if additional_influence >= self.influence_threshold:
 				final_influence_map[current] += additional_influence
-				var neighbors: Array[Vector2i] = self.get_neighbors_state0(current)
+				var neighbors: Array[Vector2i] = self.get_neighbors_state3(current, self.general_id)
 				for neighbor: Vector2i in neighbors:
 					queue.append([neighbor, dist + 1])
 

@@ -5,14 +5,16 @@ class_name AlgorithmMap
 
 # 原始地图只读引用，用于获取真实游戏状态（注意只是引用，不要做更改）
 var base_map: PlayerMap
+var general_id: int
 
 # 算法专用的附加内容（这只是示例，看你需要什么用什么类型）
 var value_map: Dictionary = {}  # 例如影响力、评分
 var distance_map: Dictionary = {}
 
 # 初始化AlgorithmMap 用一个PlayerMap
-func _init(original: PlayerMap) -> void:
+func _init(original: PlayerMap, _general_id: int) -> void:
 	base_map = original
+	self.general_id = general_id
 	cell_map.clear()
 	# 直接引用原地图的cellinfo
 	cell_map=original.cell_map

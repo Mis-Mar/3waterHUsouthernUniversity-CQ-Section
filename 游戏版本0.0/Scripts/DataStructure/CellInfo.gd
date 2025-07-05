@@ -3,7 +3,7 @@ class_name CellInfo
 extends Resource
 
 var _private_terrain_type: int = 0     # 空地，山，水，主城，城市
-var _private_general_id: int = 0       # 0=未占领，1,2,... 表示不同玩家
+var _private_general_id: int = 0       # 0=未占领，1,2,... 表示不同general
 var _private_power: int = 0            # 空地/主城：当前兵力；城市：占领所需兵力
 # 使用了脏数据优化性能，以后只用函数来操作数据
 var _private_is_dirty: bool = true    # 默认 false，标记是否需要重绘或更新显示
