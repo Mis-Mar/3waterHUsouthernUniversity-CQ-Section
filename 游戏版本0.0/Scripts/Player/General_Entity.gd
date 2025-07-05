@@ -5,8 +5,7 @@ var Expansion_agent: ExpansionAgent
 var general_id: int
 var main_city: Vector2i
 var player_id: int
-var player_map: FullMap
-#TODO player_map
+var player_map: PlayerMap
 
 var path_operations: Array[Vector2i]
 
@@ -16,7 +15,7 @@ func _ready() -> void:
 	agent_path_output.connect(on_path_add)
 	_run()
 
-func _init(_general_id: int, _main_city:Vector2i, _player_id: int, _player_map: FullMap) -> void:
+func _init(_general_id: int, _main_city:Vector2i, _player_id: int, _player_map: PlayerMap) -> void:
 	self.general_id = _general_id
 	self.main_city = main_city
 	self.player_id = _player_id

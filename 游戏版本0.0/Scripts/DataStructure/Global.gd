@@ -4,14 +4,14 @@ extends Node
 
 # 六边形向量的方向对应索引
 const DIR_DOWM_R := 0        # (1, 0)
-const DIR_DOWM_L := 1        # (0, 1)
-const DIR_DOWN := 2          # (1, 1)
-const DIR_UP := 3            # (-1, -1)
-const DIR_UP_R := 4          # (0, -1)
-const DIR_UP_L := 5          # (-1, 0)
+const DIR_DOWM_L := 4        # (0, 1)
+const DIR_DOWN := 5          # (1, 1)
+const DIR_UP := 2            # (-1, -1)
+const DIR_UP_R := 1          # (0, -1)
+const DIR_UP_L := 3          # (-1, 0)
 const HEX_DIRECTIONS := [# 六边形邻接向量
-	Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1),
-	Vector2i(-1, -1), Vector2i(0, -1), Vector2i(-1, 0)
+	Vector2i(1, 0), Vector2i(0, -1), Vector2i(-1, -1),
+	Vector2i(-1, 0), Vector2i(0, 1), Vector2i(1, 1)
 ]
 # 地块信息相关  TERRAIN
 const TERRAIN_CAPITAL := 0   # 主城

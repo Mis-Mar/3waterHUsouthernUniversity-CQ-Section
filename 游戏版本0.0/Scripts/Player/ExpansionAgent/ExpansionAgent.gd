@@ -13,7 +13,7 @@ var Not_Occupy: Array[Vector2i] = []
 
 var general: General_Entity
 var player_id: int
-var full_map: FullMap
+var player_map: PlayerMap
 
 var path_operations: Array
 var path_class: int
@@ -23,12 +23,12 @@ signal path_add(path_class: int, _path_operations: Array[Vector2i])
 func _ready() -> void:
 	path_add.connect(on_path_add)
 
-func _init(_player_id: int,_main_city: Vector2i, _full_map: FullMap) -> void:
+func _init(_player_id: int,_main_city: Vector2i, _player_map: PlayerMap) -> void:
 	self.player_id = _player_id
 	self.main_city = _main_city
-	self.full_map = _full_map
-	algorithm_map = AlgorithmMap.new(self.full_map)
-	search_algorithm = M2S_SearchAlgorithm.new(self.algorithm_map,self.player_id)
+	self.player_map = _player_map
+	algorithm_map = AlgorithmMap.new(self.player_map)
+	search_algorithm = M2S_SearchAlgorithm.new(self.algorithm_map)
 
 func _run() -> void:
 	state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.SEARCHING_EMPTYCITY)

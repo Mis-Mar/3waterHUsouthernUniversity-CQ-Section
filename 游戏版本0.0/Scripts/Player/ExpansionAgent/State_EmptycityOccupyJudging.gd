@@ -14,10 +14,10 @@ func enter() -> void:
 		start_occupation_process()
 	else:
 		state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.SEARCHING_EMPTYCITY)
-
+#TODO 城市占领队列按占领难度（路径长度）优先队列排序
 func could_occupy_empty_city() -> bool:
 	for target_point in Not_Occupy:
-		var cell: CellInfo = agent.full_map.get_cell(target_point)
+		var cell: CellInfo = agent.player_map.get_cell(target_point)
 		var demand: int = cell.get_power()
 		var path = agent.search_algorithm.M2S_Search(target_point,demand,3,1,10,50)
 		if path != [-1]:

@@ -10,7 +10,7 @@ var base_map: PlayerMap
 var value_map: Dictionary = {}  # 例如影响力、评分
 var distance_map: Dictionary = {}
 
-# 初始化AlgorithmMap 用一个fullmap
+# 初始化AlgorithmMap 用一个PlayerMap
 func _init(original: PlayerMap) -> void:
 	base_map = original
 	cell_map.clear()

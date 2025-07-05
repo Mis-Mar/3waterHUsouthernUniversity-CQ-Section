@@ -19,6 +19,45 @@ func get_all_coords() -> Array[Vector2i]:
 # 检查某个坐标是否存在
 func is_valid_coord(coord: Vector2i) -> bool:
 	return cell_map.has(coord)
+	
+func get_distance_2coords(coord1: Vector2i, coord2: Vector2i) -> int:
+	if is_valid_coord(coord1) and is_valid_coord(coord2):
+		return max(abs(coord1.x - coord2.x), abs(coord1.y - coord2.y), abs((coord1.x-coord1.y) - (coord2.x-coord2.y)))
+	else:
+		printerr("坐标超界")
+		return -1
+
+func get_direction(start_coord: Vector2i, end_coord: Vector2i) -> Vector2i:
+	var vector: Vector2i = end_coord - start_coord
+	if vector.x>=1 and vector.x>vector.y and vector.y>=0:
+		return Vector2i(1,0)
+	elif vector.y>=1 and vector.y>=vector.x and vector.x>=1:
+		return Vector2i(1,1)
+	elif vector.y>=1 and vector.x<=0:
+		return Vector2i(0,1)
+	elif vector.x<=-1 and vector.x<vector.y and vector.y<=0:
+		return Vector2i(-1,0)
+	elif vector.y<=-1 and vector.y<=vector.x and vector.x<=-1:
+		return Vector2i(-1,-1)
+	elif vector.y<=-1 and vector.x>=0:
+		return Vector2i(0,-1)
+	else:
+		return Vector2i(0,0)
+	
+func spiral_rings_traversal(center: Vector2i, radius: int) -> Array:
+	var result: Array = [center]
+	for j in range(1,radius):
+		result.append(ring_traversal(center,j))
+	return result
+	
+func ring_traversal(center: Vector2i, radius: int) -> Array:
+	var result: Array = [center]
+	var current: Vector2i = center + Vector2i(0, 1) * radius
+	for i in Global.HEX_DIRECTIONS:
+		for j in range(radius):
+			result.append(current)
+			current += i
+	return result
 
 func check_cell_player(coord: Vector2i, player_id: int) -> bool:
 	if is_valid_coord(coord):
@@ -141,3 +180,27 @@ func update_power_by_terrain() -> void:
 				cell.set_power(power)
 				if power == 0:
 					cell.set_general_id(0)
+
+func build_Astar_path(start_point:Vector2i, end_point:Vector2i) -> Array:
+	#构建起点-终点最短A*路径，输出 起点……终点 list
+	if is_valid_coord(start_point) and is_valid_coord(end_point):
+		var open_list: PriorityQueue=PriorityQueue.new()
+		var close_list: Array[Vector2i] = []
+		var distance: Dictionary = {}
+		
+		distance[start_point] = 0
+		open_list.push(distance[start_point] + get_distance_2coords(start_point, end_point), start_point)
+		
+		while not open_list.is_empty():
+			var current: Vector2i = open_list.pop()
+			if current not in close_list:
+				close_list.push_back(current)
+				var neighbors: Array[Vector2i] = self.get_neighbors_state0(current)
+				for neighbor: Vector2i in neighbors:
+					if neighbor not in close_list:
+						distance[neighbor] = distance[current] + 1
+						open_list.push(distance[neighbor]+get_distance_2coords(neighbor, end_point), neighbor)
+		return close_list
+	else:
+		printerr("坐标超界")
+		return [-1]	

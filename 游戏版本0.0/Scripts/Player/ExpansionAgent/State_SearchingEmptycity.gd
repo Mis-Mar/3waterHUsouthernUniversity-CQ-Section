@@ -27,8 +27,8 @@ func search_empty_city(jump_param: int,estimated_demand: int) -> bool:
 	#前往可抵达城市
 	var target_point = Not_Found.pop_front()
 	searh_path.clear()
-	#TODO 构建A*路径
-	var path_point: Array[Vector2i] = []
+	var path_point: Array[Vector2i] = agent.player_map.build_Astar_path(target_point,target_point)
+	#待更新：出发点
 	while !path_point.is_empty():
 		target_point = path_point.pop_front()
 		var path = agent.search_algorithm.M2S_Search(target_point,estimated_demand,3,1,20,20)
@@ -47,7 +47,7 @@ func is_vision_sufficient() -> bool:
 	Not_Found = agent.Not_Found
 	
 	var distance_map: Dictionary = {}
-	for coord in agent.full_map.grid_map.keys():
+	for coord in agent.player_map.grid_map.keys():
 		distance_map[coord] = INF
 		
 	var queue: Array[Vector2i] = [main_city]
@@ -57,7 +57,7 @@ func is_vision_sufficient() -> bool:
 		var current = queue.pop_front()  # 从队列头部取出
 		var current_distance = distance_map[current]
 		
-		var cell: CellInfo = agent.full_map.get_cell(current)
+		var cell: CellInfo = agent.player_map.get_cell(current)
 		if cell.get_type() == Global.TERRAIN_CITY and cell.get_owner() != agent.player_id and current not in Not_Found:
 			#TODO 玩家地图类
 			Not_Found.append(current)
@@ -66,7 +66,7 @@ func is_vision_sufficient() -> bool:
 			break
 		
 		# 获取所有邻居
-		var neighbors = agent.full_map.get_neighbors_state1(current,player_id)
+		var neighbors = agent.player_map.get_neighbors_state1(current,player_id)
 		#TODO 根据玩家视野改进
 		for neighbor in neighbors:
 			# 如果邻居尚未访问过 (距离为无穷大)
@@ -83,29 +83,27 @@ func is_vision_sufficient() -> bool:
 func kamikaze_search(start_point: Vector2i, sight_range: int) -> void:
 	var visited: Array[Vector2i] = [start_point]
 	#TODO 考虑是否有必要？
-	var cell: CellInfo = agent.full_map.get_cell(start_point)
+	var cell: CellInfo = agent.player_map.get_cell(start_point)
 	var direction: Vector2i
 	while cell.get_power() > 1:
 		direction = Not_Found_in_sight_direction(start_point, sight_range)
 		start_point += direction
 		send_path([start_point])
 		#TODO 等待更新
-		cell = agent.full_map.get_cell(start_point)
+		cell = agent.player_map.get_cell(start_point)
 
 func Not_Found_in_sight_direction(start_point: Vector2i, sight_range: int) -> Vector2i:
-	var cells_in_sight: Array[Vector2i] = agent.full_map.cube_spiral(start_point, sight_range)
-	#TODO map中添加环遍历方法(螺旋环 https://www.redblobgames.com/grids/hexagons/
+	var cells_in_sight: Array[Vector2i] = agent.player_map.spiral_rings_traversal(start_point, sight_range)
 	var direction_count: Dictionary = {}
-	var max_direction: Vector2i
+	direction_count[Vector2i(0,0)] = 0
+	var max_direction: Vector2i = Vector2i(0,0)
 	for coord in cells_in_sight:
-		var cell: CellInfo = agent.full_map.get_cell(coord)
-		#TODO 范围判断
-		#TODO 加入direction_count中
+		var direction:Vector2i = agent.player_map.get_direction(start_point, coord)
+		if agent.player_map.invis_state_map[coord] == Global.INVIS_MOUNTAIN:
+			direction_count[direction] += 1
+			if(direction_count[direction] > direction_count[max_direction]):
+				max_direction = direction
 		#TODO 开关：是否节约power
-		#eg：
-		direction_count[Vector2i(-1,0)] += 1
-		if direction_count[Vector2i(-1,0)] > direction_count[max_direction]:
-			max_direction = Vector2i(-1,0)
 	return max_direction
 		
 func send_path(path_operations: Array[Vector2i]) -> void:
