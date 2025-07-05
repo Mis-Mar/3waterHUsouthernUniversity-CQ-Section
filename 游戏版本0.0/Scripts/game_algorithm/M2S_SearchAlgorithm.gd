@@ -25,6 +25,7 @@ func _init(original: AlgorithmMap) -> void:
 	base_map=original.base_map
 	# 拷贝almap的特有数据
 	for coord in original.cell_map.keys():
+		#TODO 如何添加未知节点？
 		self.value_map[coord] = cell_map[coord].get_power()
 		self.distance_map[coord] = INF
 		self.influence_map[coord] = 0
@@ -55,12 +56,16 @@ func M2S_Search(target_point: Vector2i, demand: int, _value_param: float, _dista
 		return path_operations
 
 func reset() -> void:
-	for coord in self.influence_map:
+	influence_map.clear()
+	final_influence_map.clear()
+	distance_map.clear()
+	
+	for coord in self.cell_map:
 		self.influence_map[coord] = 0
-	for coord in self.final_influence_map:
 		self.final_influence_map[coord] = 0
-	for coord in self.distance_map:
 		self.distance_map[coord] = INF
+	#TODO 如何添加未知节点？
+	
 	source_points.clear()
 	path_operations.clear()
 	self.search_tree.clear()
@@ -105,21 +110,22 @@ func value_preprocessing(target_point: Vector2i) -> void:
 func propagate_influence(start_point: Vector2i) -> void:
 	# 创建队列 (使用数组模拟队列)
 	var queue: Array = [[start_point, 0]]
-	var visited: Array = []
+	var visited: Dictionary = {}
 	# 开始BFS遍历
 	while not queue.is_empty():
 		var AR: Array = queue.pop_front()
 		var current: Vector2i = AR[0]  # 从队列头部取出
 		var dist: int = AR[1]
-		if current not in visited:
+		if not visited.has(current):
 			# 获取所有邻居
-			visited.append(current)
+			visited[current] = true
 			var additional_influence: float = influence_map[start_point] / sqrt((1 + dist) * self.distance_param)
 			if additional_influence >= self.influence_threshold:
 				final_influence_map[current] += additional_influence
-				var neighbors: Array[Vector2i] = self.get_neighbors_state3(current, self.general_id)
+				var neighbors: Array[Vector2i] = self.get_neighbors_state4(current, self.general_id)
 				for neighbor: Vector2i in neighbors:
-					queue.append([neighbor, dist + 1])
+					if not visited.has(current):
+							queue.append([neighbor, dist + 1])
 
 func reverse_bfs(start_point: Vector2i, demand: int) -> bool:
 	self.search_tree.create_root(str(start_point), start_point)
@@ -137,26 +143,29 @@ func reverse_bfs(start_point: Vector2i, demand: int) -> bool:
 		#TODO range_threshold参数使用方法
 		if current not in close_list and distance_map[current] <= range_threshold:
 			close_list.append(current)
-			#累计价值
-			var cell: CellInfo = self.get_cell(current)
 			
-			print("current:")
-			print(current)
-			print(cell.get_power())
-			print(influence_map[current])
-			print(final_influence_map[current])
-			accumulated_value += cell.get_power() - 1
+			if cell_map.has(current):
+				print("current:")
+				print(current)
+				print(influence_map[current])
+				print(final_influence_map[current])
+				print(accumulated_value)
+				accumulated_value += self.value_map[current] - 1
+				if(self.value_map[current]>1):
+					#TODO power都是己方节点吗？
+					source_points.append(current)
+					#如果累计价值超过需求值，则终止搜索
+					if accumulated_value > demand:
+						has_solution = true
+						break
+			elif invis_state_map.has(current):
+				if invis_state_map[current] == Global.INVIS_EMPTY or invis_state_map[current] == Global.INVIS_WATER:
+					accumulated_value -= 1 
+			else:
+				print("error for strange point in M2S")
 			
-			print(accumulated_value)
-			
-			if(cell.get_power()>1):
-				source_points.append(current)
-				#如果累计价值超过需求值，则终止搜索
-				if accumulated_value > demand:
-					has_solution = true
-					break
 			print("neighbors:")
-			var neighbors: Array[Vector2i] = self.get_neighbors_state0(current)
+			var neighbors: Array[Vector2i] = self.get_neighbors_state4(current,self.general_id)
 			for neighbor: Vector2i in neighbors:
 				print(neighbor)
 				if neighbor not in close_list:

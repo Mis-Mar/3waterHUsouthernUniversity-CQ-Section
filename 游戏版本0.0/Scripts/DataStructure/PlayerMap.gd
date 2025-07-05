@@ -108,7 +108,7 @@ func get_neighbors_state2(center: Vector2i, general_id:int) -> Array[Vector2i]:
 			neighbors.append(neighbor_coords)
 	return neighbors
 	
-# state2: 对于已知排除山地、敌方节点，对于未知排除山地 对象：general
+# state3: 对于已知排除山地、敌方节点，对于未知排除山地 对象：general
 func get_neighbors_state3(center: Vector2i, general_id:int) -> Array[Vector2i]:
 	var neighbors: Array[Vector2i] = []
 	for dir in Global.HEX_DIRECTIONS:
@@ -116,6 +116,19 @@ func get_neighbors_state3(center: Vector2i, general_id:int) -> Array[Vector2i]:
 		if cell_map.has(neighbor_coords):
 			var cell := get_cell(neighbor_coords)
 			if cell.get_type() != Global.TERRAIN_MOUNTAIN and cell.get_general() == general_id:
+				neighbors.append(neighbor_coords)
+		elif self.invis_state_map[neighbor_coords] != Global.INVIS_MOUNTAIN:
+			neighbors.append(neighbor_coords)
+	return neighbors
+	
+# state4: 对于已知排除山地，对于未知排除山地 对象：general
+func get_neighbors_state4(center: Vector2i, general_id:int) -> Array[Vector2i]:
+	var neighbors: Array[Vector2i] = []
+	for dir in Global.HEX_DIRECTIONS:
+		var neighbor_coords: Vector2i = center + dir
+		if cell_map.has(neighbor_coords):
+			var cell := get_cell(neighbor_coords)
+			if cell.get_type() != Global.TERRAIN_MOUNTAIN :
 				neighbors.append(neighbor_coords)
 		elif self.invis_state_map[neighbor_coords] != Global.INVIS_MOUNTAIN:
 			neighbors.append(neighbor_coords)

@@ -22,6 +22,9 @@ func _init(original: PlayerMap, _general_id: int) -> void:
 	for coord in original.cell_map.keys():
 		# 示例，获取所有格子构造value_map初始化value为0
 		value_map[coord] = self.get_cell(coord).get_power()
+		#TODO 对于敌方节点能否getpower？
+		#TODO 添加节点从属map？
+		#TODO 如何初始化未知节点？
 		distance_map[coord] = INF
 	# 引用 general_to_player 映射（深拷贝，避免污染）
 	general_to_player = original.general_to_player
