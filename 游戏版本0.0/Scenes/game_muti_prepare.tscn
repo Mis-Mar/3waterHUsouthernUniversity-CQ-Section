@@ -1,0 +1,51 @@
+[gd_scene load_steps=2 format=3 uid="uid://cpfdpdlfqwhj6"]
+
+[ext_resource type="Script" path="res://Scripts/game_multi/game_muti_prepare.gd" id="1_6rkmj"]
+
+[node name="game_multi_prepare" type="Node2D"]
+position = Vector2(44, 33)
+script = ExtResource("1_6rkmj")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+visible = false
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="create_button" type="Button" parent="UI"]
+offset_left = 51.0
+offset_top = 129.0
+offset_right = 252.0
+offset_bottom = 208.0
+text = "创建房间"
+metadata/_edit_use_anchors_ = true
+
+[node name="join_button" type="Button" parent="UI"]
+offset_left = 52.0
+offset_top = 42.0
+offset_right = 253.0
+offset_bottom = 116.0
+text = "加入房间"
+metadata/_edit_use_anchors_ = true
+
+[node name="Panel" type="Panel" parent="UI"]
+visible = false
+offset_left = 330.0
+offset_top = 156.0
+offset_right = 832.0
+offset_bottom = 394.0
+
+[node name="ip_line_edit" type="LineEdit" parent="UI"]
+anchors_preset = -1
+anchor_bottom = -0.00925926
+offset_left = 268.0
+offset_top = 41.0
+offset_right = 1093.0
+offset_bottom = 121.0
+text = "127.0.0.1"
+metadata/_edit_use_anchors_ = true
+
+[node name="connect_timeout_timer" type="Timer" parent="UI"]
+
+[connection signal="pressed" from="UI/create_button" to="." method="_on_create_button_pressed"]
+[connection signal="pressed" from="UI/join_button" to="." method="_on_join_button_pressed"]
+[connection signal="timeout" from="UI/connect_timeout_timer" to="." method="_on_connect_timeout_timer_timeout"]

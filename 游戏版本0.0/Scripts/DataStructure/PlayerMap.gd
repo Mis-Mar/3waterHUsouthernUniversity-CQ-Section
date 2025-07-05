@@ -8,6 +8,8 @@ var player_id: int = 0
 #也存储了所有的地图key，可用于表示地图范围
 var invis_state_map: Dictionary = {}  # Dictionary<Vector2i, int>
 
+
+
 # 信号
 signal tile_newly_visible(coord: Vector2i)
 signal tile_hidden(coord: Vector2i)

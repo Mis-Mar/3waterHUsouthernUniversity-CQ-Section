@@ -49,7 +49,7 @@ func random_init(radius: int, _player_count: int, _general_count: int) -> void:
 
 	candidate_coords.shuffle()
 	var max_generals: int = min(_general_count, candidate_coords.size())
-
+	general_to_player[0] = 0
 	for general_id in range(1, max_generals + 1):
 		var coord = candidate_coords[general_id - 1]
 		var cell: CellInfo = cell_map[coord]

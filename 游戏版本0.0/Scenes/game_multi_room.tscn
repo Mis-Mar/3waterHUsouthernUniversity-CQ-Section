@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=3 uid="uid://dndnhatnjk6xb"]
+
+[ext_resource type="Script" path="res://Scripts/game_multi/game_multi_room.gd" id="1_p6yot"]
+
+[node name="game_multi_room" type="Node2D"]
+script = ExtResource("1_p6yot")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="leave_button" type="Button" parent="UI"]
+offset_left = 7.0
+offset_top = 583.0
+offset_right = 141.0
+offset_bottom = 641.0
+text = "离开房间"
+
+[node name="label_player_info" type="Label" parent="UI"]
+offset_right = 304.0
+offset_bottom = 117.0
+
+[node name="ready_button" type="Button" parent="UI"]
+offset_left = 463.0
+offset_top = 307.0
+offset_right = 670.0
+offset_bottom = 361.0
+text = "准备"
+
+[connection signal="pressed" from="UI/leave_button" to="." method="_on_leave_button_pressed"]

@@ -92,8 +92,6 @@ func curr_map_to_fullmap() -> FullMap:
 	var new_map := FullMap.new()
 	var capital_coords: Array[Vector2i] = []
 	# 第一次遍历：先建立地图数据，记录所有主城格子
-	print(get_node_or_null("main_layer"))
-	print("main_layer:", main_layer)
 	for coords in main_layer.get_used_cells():
 		var source_id := main_layer.get_cell_source_id(coords)
 		var atlas_coords := main_layer.get_cell_atlas_coords(coords)
@@ -112,6 +110,7 @@ func curr_map_to_fullmap() -> FullMap:
 		if terrain_type == Global.TERRAIN_CAPITAL:
 			capital_coords.append(coords)
 	# 第二次遍历：分配每个主城的 general 和 player（1 对 1）
+	new_map.general_to_player[0] = 0
 	for i in range(capital_coords.size()):
 		var coords = capital_coords[i]
 		var id = i + 1  # 从 1 开始编号

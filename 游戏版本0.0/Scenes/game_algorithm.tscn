@@ -1,6 +1,6 @@
 [gd_scene load_steps=15 format=4 uid="uid://umqro3jdmrun"]
 
-[ext_resource type="PackedScene" uid="uid://bgvro58iwef8p" path="res://Scene/map.tscn" id="2_306mh"]
+[ext_resource type="PackedScene" uid="uid://bgvro58iwef8p" path="res://Scenes/map.tscn" id="2_306mh"]
 [ext_resource type="Texture2D" uid="uid://bc4gcjaj7dea4" path="res://Asserts/Sprites/Grids/city0_Main.png" id="2_kj7c1"]
 [ext_resource type="Texture2D" uid="uid://p0p77jc1rift" path="res://Asserts/Sprites/Grid_group/citys.png" id="3_u3bhf"]
 [ext_resource type="Texture2D" uid="uid://bbc0r6muohce6" path="res://Asserts/Sprites/Grid_group/grounds.png" id="4_m7qrc"]

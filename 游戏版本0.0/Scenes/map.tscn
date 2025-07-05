@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://Scripts/game_test/map.gd" id="1_xgifn"]
 [ext_resource type="Texture2D" uid="uid://bbe66883wpdjc" path="res://Asserts/Sprites/Grids/Hex - Base (blank).png" id="7_dyd7c"]
-[ext_resource type="Script" path="res://Scripts/game_test/number_labels.gd" id="8_di2sg"]
+[ext_resource type="Script" path="res://Scripts/game_test/labels.gd" id="8_di2sg"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_yhjs0"]
 texture = ExtResource("7_dyd7c")
