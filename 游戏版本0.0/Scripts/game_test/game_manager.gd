@@ -27,6 +27,7 @@ func start()->void:
 	map. display_playermap_fog(playermap)
 	map. display_playermap(playermap)
 	# map. display_map_for_player(fullmap,1)
+
 func _ready() -> void:
 	start()
 
@@ -42,22 +43,24 @@ func _input(event: InputEvent) -> void:
 			# 获取左键选中的格子
 			var tile_coords = map.get_tile_coords_from_screen_pos(event.position)
 			# 如果选中的格子不可见的
-			if !fullmap.cell_visible_for_player(tile_coords,player_id):
+			if playermap.invis_state_map[tile_coords]<0:
+				
 				return
 			# 如果两次选中同一个格子就测取消选中
 			if tile_coords==selected_tile_coords:
 				tile_coords= Vector2i(-9999, -9999)
 				selected_tile_coords= Vector2i(-9999, -9999)
 			# 新选中的格子和已经选中的格子是相邻而且可移动，就执行移动操作
-			if fullmap.cell_belong_player( selected_tile_coords,player_id) and fullmap.get_adjacent_vector_id(selected_tile_coords,tile_coords)!=-1:
-				fullmap.move_power(selected_tile_coords,fullmap.get_adjacent_vector_id(selected_tile_coords,tile_coords),1.0)
+			if playermap.cell_belong_player( selected_tile_coords,player_id) and playermap.get_adjacent_vector_id(selected_tile_coords,tile_coords)!=-1:
+				
+				fullmap.add_general_action(selected_tile_coords,playermap.get_adjacent_vector_id(selected_tile_coords,tile_coords),1.0)
 			# 更新选中格子并高亮
-			if fullmap.cell_visible_for_player(tile_coords,player_id):
+			if playermap.cell_visible_for_player(tile_coords,player_id):
 				selected_tile_coords = tile_coords
 			highlight_selected_tile(selected_tile_coords)
 
 	elif event is InputEventKey and event.pressed:
-		var cell = fullmap.get_cell(selected_tile_coords)
+		var cell = playermap.get_cell(selected_tile_coords)
 		if cell != null:
 			var general = cell.get_general_id()
 			var dir_index := -1
@@ -71,9 +74,9 @@ func _input(event: InputEvent) -> void:
 
 			if dir_index != -1:
 				var target_tile_coords=selected_tile_coords+Global.HEX_DIRECTIONS[dir_index]
-				if general != 0 and fullmap.general_id_to_player_id.has(general) and fullmap.general_id_to_player_id[general] == player_id :
-					fullmap.move_power(selected_tile_coords,dir_index,1.0)
-				if fullmap.cell_visible_for_player(target_tile_coords,player_id):
+				if general != 0 and playermap.general_id_to_player_id.has(general) and playermap.general_id_to_player_id[general] == player_id :
+					playermap.add_general_action(selected_tile_coords,dir_index,1.0)
+				if playermap.cell_visible_for_player(target_tile_coords,player_id):
 					# 若目标可见，更新选中格子的位置和高亮
 					selected_tile_coords=target_tile_coords
 					highlight_selected_tile(selected_tile_coords)

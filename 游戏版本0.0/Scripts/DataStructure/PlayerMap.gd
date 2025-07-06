@@ -58,6 +58,7 @@ func init_from_fullmap(fullmap: FullMap, _player_id: int):
 
 # 通过服务器fullmap导出的data来初始化
 func init_from_dict(init_data: Dictionary) -> void:
+	player_id=init_data.get("player_id", 0)
 	turn_count = init_data.get("turn_count", 0)
 	general_id_to_player_id = init_data.get("general_id_to_player_id", {}).duplicate()
 	invis_state_map.clear()
@@ -75,6 +76,7 @@ func init_from_dict(init_data: Dictionary) -> void:
 		var cell_info = CellInfo.from_dict(visible_cells[key])
 		cell_map[coord] = cell_info
 		# 更新id到position等，那几个表
+		invis_state_map[coord]=cell_info.get_type()
 		if cell_info.get_type()==Global.TERRAIN_CAPITAL:
 			add_capital(cell_info.get_general_id(),coord)
 		elif cell_info.get_type()==Global.TERRAIN_CITY:
@@ -159,6 +161,7 @@ func update_cell_from_delta(delta: Dictionary) -> void:
 		var cell_info = CellInfo.from_dict(delta["newly_visible"][key])
 		cell_map[coord] = cell_info
 		# 更新id到position等，那几个表
+		invis_state_map[coord]=cell_info.get_type()
 		if cell_info.get_type()==Global.TERRAIN_CAPITAL:
 			add_capital(cell_info.get_general_id(),coord)
 		elif cell_info.get_type()==Global.TERRAIN_CITY:
@@ -179,6 +182,7 @@ func update_cell_from_delta(delta: Dictionary) -> void:
 			cell_map[coord] = cell_info
 			cell_map[coord].set_dirty_flag()
 			# 更新id到position等，那几个表
+			invis_state_map[coord]=cell_info.get_type()
 			if cell_info.get_type()==Global.TERRAIN_CAPITAL:
 				add_capital(cell_info.get_general_id(),coord)
 			elif cell_info.get_type()==Global.TERRAIN_CITY:
@@ -217,8 +221,7 @@ func add_capital(general_id: int, position: Vector2i) -> void:
 	# 若已有记录，直接替换
 	#print("capital++")
 	general_to_capital[general_id] = position
-	# 这个capital被探索到了，记录下来，用于地图显示
-	invis_state_map[position]=Global.TERRAIN_CAPITAL
+
 
 # 底层——添加city到表
 func add_or_update_city(position: Vector2i, general_id: int) -> void:
@@ -239,5 +242,3 @@ func add_or_update_city(position: Vector2i, general_id: int) -> void:
 		city_id_to_position[city_id] = position
 		city_id_to_general[city_id] = general_id
 		city_id_of_general[general_id].append(city_id)
-		# 记录探索到的city并显示
-		invis_state_map[position]=Global.TERRAIN_CITY
