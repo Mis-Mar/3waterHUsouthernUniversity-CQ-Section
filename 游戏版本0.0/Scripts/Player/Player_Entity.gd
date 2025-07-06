@@ -1,7 +1,12 @@
 extends Node
+class_name Player_Entity
 
 var player_id: int
-var general_list: Array[int]
+var general_id_list: Array[int]
+
+var general : Dictionary #general_id to general_entity
+var frontline_zone : Array[Vector2i]
+
 #存储所有的generalid of player
 var player_map: PlayerMap
 var path_operations: Array[Vector2i]
