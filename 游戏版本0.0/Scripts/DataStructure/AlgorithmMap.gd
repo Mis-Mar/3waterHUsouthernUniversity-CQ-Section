@@ -4,33 +4,43 @@ extends PlayerMap
 class_name AlgorithmMap
 
 # 原始地图只读引用，用于获取真实游戏状态（注意只是引用，不要做更改）
-var base_map: PlayerMap
+var player_map: PlayerMap
 var general_id: int
 
 # 算法专用的附加内容（这只是示例，看你需要什么用什么类型）
-var value_map: Dictionary = {}  # 例如影响力、评分
+var value_map: Dictionary = {}  # 己方节点=power，敌方节点=-power，山地=-INF，未知空地水域=0
 var distance_map: Dictionary = {}
 
 # 初始化AlgorithmMap 用一个PlayerMap
 func _init(original: PlayerMap, _general_id: int) -> void:
-	base_map = original
+	player_map = original
 	self.general_id = general_id
 	cell_map.clear()
 	# 直接引用原地图的cellinfo
 	cell_map=original.cell_map
-	# 初始化特有变量表
+	# valuemap,distancemap更新已知节点
 	for coord in original.cell_map.keys():
-		# 示例，获取所有格子构造value_map初始化value为0
-		value_map[coord] = self.get_cell(coord).get_power()
-		#TODO 对于敌方节点能否getpower？
-		#TODO 添加节点从属map？
-		#TODO 如何初始化未知节点？
+		if self.get_cell(coord).get_type() == Global.TERRAIN_MOUNTAIN:
+			value_map[coord] = -INF
+		elif  self.get_cell(coord).get_type() == Global.TERRAIN_WATER:
+			value_map[coord] = 0
+		elif general_id_to_player_id[self.get_cell(coord).get_general_id()] == player_id:
+			value_map[coord] = self.get_cell(coord).get_power()
+		else:
+			value_map[coord] = -self.get_cell(coord).get_power()
+		distance_map[coord] = INF
+	# valuemap,distancemap更新未知节点
+	for coord in original.invis_state_map:
+		if invis_state_map[coord] == Global.INVIS_MOUNTAIN:
+			value_map[coord] = -INF
+		else:
+			value_map[coord] = 0
 		distance_map[coord] = INF
 	# 引用 general_id_to_player_id 映射（深拷贝，避免污染）
 	general_id_to_player_id = original.general_id_to_player_id
 	# 拷贝当前回合数
 	print("此时的basemap")
-	print(base_map.cell_map.keys())
+	print(player_map.cell_map.keys())
 	turn_count = original.turn_count
 
 # 示例：设置某个坐标的value

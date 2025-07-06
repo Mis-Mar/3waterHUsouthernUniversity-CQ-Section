@@ -19,14 +19,13 @@ var influence_map: Dictionary = {}
 var final_influence_map: Dictionary = {}
 
 func _init(original: AlgorithmMap) -> void:
-	self.player_id = original.player_id
 	#引用原地图
-	cell_map=original.cell_map
-	base_map=original.base_map
 	# 拷贝almap的特有数据
-	for coord in original.cell_map.keys():
-		#TODO 如何添加未知节点？
-		self.value_map[coord] = cell_map[coord].get_power()
+	self.player_map = original.player_map
+	self.general_id = original.general_id
+	self.value_map = original.value_map
+	self.distance_map = original.distance_map
+	for coord in value_map:
 		self.distance_map[coord] = INF
 		self.influence_map[coord] = 0
 		self.final_influence_map[coord] = 0
@@ -60,11 +59,10 @@ func reset() -> void:
 	final_influence_map.clear()
 	distance_map.clear()
 	
-	for coord in self.cell_map:
+	for coord in self.value_map:
 		self.influence_map[coord] = 0
 		self.final_influence_map[coord] = 0
 		self.distance_map[coord] = INF
-	#TODO 如何添加未知节点？
 	
 	source_points.clear()
 	path_operations.clear()
@@ -86,7 +84,7 @@ func calculate_influence(target_point: Vector2i) -> void:
 	#预处理节点价值
 	value_preprocessing(target_point)
 	#计算当前节点影响值和附加影响值
-	for coord in base_map.cell_map.keys():
+	for coord in value_map:
 		if influence_map[coord] > 0 and coord != target_point:
 			influence_map[coord] = pow(influence_map[coord], 2) * self.value_param
 			self.propagate_influence(coord)
@@ -97,16 +95,9 @@ func calculate_influence(target_point: Vector2i) -> void:
 func value_preprocessing(target_point: Vector2i) -> void:
 	#预处理节点价值
 	#TODO 完成预处理功能
-	for coord in base_map.cell_map.keys():
-		var cell: CellInfo = self.get_cell(coord)
-		if cell.get_type() != Global.TERRAIN_MOUNTAIN:
-			if base_map.general_id_to_player_id[cell.get_general_id()]  == self.player_id:
-				influence_map[coord] = cell.get_power() - 1
-			else:
-				influence_map[coord] = - (cell.get_power() + 1)
-		else:
-			influence_map[coord] = -INF
-
+	for coord in value_map:
+		influence_map[coord] = value_map[coord] - 1
+		
 func propagate_influence(start_point: Vector2i) -> void:
 	# 创建队列 (使用数组模拟队列)
 	var queue: Array = [[start_point, 0]]
@@ -144,25 +135,20 @@ func reverse_bfs(start_point: Vector2i, demand: int) -> bool:
 		if current not in close_list and distance_map[current] <= range_threshold:
 			close_list.append(current)
 			
-			if cell_map.has(current):
-				print("current:")
-				print(current)
-				print(influence_map[current])
-				print(final_influence_map[current])
-				print(accumulated_value)
-				accumulated_value += self.value_map[current] - 1
-				if(self.value_map[current]>1):
-					#TODO power都是己方节点吗？
-					source_points.append(current)
-					#如果累计价值超过需求值，则终止搜索
-					if accumulated_value > demand:
-						has_solution = true
-						break
-			elif invis_state_map.has(current):
-				if invis_state_map[current] == Global.INVIS_EMPTY or invis_state_map[current] == Global.INVIS_WATER:
-					accumulated_value -= 1 
-			else:
-				print("error for strange point in M2S")
+			print("current:")
+			print(current)
+			print(influence_map[current])
+			print(final_influence_map[current])
+			accumulated_value += self.value_map[current] - 1
+			
+			print(accumulated_value)
+			
+			if(self.value_map[current]>1):
+				source_points.append(current)
+				#如果累计价值超过需求值，则终止搜索
+				if accumulated_value > demand:
+					has_solution = true
+					break
 			
 			print("neighbors:")
 			var neighbors: Array[Vector2i] = self.get_neighbors_state4(current,self.general_id)
