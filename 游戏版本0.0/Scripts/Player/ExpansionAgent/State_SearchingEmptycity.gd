@@ -27,8 +27,7 @@ func search_empty_city(jump_param: int,estimated_demand: int) -> bool:
 	#前往可抵达城市
 	var target_point = Not_Found.pop_front()
 	searh_path.clear()
-	var path_point: Array[Vector2i] = agent.player_map.build_Astar_path(target_point,target_point)
-	#待更新：出发点
+	var path_point: Array[Vector2i] = agent.player_map.build_Astar_path(self.agent.general.main_city,target_point)
 	while !path_point.is_empty():
 		target_point = path_point.pop_front()
 		var path = agent.search_algorithm.M2S_Search(target_point,estimated_demand,3,1,20,20)
@@ -56,18 +55,13 @@ func is_vision_sufficient() -> bool:
 	while not queue.is_empty():
 		var current = queue.pop_front()  # 从队列头部取出
 		var current_distance = distance_map[current]
-		
-		var cell: CellInfo = agent.player_map.get_cell(current)
-		if cell.get_type() == Global.TERRAIN_CITY and cell.get_owner() != agent.player_id and current not in Not_Found:
-			#TODO 玩家地图类
+		if agent.player_map.invis_state_map[current] == Global.INVIS_MOUNTAIN and current not in Not_Found:
 			Not_Found.append(current)
 			agent.Not_Found.append(current)
 			Vision_Sufficient = false
 			break
-		
 		# 获取所有邻居
-		var neighbors = agent.player_map.get_neighbors_state1(current,player_id)
-		#TODO 根据玩家视野改进
+		var neighbors = agent.player_map.get_neighbors_state2(current,agent.general.general_id)
 		for neighbor in neighbors:
 			# 如果邻居尚未访问过 (距离为无穷大)
 			if distance_map[neighbor] == INF:

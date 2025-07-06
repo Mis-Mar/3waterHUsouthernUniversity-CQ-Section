@@ -1,8 +1,7 @@
 extends Node
 class_name ExpansionAgent
 
-@onready var state_machine = $ExpansionAgent_StateMachine
-
+@onready var state_machine :ExpansionAgent_StateMachine = $ExpansionAgent_StateMachine
 var agent_tpye: String = "Expansion"
 var search_algorithm: M2S_SearchAlgorithm
 var algorithm_map: AlgorithmMap
@@ -23,12 +22,13 @@ signal path_add(path_class: int, _path_operations: Array[Vector2i])
 func _ready() -> void:
 	path_add.connect(on_path_add)
 
-func _init(_player_id: int,_main_city: Vector2i, _player_map: PlayerMap) -> void:
-	self.player_id = _player_id
+func _init(_main_city: Vector2i, _player_map: PlayerMap) -> void:
+	self.player_id = general.player_id
 	self.main_city = _main_city
 	self.player_map = _player_map
-	algorithm_map = AlgorithmMap.new(self.player_map)
+	algorithm_map = AlgorithmMap.new(self.player_map, general.general_id)
 	search_algorithm = M2S_SearchAlgorithm.new(self.algorithm_map)
+	state_machine.agent = self
 
 func _run() -> void:
 	state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.SEARCHING_EMPTYCITY)

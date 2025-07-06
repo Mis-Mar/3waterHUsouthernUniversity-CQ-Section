@@ -1,9 +1,11 @@
 extends Node
 class_name General_Entity
 
-var Expansion_agent: ExpansionAgent
+@onready var Expansion_agent: ExpansionAgent = $ExpansionAgent
+#TODO check
 var general_id: int
 var main_city: Vector2i
+var city_id_of_general: Array
 var player_id: int
 var player_map: PlayerMap
 
@@ -15,12 +17,14 @@ func _ready() -> void:
 	agent_path_output.connect(on_path_add)
 	_run()
 
-func _init(_general_id: int, _main_city:Vector2i, _player_id: int, _player_map: PlayerMap) -> void:
+func _init(_general_id: int,  _player_id: int, _player_map: PlayerMap) -> void:
 	self.general_id = _general_id
-	self.main_city = main_city
+	self.main_city = player_map.general_to_capital[self.general_id]
+	self.city_id_of_general = player_map.city_id_of_general[self.general_id]
 	self.player_id = _player_id
 	self.player_map = _player_map
-	Expansion_agent._init(player_id,main_city,player_map)
+	Expansion_agent._init(main_city,player_map)
+	Expansion_agent.general = self
 	pass
 	
 func _run() -> void:

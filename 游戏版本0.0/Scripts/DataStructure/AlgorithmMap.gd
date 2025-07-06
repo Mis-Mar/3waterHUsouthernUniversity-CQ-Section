@@ -5,14 +5,16 @@ class_name AlgorithmMap
 
 # 原始地图只读引用，用于获取真实游戏状态（注意只是引用，不要做更改）
 var base_map: PlayerMap
+var general_id: int
 
 # 算法专用的附加内容（这只是示例，看你需要什么用什么类型）
 var value_map: Dictionary = {}  # 例如影响力、评分
 var distance_map: Dictionary = {}
 
 # 初始化AlgorithmMap 用一个PlayerMap
-func _init(original: PlayerMap) -> void:
+func _init(original: PlayerMap, _general_id: int) -> void:
 	base_map = original
+	self.general_id = general_id
 	cell_map.clear()
 	# 直接引用原地图的cellinfo
 	cell_map=original.cell_map
@@ -20,6 +22,9 @@ func _init(original: PlayerMap) -> void:
 	for coord in original.cell_map.keys():
 		# 示例，获取所有格子构造value_map初始化value为0
 		value_map[coord] = self.get_cell(coord).get_power()
+		#TODO 对于敌方节点能否getpower？
+		#TODO 添加节点从属map？
+		#TODO 如何初始化未知节点？
 		distance_map[coord] = INF
 	# 引用 general_id_to_player_id 映射（深拷贝，避免污染）
 	general_id_to_player_id = original.general_id_to_player_id

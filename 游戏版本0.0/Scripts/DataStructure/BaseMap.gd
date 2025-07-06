@@ -135,17 +135,6 @@ func get_neighbors_state0(center: Vector2i) -> Array[Vector2i]:
 				neighbors.append(neighbor_coords)
 	return neighbors
 
-# state1: 排除山地和非己方节点
-func get_neighbors_state1(center: Vector2i, _player_id: int) -> Array[Vector2i]:
-	var neighbors: Array[Vector2i] = []
-	for dir in Global.HEX_DIRECTIONS:
-		var neighbor_coords: Vector2i = center + dir
-		if cell_map.has(neighbor_coords):
-			var cell := get_cell(neighbor_coords)
-			if cell.get_type() != Global.TERRAIN_MOUNTAIN and cell.get_general() == _player_id:
-				neighbors.append(neighbor_coords)
-	return neighbors
-
 # 字符串转化为Vector2i,同步的标准转化用
 func parse_vector2i(key: String) -> Vector2i:
 	var parts := key.split(",")

@@ -32,7 +32,8 @@ func test_a()->void:
 	
 	map.display_full_map(fullmap)
 	
-	var almap=AlgorithmMap. new(playermap)
+	var almap=AlgorithmMap. new(playermap,0)
+	#TODO 补写generalid指定
 	var m2s=M2S_SearchAlgorithm. new(almap)
 	var pt:Array = m2s.M2S_Search(Vector2i(-2,4),30,3,1,0,50)
 	print(pt)

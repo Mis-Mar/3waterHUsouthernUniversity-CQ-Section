@@ -16,6 +16,7 @@ var city_position_to_id: Dictionary = {}  # Dictionary[Vector2i, int]
 var city_id_to_position: Dictionary = {}  # Dictionary[int, Vector2i]
 # City ID → General ID（0 表示未占领）
 var city_id_to_general: Dictionary = {}  # Dictionary[int, int]
+var city_id_of_general: Dictionary = {}  # Dictionary嵌套Array构成二维数组，第一维generalid，第二维cityid
 # 自增城市ID计数器（本地使用）
 var _next_city_id: int = 1
 
@@ -83,7 +84,55 @@ func init_from_dict(init_data: Dictionary) -> void:
 
 # 结束——————————
 
+# state1: 对于已知排除山地和非己方节点，排除所有未知 对象：general
+func get_neighbors_state1(center: Vector2i, general_id:int) -> Array[Vector2i]:
+	var neighbors: Array[Vector2i] = []
+	for dir in Global.HEX_DIRECTIONS:
+		var neighbor_coords: Vector2i = center + dir
+		if cell_map.has(neighbor_coords):
+			var cell := get_cell(neighbor_coords)
+			if cell.get_type() != Global.TERRAIN_MOUNTAIN and cell.get_general() == general_id:
+				neighbors.append(neighbor_coords)
+	return neighbors
 
+# state2: 搜索用，对于已知排除山地、敌方节点，包含未知（所有节点）山地、水域、平原 对象：general
+func get_neighbors_state2(center: Vector2i, general_id:int) -> Array[Vector2i]:
+	var neighbors: Array[Vector2i] = []
+	for dir in Global.HEX_DIRECTIONS:
+		var neighbor_coords: Vector2i = center + dir
+		if cell_map.has(neighbor_coords):
+			var cell := get_cell(neighbor_coords)
+			if cell.get_type() != Global.TERRAIN_MOUNTAIN and cell.get_general() == general_id:
+				neighbors.append(neighbor_coords)
+		else:
+			neighbors.append(neighbor_coords)
+	return neighbors
+	
+# state3: 对于已知排除山地、敌方节点，对于未知排除山地 对象：general
+func get_neighbors_state3(center: Vector2i, general_id:int) -> Array[Vector2i]:
+	var neighbors: Array[Vector2i] = []
+	for dir in Global.HEX_DIRECTIONS:
+		var neighbor_coords: Vector2i = center + dir
+		if cell_map.has(neighbor_coords):
+			var cell := get_cell(neighbor_coords)
+			if cell.get_type() != Global.TERRAIN_MOUNTAIN and cell.get_general() == general_id:
+				neighbors.append(neighbor_coords)
+		elif self.invis_state_map[neighbor_coords] != Global.INVIS_MOUNTAIN:
+			neighbors.append(neighbor_coords)
+	return neighbors
+	
+# state4: 对于已知排除山地，对于未知排除山地 对象：general
+func get_neighbors_state4(center: Vector2i, general_id:int) -> Array[Vector2i]:
+	var neighbors: Array[Vector2i] = []
+	for dir in Global.HEX_DIRECTIONS:
+		var neighbor_coords: Vector2i = center + dir
+		if cell_map.has(neighbor_coords):
+			var cell := get_cell(neighbor_coords)
+			if cell.get_type() != Global.TERRAIN_MOUNTAIN :
+				neighbors.append(neighbor_coords)
+		elif self.invis_state_map[neighbor_coords] != Global.INVIS_MOUNTAIN:
+			neighbors.append(neighbor_coords)
+	return neighbors
 
 # ——————————同步函数
 func update_player_map(delta_cell: Dictionary,delta_general_id_to_player_id: Dictionary)->void:
@@ -166,6 +215,7 @@ func add_or_update_city(position: Vector2i, general_id: int) -> void:
 	if city_position_to_id.has(position):
 		var city_id = city_position_to_id[position]
 		city_id_to_general[city_id] = general_id
+		city_id_of_general[general_id].append(city_id)
 	# 城市未被记录，添加新纪录
 	else:
 		#print("city++")
@@ -174,5 +224,6 @@ func add_or_update_city(position: Vector2i, general_id: int) -> void:
 		city_position_to_id[position] = city_id
 		city_id_to_position[city_id] = position
 		city_id_to_general[city_id] = general_id
+		city_id_of_general[general_id].append(city_id)
 		# 记录探索到的city并显示
 		invis_state_map[position]=Global.TERRAIN_CITY
