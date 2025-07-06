@@ -21,8 +21,8 @@ func _init(original: PlayerMap) -> void:
 		# 示例，获取所有格子构造value_map初始化value为0
 		value_map[coord] = self.get_cell(coord).get_power()
 		distance_map[coord] = INF
-	# 引用 general_to_player 映射（深拷贝，避免污染）
-	general_to_player = original.general_to_player
+	# 引用 general_id_to_player_id 映射（深拷贝，避免污染）
+	general_id_to_player_id = original.general_id_to_player_id
 	# 拷贝当前回合数
 	print("此时的basemap")
 	print(base_map.cell_map.keys())

@@ -23,7 +23,7 @@ var player_delta: Dictionary = {}  # player_id → delta 字典
 # 随机创建地图，测试用，参数为：地图大小，玩家数量，general数量
 func random_init(radius: int, _player_count: int, _general_count: int) -> void:
 	cell_map.clear()
-	general_to_player.clear()
+	general_id_to_player_id.clear()
 	general_count=_general_count
 	player_count=_player_count
 	var candidate_coords: Array[Vector2i] = []
@@ -49,7 +49,7 @@ func random_init(radius: int, _player_count: int, _general_count: int) -> void:
 
 	candidate_coords.shuffle()
 	var max_generals: int = min(_general_count, candidate_coords.size())
-	general_to_player[0] = 0
+	general_id_to_player_id[0] = 0
 	for general_id in range(1, max_generals + 1):
 		var coord = candidate_coords[general_id - 1]
 		var cell: CellInfo = cell_map[coord]
@@ -57,9 +57,9 @@ func random_init(radius: int, _player_count: int, _general_count: int) -> void:
 		cell.set_general_id(general_id)
 		cell.set_power(100)
 		if general_id <= _player_count:
-			general_to_player[general_id] = general_id
+			general_id_to_player_id[general_id] = general_id
 		else:
-			general_to_player[general_id] = 0
+			general_id_to_player_id[general_id] = 0
 	# 更新general的领土表
 	update_general_index()
 
@@ -71,7 +71,7 @@ func export_init_data_for_player(player_id: int) -> Dictionary:
 	var init_data: Dictionary = {}
 
 	init_data["turn_count"] = turn_count
-	init_data["general_to_player"] = general_to_player.duplicate()
+	init_data["general_id_to_player_id"] = general_id_to_player_id.duplicate()
 
 	# 导出地图范围 + 玩家可见区域的 cell_map 数据
 	var vis_coords = get_visible_tiles_for_player(player_id)
@@ -150,9 +150,9 @@ func export_player_delta(player_id: int) -> Dictionary:
 		"now_invisible": [],
 		"changed": []
 	})
-# 导出general_to_player表，用于同步
-func export_general_to_player() -> Dictionary:
-	return general_to_player.duplicate()
+# 导出general_id_to_player_id表，用于同步
+func export_general_id_to_player_id() -> Dictionary:
+	return general_id_to_player_id.duplicate()
 
 # 同步部分结束——------————————————————————————————————————————
 
@@ -194,8 +194,8 @@ func get_visible_tiles_for_general(general_id: int) -> Array[Vector2i]:
 func get_visible_tiles_for_player(player_id: int) -> Array[Vector2i]:
 	var visible_set := {}
 	# 从对应的general取并集到result
-	for general_id in general_to_player.keys():
-		if general_to_player[general_id] == player_id:
+	for general_id in general_id_to_player_id.keys():
+		if general_id_to_player_id[general_id] == player_id:
 			var tiles = get_visible_tiles_for_general(general_id)
 			for tile in tiles:
 				visible_set[tile] = true
@@ -262,21 +262,21 @@ func move_power_help(from_coords: Vector2i, to_coords: Vector2i, ratio: float) -
 				return true
 			to_cell.set_power(move_amount - to_cell.get_power())
 			to_cell.set_general_id(from_cell.get_general_id())
-			general_to_player[to_cell.get_general_id()] = general_to_player[from_cell.get_general_id()]
+			general_id_to_player_id[to_cell.get_general_id()] = general_id_to_player_id[from_cell.get_general_id()]
 	
 	return true
 
 func occupy_general(from_general_id: int, to_general_id: int) -> void:
 	if from_general_id == to_general_id:
 		return
-	if not general_to_player.has(from_general_id):
+	if not general_id_to_player_id.has(from_general_id):
 		push_error("占领失败：from_general_id 不存在")
 		return
-	if not general_to_player.has(to_general_id):
+	if not general_id_to_player_id.has(to_general_id):
 		push_error("占领失败：to_general_id 不存在")
 		return
-	var player_id: int = general_to_player[from_general_id]
-	general_to_player[to_general_id] = player_id
+	var player_id: int = general_id_to_player_id[from_general_id]
+	general_id_to_player_id[to_general_id] = player_id
 
 
 # general用这个函数进行操作，避免一回合操作多次

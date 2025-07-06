@@ -8,7 +8,6 @@ extends Node2D
 
 
 var peer=ENetMultiplayerPeer.new()
-
 var port:=11451
 
 # 创建房间

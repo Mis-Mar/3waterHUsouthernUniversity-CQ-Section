@@ -4,7 +4,7 @@ class_name BaseMap
 
 # 数据结构
 var cell_map: Dictionary = {}  # Dictionary<Vector2i, GridCell>所有格子的字典，就当CellInfo类型的二维数组来用
-var general_to_player: Dictionary = {}# 表格，一个general有一个player，一个player对应多个general 值为0表示未被控制
+var general_id_to_player_id: Dictionary = {}# 表格，一个general有一个player，一个player对应多个general 值为0表示未被控制
 var turn_count: int = 0  # 回合总数
  
 func get_cell(coords: Vector2i) -> CellInfo:
@@ -61,7 +61,7 @@ func ring_traversal(center: Vector2i, radius: int) -> Array:
 
 func check_cell_player(coord: Vector2i, player_id: int) -> bool:
 	if is_valid_coord(coord):
-		return general_to_player[get_cell(coord).get_general_id()] == player_id
+		return general_id_to_player_id[get_cell(coord).get_general_id()] == player_id
 	else:
 		printerr("坐标超界")
 		return false
@@ -69,7 +69,7 @@ func check_cell_player(coord: Vector2i, player_id: int) -> bool:
 # 获取 general的数量（不含 0）
 func get_general_count() -> int:
 	var count := 0
-	for key in general_to_player.keys():
+	for key in general_id_to_player_id.keys():
 		if key > 0:
 			count += 1
 	return count
@@ -77,8 +77,8 @@ func get_general_count() -> int:
 # 获取 player 的数量（不含 0）
 func get_player_count() -> int:
 	var players := {}
-	for general_id in general_to_player.keys():
-		var player_id :int= general_to_player[general_id]
+	for general_id in general_id_to_player_id.keys():
+		var player_id :int= general_id_to_player_id[general_id]
 		if player_id > 0:
 			players[player_id] = true
 	return players.size()
@@ -105,7 +105,7 @@ func cell_belong_player(coords: Vector2i, player_id: int) -> bool:
 	if cell == null:
 		return false  # 坐标非法或格子不存在
 	var general_id = cell.get_general_id()
-	return general_to_player.get(general_id, -1) == player_id
+	return general_id_to_player_id.get(general_id, -1) == player_id
 
 # 判断一格子是否能被一个玩家看见
 func cell_visible_for_player(coords: Vector2i, player_id: int) -> bool:
@@ -163,7 +163,7 @@ func update_power_by_terrain() -> void:
 		var _general := cell.get_general_id()
 		if _general == 0:
 			continue
-		var player: int = general_to_player.get(_general, 0)
+		var player: int = general_id_to_player_id.get(_general, 0)
 		if player == 0:
 			continue
 

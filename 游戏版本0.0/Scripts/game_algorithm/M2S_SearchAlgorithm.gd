@@ -29,8 +29,8 @@ func _init(original: AlgorithmMap) -> void:
 		self.distance_map[coord] = INF
 		self.influence_map[coord] = 0
 		self.final_influence_map[coord] = 0
-	# 引用 general_to_player 映射
-	general_to_player=original.general_to_player
+	# 引用 general_id_to_player_id 映射
+	general_id_to_player_id=original.general_id_to_player_id
 	# 拷贝当前回合数
 	turn_count = original.turn_count
 
@@ -95,7 +95,7 @@ func value_preprocessing(target_point: Vector2i) -> void:
 	for coord in base_map.cell_map.keys():
 		var cell: CellInfo = self.get_cell(coord)
 		if cell.get_type() != Global.TERRAIN_MOUNTAIN:
-			if base_map.general_to_player[cell.get_general_id()]  == self.player_id:
+			if base_map.general_id_to_player_id[cell.get_general_id()]  == self.player_id:
 				influence_map[coord] = cell.get_power() - 1
 			else:
 				influence_map[coord] = - (cell.get_power() + 1)

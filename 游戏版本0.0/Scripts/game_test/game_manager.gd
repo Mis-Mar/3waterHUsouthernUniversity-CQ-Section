@@ -70,7 +70,7 @@ func _input(event: InputEvent) -> void:
 
 			if dir_index != -1:
 				var target_tile_coords=selected_tile_coords+Global.HEX_DIRECTIONS[dir_index]
-				if general != 0 and fullmap.general_to_player.has(general) and fullmap.general_to_player[general] == player_id :
+				if general != 0 and fullmap.general_id_to_player_id.has(general) and fullmap.general_id_to_player_id[general] == player_id :
 					fullmap.move_power(selected_tile_coords,dir_index,1.0)
 				if fullmap.cell_visible_for_player(target_tile_coords,player_id):
 					# 若目标可见，更新选中格子的位置和高亮
@@ -87,7 +87,7 @@ func _on_timer_turn_timeout() -> void:
 	
 	fullmap.execute_turn()
 	
-	playermap.update_player_map(fullmap.export_player_delta(1), fullmap.export_general_to_player())
+	playermap.update_player_map(fullmap.export_player_delta(1), fullmap.export_general_id_to_player_id())
 	
 	fullmap.acted_coords.clear()
 	

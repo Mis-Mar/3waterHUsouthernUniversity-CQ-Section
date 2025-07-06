@@ -110,14 +110,14 @@ func curr_map_to_fullmap() -> FullMap:
 		if terrain_type == Global.TERRAIN_CAPITAL:
 			capital_coords.append(coords)
 	# 第二次遍历：分配每个主城的 general 和 player（1 对 1）
-	new_map.general_to_player[0] = 0
+	new_map.general_id_to_player_id[0] = 0
 	for i in range(capital_coords.size()):
 		var coords = capital_coords[i]
 		var id = i + 1  # 从 1 开始编号
 		var cell = new_map.cell_map[coords]
 		cell.set_general_id(id)
 		cell.set_power(100)  # 初始兵力
-		new_map.general_to_player[id] = id  # owner 和 player 对应
+		new_map.general_id_to_player_id[id] = id  # owner 和 player 对应
 	new_map.general_count=capital_coords.size()
 	new_map.player_count=capital_coords.size()
 	new_map.update_general_index()

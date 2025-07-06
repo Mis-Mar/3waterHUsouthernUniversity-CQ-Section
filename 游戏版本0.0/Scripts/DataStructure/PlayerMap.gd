@@ -32,12 +32,12 @@ func init_from_fullmap(fullmap: FullMap, _player_id: int):
 	self.player_id = _player_id
 	#复制turn_count
 	turn_count=fullmap.turn_count
-	general_to_player.clear()
+	general_id_to_player_id.clear()
 	invis_state_map.clear()
 	
-	# 拷贝 general_to_player 
-	for key in fullmap.general_to_player.keys():
-		general_to_player[key] = fullmap.general_to_player[key]
+	# 拷贝 general_id_to_player_id 
+	for key in fullmap.general_id_to_player_id.keys():
+		general_id_to_player_id[key] = fullmap.general_id_to_player_id[key]
 
 	# 构建invis_state_map
 	for coord in fullmap.cell_map.keys():
@@ -60,7 +60,7 @@ func init_from_fullmap(fullmap: FullMap, _player_id: int):
 # 通过服务器fullmap导出的data来初始化
 func init_from_dict(init_data: Dictionary) -> void:
 	turn_count = init_data.get("turn_count", 0)
-	general_to_player = init_data.get("general_to_player", {}).duplicate()
+	general_id_to_player_id = init_data.get("general_id_to_player_id", {}).duplicate()
 	invis_state_map.clear()
 	cell_map.clear()
 
@@ -86,10 +86,10 @@ func init_from_dict(init_data: Dictionary) -> void:
 
 
 # ——————————同步函数
-func update_player_map(delta_cell: Dictionary,delta_general_to_player: Dictionary)->void:
+func update_player_map(delta_cell: Dictionary,delta_general_id_to_player_id: Dictionary)->void:
 	update_power_by_terrain()
 	update_cell_from_delta(delta_cell)
-	import_general_to_player(delta_general_to_player)
+	import_general_id_to_player_id(delta_general_id_to_player_id)
 	pass
 
 # 更新视野，更新玩家操作的格子变化
@@ -126,11 +126,11 @@ func update_cell_from_delta(delta: Dictionary) -> void:
 			# 发信号
 			emit_signal("tile_updated", coord)
 
-# 更新（复制）general_to_player
-func import_general_to_player(data: Dictionary) -> void:
-	general_to_player.clear()
+# 更新（复制）general_id_to_player_id
+func import_general_id_to_player_id(data: Dictionary) -> void:
+	general_id_to_player_id.clear()
 	for key in data.keys():
-		general_to_player[key] = data[key]
+		general_id_to_player_id[key] = data[key]
 # 同步结束————————————
 
 
@@ -144,6 +144,13 @@ func get_city_id(coord: Vector2i)->int:
 
 func get_general_capital(general_id:int)->Vector2i:
 	return general_to_capital[general_id]
+
+func get_city_ids_of_general(general_id: int) -> Array[int]:
+	var result: Array[int] = []
+	for city_id in city_id_to_general.keys():
+		if city_id_to_general[city_id] == general_id:
+			result.append(city_id)
+	return result
 
 # 底层——添加capital到表
 func add_capital(general_id: int, position: Vector2i) -> void:
