@@ -113,15 +113,11 @@ func update_ready_count(_ready_count:int)->void:
 # server向 client/server 发送开始游戏的信号
 @rpc("authority", "call_local")
 func send_start()->void:
-	if is_server:
-		var err = get_tree().change_scene_to_file("res://Scenes/game_multi/play_server.tscn")
-		if err != OK:
-			print("切换场景失败，错误码: ", err)
-	else:
-		var err = get_tree().change_scene_to_file("res://Scenes/game_multi/play_client.tscn")
-		if err != OK:
-			print("切换场景失败，错误码: ", err)
-	pass
+	print("start")
+	var err = get_tree().change_scene_to_file("res://Scenes/game_multi/game_multi_play.tscn")
+	if err != OK:
+		print("切换场景失败，错误码: ", err)
+
 # 结束——————————
 
 # ——————————底层的简化封装

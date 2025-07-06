@@ -69,7 +69,8 @@ func random_init(radius: int, _player_count: int, _general_count: int) -> void:
 # 为玩家init导出数据，同步用
 func export_init_data_for_player(player_id: int) -> Dictionary:
 	var init_data: Dictionary = {}
-
+	
+	init_data["player_id"]=player_id
 	init_data["turn_count"] = turn_count
 	init_data["general_id_to_player_id"] = general_id_to_player_id.duplicate()
 

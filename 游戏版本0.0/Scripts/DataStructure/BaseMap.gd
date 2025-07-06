@@ -102,9 +102,11 @@ func set_cell_general_id(coord: Vector2i, new_general_id) -> void:
 # 判断一个格子是否属于一个玩家
 func cell_belong_player(coords: Vector2i, player_id: int) -> bool:
 	var cell = cell_map.get(coords)
+	print(coords)
 	if cell == null:
 		return false  # 坐标非法或格子不存在
 	var general_id = cell.get_general_id()
+	print(general_id_to_player_id.get(general_id, -1) == player_id)
 	return general_id_to_player_id.get(general_id, -1) == player_id
 
 # 判断一格子是否能被一个玩家看见
