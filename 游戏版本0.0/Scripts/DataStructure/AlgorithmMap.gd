@@ -15,29 +15,39 @@ var distance_map: Dictionary = {}
 func _init(original: PlayerMap, _general_id: int) -> void:
 	player_map = original
 	self.general_id = general_id
+	player_id = original.player_id
 	cell_map.clear()
+	# 引用 general_id_to_player_id 映射（深拷贝，避免污染）
+	general_id_to_player_id = original.general_id_to_player_id
+	invis_state_map = original.invis_state_map
+	general_to_capital = original.general_to_capital
+	city_position_to_id = original.city_position_to_id
+	city_id_to_position = original.city_id_to_position
+	city_id_to_general = original.city_id_to_general
+	city_id_of_general = original.city_id_of_general
 	# 直接引用原地图的cellinfo
 	cell_map=original.cell_map
-	# valuemap,distancemap更新已知节点
-	for coord in original.cell_map.keys():
-		if self.get_cell(coord).get_type() == Global.TERRAIN_MOUNTAIN:
-			value_map[coord] = -INF
-		elif  self.get_cell(coord).get_type() == Global.TERRAIN_WATER:
-			value_map[coord] = 0
-		elif general_id_to_player_id[self.get_cell(coord).get_general_id()] == player_id:
-			value_map[coord] = self.get_cell(coord).get_power()
-		else:
-			value_map[coord] = -self.get_cell(coord).get_power()
-		distance_map[coord] = INF
+	turn_count = original.turn_count
+	
 	# valuemap,distancemap更新未知节点
 	for coord in original.invis_state_map:
+	#HACK bug from,why main city in invis_state_map
 		if invis_state_map[coord] == Global.INVIS_MOUNTAIN:
 			value_map[coord] = -INF
 		else:
 			value_map[coord] = 0
 		distance_map[coord] = INF
-	# 引用 general_id_to_player_id 映射（深拷贝，避免污染）
-	general_id_to_player_id = original.general_id_to_player_id
+	
+	# valuemap,distancemap更新已知节点
+	for coord in original.cell_map.keys():
+		if self.get_cell(coord).get_type() == Global.TERRAIN_MOUNTAIN:
+			value_map[coord] = -INF
+		elif general_id_to_player_id[self.get_cell(coord).get_general_id()] == player_id:
+			value_map[coord] = self.get_cell(coord).get_power()
+		else:
+			value_map[coord] = -self.get_cell(coord).get_power()
+		distance_map[coord] = INF
+	
 	# 拷贝当前回合数
 	print("此时的basemap")
 	print(player_map.cell_map.keys())

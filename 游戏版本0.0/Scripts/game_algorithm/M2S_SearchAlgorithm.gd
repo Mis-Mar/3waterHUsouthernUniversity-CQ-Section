@@ -25,6 +25,16 @@ func _init(original: AlgorithmMap) -> void:
 	self.general_id = original.general_id
 	self.value_map = original.value_map
 	self.distance_map = original.distance_map
+	player_id = original.player_id
+	cell_map = original.cell_map
+	turn_count = original.turn_count
+	general_id_to_player_id = original.general_id_to_player_id
+	invis_state_map = original.invis_state_map
+	general_to_capital = original.general_to_capital
+	city_position_to_id = original.city_position_to_id
+	city_id_to_position = original.city_id_to_position
+	city_id_to_general = original.city_id_to_general
+	city_id_of_general = original.city_id_of_general
 	for coord in value_map:
 		self.distance_map[coord] = INF
 		self.influence_map[coord] = 0
@@ -137,10 +147,14 @@ func reverse_bfs(start_point: Vector2i, demand: int) -> bool:
 			
 			print("current:")
 			print(current)
-			print(influence_map[current])
-			print(final_influence_map[current])
+			print("value:")
+			print(value_map[current])
+			if self.cell_map.has(current):
+				print(self.get_cell(current).get_power())
+				print(general_id_to_player_id[self.get_cell(current).get_general_id()])
+				print(player_id)
 			accumulated_value += self.value_map[current] - 1
-			
+			print("accumulated_value:")
 			print(accumulated_value)
 			
 			if(self.value_map[current]>1):

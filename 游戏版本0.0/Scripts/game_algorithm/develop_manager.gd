@@ -31,11 +31,16 @@ func test_a()->void:
 	playermap.update_cell_from_delta(fullmap.export_player_delta(1))
 	
 	map.display_full_map(fullmap)
-	
-	var almap=AlgorithmMap. new(playermap,0)
+	print("playerid")
+	print(playermap.player_id)
+	print("general_id_to_player_id")
+	print(playermap.general_id_to_player_id[1])
+	playermap.player_id = 1
+	#HACK bug from
+	var almap=AlgorithmMap. new(playermap,1)
 	#TODO 补写generalid指定
 	var m2s=M2S_SearchAlgorithm. new(almap)
-	var pt:Array = m2s.M2S_Search(Vector2i(-2,4),30,3,1,0,50)
+	var pt:Array = m2s.M2S_Search(Vector2i(-3,4),30,3,1,0,50)
 	print(pt)
 	var ans:Array[Vector2i]=m2s.get_path_coords() 
 	print(ans)

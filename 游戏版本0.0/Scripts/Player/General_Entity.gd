@@ -2,7 +2,8 @@ extends Node
 class_name General_Entity
 
 @onready var Expansion_agent: ExpansionAgent = $ExpansionAgent
-#TODO check
+@onready var Defence_agent: DefenceAgent = $DefenceAgent
+
 var general_id: int
 var main_city: Vector2i
 var city_id_of_general: Array
@@ -25,6 +26,8 @@ func _init(_general_id: int,  _player_id: int, _player_map: PlayerMap) -> void:
 	self.player_map = _player_map
 	Expansion_agent._init(main_city,player_map)
 	Expansion_agent.general = self
+	Defence_agent._init(main_city,player_map)
+	Defence_agent.general = self
 	pass
 	
 func _run() -> void:
