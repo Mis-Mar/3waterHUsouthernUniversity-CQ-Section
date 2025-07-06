@@ -57,5 +57,5 @@ func on_path_add(_path_class: int, _path_operations: Array[Vector2i]) -> void:
 				path_operations.erase(AR)
 	for _path_operate in _path_operations:
 		var AY: Array = [_path_class,_path_operate]
-		self.path_operations.append(AY)
+		self.path_operations.append_array(AY)
 	path_manager()

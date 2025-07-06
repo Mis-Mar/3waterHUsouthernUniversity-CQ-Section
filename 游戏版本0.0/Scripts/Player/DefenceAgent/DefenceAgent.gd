@@ -6,17 +6,22 @@ var search_algorithm: M2S_SearchAlgorithm
 var algorithm_map: AlgorithmMap
 var main_city: Vector2i
 
+const CONCENTRATION := 2
+
 var general: General_Entity
 var player_id: int
 var player_map: PlayerMap
 var distance_map: Dictionary
 
-var city_id_in_zone : Array[int]
+var block_point : Dictionary #Dictionary嵌套Array构成二维数组，第一维blockid，第二维pointpos
+var point_to_block : Dictionary #vector2i to blockid 逆向索引
+var edge_count_block : Dictionary #blockid 到 边总数的索引
+var block_count : int = 0 # start with 1
+
 var city_id_reachable : Array[int]
 var city_id_invaded : Array[int]
 var city_id_abandoned : Array[int]
 
-var crucial_point_list : Array[Vector2i]
 var crucial_point_reachable : Array[Vector2i]
 var crucial_point_invaded : Array[Vector2i]
 var crucial_point_abandoned : Array[Vector2i]
@@ -38,6 +43,7 @@ func _init(_main_city: Vector2i, _player_map: PlayerMap) -> void:
 	search_algorithm = M2S_SearchAlgorithm.new(self.algorithm_map)
 	for coord in player_map.cell_map:
 		distance_map[coord] = INF
+		point_to_block[coord] = 0
 
 func run() -> void:
 	pass
@@ -55,9 +61,12 @@ func DIV_general_zone() -> void:
 		visited[current] = true
 		if player_map.get_cell(current).get_general_id() == general.general_id:
 			#内层BFS，获得区块
-			pass
+			if point_to_block[current] == 0:
+				build_block(current)
 		if player_map.invis_state_map[current] == Global.TERRAIN_CITY :
-			city_id_in_zone.append(player_map.city_position_to_id[current])
+			general.city_id_in_zone.append(player_map.city_position_to_id[current])
+		if current in general.crucial_point_list and player_map.get_cell(current).get_general_id() == general.general_id:
+			general.crucial_point_of_general.append(current)
 		# 获取所有邻居
 		var neighbors = player_map.get_neighbors_state5(current,general.general_id)
 		for neighbor in neighbors:
@@ -66,7 +75,32 @@ func DIV_general_zone() -> void:
 				# 将邻居加入队列
 				queue.append(neighbor)
 				general.zone_of_general.append(neighbor)
+	#计算general总拥有
+	for block in block_point:
+		general.point_of_general.append_array(block_point[block])
+		general.edge_of_general += edge_count_block[block]
+	general.calculate_connection_degree()
 	#TODO check again
+
+func build_block(start_point: Vector2i) -> void:
+	block_count += 1
+	point_to_block[start_point] = block_count
+	block_point[block_count] = []
+	block_point[block_count].append(start_point)
+	var queue: Array[Vector2i] = [start_point]
+	# 开始BFS遍历
+	while not queue.is_empty():
+		var current = queue.pop_front()  # 从队列头部取出
+		if point_to_block[current] == 0:
+			point_to_block[current] = block_count
+			block_point[block_count].append(current)
+		# 获取所有邻居
+		var neighbors = player_map.get_neighbors_state1(current,general.general_id)
+		for neighbor in neighbors:
+			if point_to_block[current] == 0:
+				# 将邻居加入队列
+				queue.append(neighbor)
+				edge_count_block[block_count] += 1
 
 func bfs_path_build() -> void:
 	# 重置所有距离为无穷大
@@ -91,38 +125,74 @@ func bfs_path_build() -> void:
 				queue.append(neighbor)
 
 func is_city_occupyed(ratio_param: float) -> bool:
-	return true
+	for city_id in general.city_id_in_zone:
+		if city_id not in general.city_id_of_general:
+			city_id_invaded.append(city_id)
+	if general.city_id_of_general.size() >= general.city_id_in_zone.size() * ratio_param:
+		return true
+	else:
+		#TODO DOSOMETHING
+		return false
+
+func is_crucial_point_occupyed(ratio_param: float) -> bool:
+	for crucial_point in general.crucial_point_list:
+		if crucial_point not in general.crucial_point_of_general:
+			crucial_point_invaded.append(crucial_point)
+	if general.crucial_point_of_general.size() >= general.crucial_point_list.size() * ratio_param:
+		return true
+	else:
+		#TODO DOSOMETHING
+		return false
 
 func is_city_path_reachable(ratio_param: float) -> bool:
-	for city_id in player_map.city_id_of_general[general.general_id]:
+	for city_id in general.city_id_of_general:
 		if distance_map[player_map.city_id_to_position[city_id]] != INF:
 			city_id_reachable.append(city_id)
 		else:
 			city_id_abandoned.append(city_id)
-	if city_id_reachable.size() >= player_map.city_id_of_general[general.general_id].size() * ratio_param:
+	if city_id_reachable.size() >= general.city_id_of_general.size() * ratio_param:
 		return true
 	else:
+		#TODO DOSOMETHING
 		return false
 
-
-
 func is_crucial_point_reachable(ratio_param: float) -> bool:
-	for crucial_point in crucial_point_list:
+	for crucial_point in general.crucial_point_list:
 		if distance_map[crucial_point] != INF:
 			crucial_point_reachable.append(crucial_point)
-	if  crucial_point_reachable.size() >= crucial_point_list.size() * ratio_param:
+		else:
+			crucial_point_abandoned.append(crucial_point)
+	if  crucial_point_reachable.size() >= general.crucial_point_list.size() * ratio_param:
 		return true
 	else:
 		#TODO 完成动作
 		return false
 	
 func general_zone_fill() -> void:
-	#维护general的zone_of_general
-	#TODO 在这里写估价函数f(x)=((-(x (x-3)) (2010-(x+41.8)^(2)))/(356))
-	#方法：模仿搜索的BFS，途中遍历加入所有自己的节点，遍历所有自己的节点，若有边则添加入自己的边，最后计算
+	#TODO 维护general的zone_of_general
+	pass
+
+func defend_main_city(demand_param: float,range_threshold: int) -> void:
+	self.concentrate_power(main_city,demand_param,range_threshold)
+	#TODO 更多可写？
+
+func concentrate_power(target_point: Vector2i,demand_param: float,range_threshold: int) -> void:
+	var avaliable_power: int = 0
+	for city_id in general.city_id_of_general:
+		avaliable_power += algorithm_map.value_map[player_map.city_id_to_position[city_id]]
+	for crucial_point in general.crucial_point_of_general:
+		avaliable_power += algorithm_map.value_map[crucial_point]
+	var path = search_algorithm.M2S_Search(target_point,avaliable_power * demand_param,3,1,10,range_threshold)
+	if path != [-1]:
+		path = search_algorithm.get_all_coords()
+		self.path_add.emit(self.CONCENTRATION, path)
+
+func hunt_enemy_power() -> void:
+	#TODO 先集中再A*索敌
 	pass
 
 func path_manager() -> void:
+	#TODO 改写这块
 	while !path_operations.is_empty():
 		var AY: Array = path_operations.front()
 		path_class = AY[0]
@@ -137,11 +207,12 @@ func path_manager() -> void:
 
 func on_path_add(_path_class: int, _path_operations: Array[Vector2i]) -> void:
 	#读入新操作，删除优先级为0的操作（空地占领
+	#TODO 改写这块
 	if(_path_class != 0):
 		for AR in path_operations:
 			if(AR[0] == 0):
 				path_operations.erase(AR)
 	for _path_operate in _path_operations:
 		var AY: Array = [_path_class,_path_operate]
-		self.path_operations.append(AY)
+		self.path_operations.append_array(AY)
 	path_manager()

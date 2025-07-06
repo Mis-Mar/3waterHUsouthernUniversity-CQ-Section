@@ -13,6 +13,13 @@ var player_map: PlayerMap
 
 var path_operations: Array[Vector2i]
 var zone_of_general: Array[Vector2i]
+var point_of_general: Array[Vector2i]
+var edge_of_general: int = 0
+var connection_degree : float
+
+var city_id_in_zone : Array[int]
+var crucial_point_list : Array[Vector2i]
+var crucial_point_of_general : Array[Vector2i]
 
 signal agent_path_output(agent_type: String, path_operate: Vector2i)
 signal switch_to_Defence_pattern()
@@ -39,6 +46,14 @@ func _run() -> void:
 		pass
 	else:
 		Expansion_agent._run()
+
+func calculate_connection_degree() -> float:
+	#TODO 在这里写估价函数f(x)=((-(x (x-3)) (2010-(x+41.8)^(2)))/(356))
+	var point_of_general_count: int = point_of_general.size()
+	var x: float = edge_of_general
+	x /= point_of_general_count
+	var result: float = ( x * (x - 3) * ( (x + 41.8) ** 2 - 2010) ) / 356
+	return result
 
 func path_manager() -> void:
 	while !path_operations.is_empty():
