@@ -14,15 +14,15 @@ const HEX_DIRECTIONS := [# 六边形邻接向量
 	Vector2i(-1, 0), Vector2i(0, 1), Vector2i(1, 1)
 ]
 # 地块信息相关  TERRAIN
-const TERRAIN_CAPITAL := 0   # 主城
-const TERRAIN_WATER := 1     # 水域
-const TERRAIN_MOUNTAIN := 2  # 山地
-const TERRAIN_EMPTY := 3     # 空地
-const TERRAIN_CITY := 4      # 空地
+const TERRAIN_CAPITAL := 1   # 主城
+const TERRAIN_WATER := 2     # 水域
+const TERRAIN_MOUNTAIN := 3  # 山地
+const TERRAIN_EMPTY := 4     # 空地
+const TERRAIN_CITY := 5      # 空地
 #
-const INVIS_EMPTY   :=TERRAIN_EMPTY        #空地/主城 显示空地
-const INVIS_MOUNTAIN:=TERRAIN_MOUNTAIN     #山地/城市 显示山地
-const INVIS_WATER   :=TERRAIN_WATER        #水       显示水
+const INVIS_EMPTY   :=-1       #空地/主城 显示空地
+const INVIS_MOUNTAIN:=-2     #山地/城市 显示山地
+const INVIS_WATER   :=-3        #水       显示水
 
 
 # 地形材质
@@ -49,6 +49,21 @@ const TERRAIN_TILE_INFO := {
 	},
 	TERRAIN_CITY: {
 		"source_id": 15,
+		"atlas_coords": Vector2i(0, 0),
+		"alternative_tile": 0,
+	},
+	INVIS_EMPTY: {
+		"source_id": 22,
+		"atlas_coords": Vector2i(0, 0),
+		"alternative_tile": 0,
+	},
+	INVIS_MOUNTAIN: {
+		"source_id": 27,
+		"atlas_coords": Vector2i(0, 0),
+		"alternative_tile": 0,
+	},
+	INVIS_WATER: {
+		"source_id": 38,
 		"atlas_coords": Vector2i(0, 0),
 		"alternative_tile": 0,
 	},

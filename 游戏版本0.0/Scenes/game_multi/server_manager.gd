@@ -1,3 +1,4 @@
+# servermanager.gd
 extends Node
 
 @onready var map: Node = $"../Map"
@@ -5,8 +6,9 @@ extends Node
 @onready var timer_turn: Timer = $"../Timers/Timer_turn"
 
 var fullmap:FullMap
+# server的函数
 var player_id=1
-# 网络id到player_id的映射表
+# 网络id到player_id的映射表（playerid是从1自增的）
 var rpc_id_to_player_id: Dictionary = {}  
 
 # 初始化
@@ -23,10 +25,16 @@ func start()->void:
 		return
 	
 	#初始化网络id到player_id的映射表
+	rpc_id_to_player_id.clear()
+	var peer_ids := multiplayer.get_peers()
+	peer_ids.sort()  # 保证一致顺序
+	var _player_id := 1
+	for peer_id in peer_ids:
+		rpc_id_to_player_id[peer_id] = player_id
+		_player_id += 1
 	
 	# 初始化fullmap
 	fullmap=map.curr_map_to_fullmap()
-	
 	
 
 func _ready() -> void:
@@ -51,10 +59,14 @@ func _on_peer_disconnected(id: int) -> void:
 
 
 # ——————————rpc函数
+# server发送初始化信息
+# @rpc("authority", "call_local")
 
 
+# server发送更新信息
+# @rpc("authority", "call_local")
 
-
+# server接受操作信号
 
 # 结束——————————
 
