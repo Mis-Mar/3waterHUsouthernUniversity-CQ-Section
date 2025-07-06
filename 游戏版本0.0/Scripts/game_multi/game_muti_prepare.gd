@@ -6,15 +6,14 @@ extends Node2D
 @onready var ip_line_edit: LineEdit = $UI/ip_line_edit
 @onready var connect_timeout_timer: Timer = $UI/connect_timeout_timer
 
-
 var peer=ENetMultiplayerPeer.new()
 var port:=11451
 
 # 创建房间
 func _on_create_button_pressed() -> void:
 	# 创建服务器
-	var peer := ENetMultiplayerPeer.new()
-	var error := peer.create_server(port, 8)
+	peer= ENetMultiplayerPeer.new()
+	var error := peer.create_server(port,Global.MAX_CLIENTS)
 	if error != OK:
 		printerr("服务器创建失败: ", error)
 		reset_multiplayer()
@@ -22,7 +21,7 @@ func _on_create_button_pressed() -> void:
 	multiplayer.multiplayer_peer = peer
 	print("服务器创建成功")
 	# 切换到房间界面
-	get_tree().change_scene_to_file("res://Scenes/game_multi_room.tscn")
+	get_tree().change_scene_to_file("res://Scenes/game_multi/room.tscn")
 
 # 加入房间
 func _on_join_button_pressed() -> void:
@@ -30,7 +29,7 @@ func _on_join_button_pressed() -> void:
 	if ip == "":
 		print("请输入 IP 地址")
 		return
-	var peer := ENetMultiplayerPeer.new()
+	peer= ENetMultiplayerPeer.new()
 	var error := peer.create_client(ip, port)
 	if error:
 		print("连接失败，错误码: ", error)
@@ -42,12 +41,10 @@ func _on_join_button_pressed() -> void:
 	# 等一小段时间，监听服务器连接是否成功
 	connect_timeout_timer.start()
 
-
 # 这个判断不好用，我用计时器代替了
 #func _on_connected_to_server()->void:
 	#print("连接成功")
 	#pass
-#
 #func _on_connection_failed()->void:
 	#print("连接失败")
 	#reset_multiplayer()
@@ -65,7 +62,7 @@ func _on_connect_timeout_timer_timeout() -> void:
 	else:
 		print("连接成功")
 		# 切换到房间界面
-		get_tree().change_scene_to_file("res://Scenes/game_multi_room.tscn")
+		get_tree().change_scene_to_file("res://Scenes/game_multi/room.tscn")
 	pass # Replace with function body.
 
 # 重置连接器，出错就要调用

@@ -53,3 +53,6 @@ const TERRAIN_TILE_INFO := {
 		"alternative_tile": 0,
 	},
 }
+
+# rpc连接
+const MAX_CLIENTS:=7# 最大连接数（不算自己）

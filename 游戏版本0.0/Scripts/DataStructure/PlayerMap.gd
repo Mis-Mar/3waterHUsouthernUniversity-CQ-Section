@@ -25,8 +25,6 @@ signal tile_newly_visible(coord: Vector2i)
 signal tile_hidden(coord: Vector2i)
 signal tile_updated(coord: Vector2i)
 
-
-
 # ——————————初始化
 # 通过fullmap player_id初始化，测试用
 func init_from_fullmap(fullmap: FullMap, _player_id: int):
@@ -211,6 +209,9 @@ func add_capital(general_id: int, position: Vector2i) -> void:
 
 # 底层——添加city到表
 func add_or_update_city(position: Vector2i, general_id: int) -> void:
+	# 若该 general 尚未有城市列表，初始化为 [],预防非法访问
+	if not city_id_of_general.has(general_id):
+		city_id_of_general[general_id] = []
 	# 如果城市已经被记录，更新general
 	if city_position_to_id.has(position):
 		var city_id = city_position_to_id[position]

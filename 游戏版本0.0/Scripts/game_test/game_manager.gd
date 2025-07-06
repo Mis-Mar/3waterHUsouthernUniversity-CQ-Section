@@ -7,7 +7,7 @@ extends Node
 
 var fullmap=FullMap.new()
 
-var player_id=1
+var player_id=2
 
 var selected_tile_coords: Vector2i = Vector2i.ZERO  # 当前鼠标选中的格子
 
@@ -18,9 +18,10 @@ var playermap=PlayerMap.new()
 # 启动函数
 func start()->void:
 	await get_tree().create_timer(0.5).timeout
-	fullmap.random_init(10,3,8)
+	# fullmap.random_init(10,3,8)
+	fullmap=map.curr_map_to_fullmap()
 	#playermap.init_from_fullmap(fullmap,1)
-	playermap.init_from_dict(fullmap.export_init_data_for_player(1))
+	playermap.init_from_dict(fullmap.export_init_data_for_player(player_id))
 	map.clear()
 	timer_turn.start()  # 每秒自动调用 timeout 
 	map. display_playermap_fog(playermap)
@@ -87,7 +88,7 @@ func _on_timer_turn_timeout() -> void:
 	
 	fullmap.execute_turn()
 	
-	playermap.update_player_map(fullmap.export_player_delta(1), fullmap.export_general_id_to_player_id())
+	playermap.update_player_map(fullmap.export_player_delta(player_id), fullmap.export_general_id_to_player_id())
 	
 	fullmap.acted_coords.clear()
 	

@@ -193,7 +193,8 @@ func build_Astar_path(start_point:Vector2i, end_point:Vector2i) -> Array:
 	else:
 		printerr("坐标超界")
 		return [-1]
-		
+
+
 func get_generals_of_player(player_id: int) -> Array[int]:
 	var result: Array[int] = []
 	for general_id in general_id_to_player_id.keys():
