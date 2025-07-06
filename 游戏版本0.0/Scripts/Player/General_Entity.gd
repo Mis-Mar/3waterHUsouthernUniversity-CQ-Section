@@ -8,14 +8,18 @@ var general_id: int
 var main_city: Vector2i
 var city_id_of_general: Array
 var player_id: int
+var player: Player_Entity
 var player_map: PlayerMap
 
 var path_operations: Array[Vector2i]
+var zone_of_general: Array[Vector2i]
 
 signal agent_path_output(agent_type: String, path_operate: Vector2i)
+signal switch_to_Defence_pattern()
 
 func _ready() -> void:
 	agent_path_output.connect(on_path_add)
+	switch_to_Defence_pattern.connect(switch_to_Defence_agent)
 	_run()
 
 func _init(_general_id: int,  _player_id: int, _player_map: PlayerMap) -> void:
@@ -41,6 +45,9 @@ func path_manager() -> void:
 		var path_operate = path_operations.pop_front()
 		#TODO send to player
 		pass
+	
+func switch_to_Defence_agent() -> void:
+	Defence_agent.run()
 		
 func on_path_add(agent_type:String, path_operate: Vector2i) -> void:
 	#TODO agent调用、区分

@@ -1,0 +1,22 @@
+player_entity中信号
+发送
+    发现城市信号（cityid，citypos，generalid）
+    占领城市信号（cityid，citypos，generalid）
+    敌方兵力入侵信号（pos，power，enemyid，generalid）
+        general zone内有敌方，则时刻更新每一个敌方坐标
+        使用general[general_id]zone_of_general表示generalzone
+    敌方兵力侦察信号 （pos，power，enemyid，type）
+        对于frontline_zone地区所有信息，存到玩家实体or地图中，所有general共享
+    地图更新信号（pos，power，generalid）
+        想办法联系generalid好对应general的Agent的等待信号操作
+        或者地图更新拆解成一个个特征小信号，类似上面
+    路径操作信号（自定义，generalid
+        发送给服务器
+    回合更新信号（current_turn
+        是否有必要存在
+    
+    剩下的我自己写：
+    接管general信号
+
+    剩下的进将来写：
+    对general的一系列操作信号……

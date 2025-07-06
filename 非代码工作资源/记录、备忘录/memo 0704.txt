@@ -5,7 +5,7 @@ https://indienova.com/indie-game-development/making-slay-the-spire-arrow-with-go
 集中算法：
     对于高于土地平均值的节点，自动移动至最近城市处
 
-进攻区域（前线）判定： not in defend_zone
+进攻区域（前线）判定： not in zone_of_general
 
 预估敌方兵力：
     公示面板：总土地数&总兵力数
