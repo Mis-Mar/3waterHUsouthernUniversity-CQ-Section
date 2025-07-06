@@ -11,9 +11,15 @@ var player_id: int
 var player_map: PlayerMap
 var distance_map: Dictionary
 
+var city_id_in_zone : Array[int]
+var city_id_reachable : Array[int]
+var city_id_invaded : Array[int]
+var city_id_abandoned : Array[int]
+
 var crucial_point_list : Array[Vector2i]
 var crucial_point_reachable : Array[Vector2i]
-var city_id_reachable : Array[int]
+var crucial_point_invaded : Array[Vector2i]
+var crucial_point_abandoned : Array[Vector2i]
 
 var path_operations: Array
 var path_class: int
@@ -35,6 +41,32 @@ func _init(_main_city: Vector2i, _player_map: PlayerMap) -> void:
 
 func run() -> void:
 	pass
+
+func DIV_general_zone() -> void:
+	general.zone_of_general.clear()
+	var visited: Dictionary
+	for pos in player_map.cell_map:
+		visited[pos] = false
+	var queue: Array[Vector2i] = [main_city]
+	visited[main_city] = true
+	# 开始BFS遍历
+	while not queue.is_empty():
+		var current = queue.pop_front()  # 从队列头部取出
+		visited[current] = true
+		if player_map.get_cell(current).get_general_id() == general.general_id:
+			#内层BFS，获得区块
+			pass
+		if player_map.invis_state_map[current] == Global.TERRAIN_CITY :
+			city_id_in_zone.append(player_map.city_position_to_id[current])
+		# 获取所有邻居
+		var neighbors = player_map.get_neighbors_state5(current,general.general_id)
+		for neighbor in neighbors:
+			# 如果邻居尚未访问过 (距离为无穷大)
+			if visited[neighbor] == false:
+				# 将邻居加入队列
+				queue.append(neighbor)
+				general.zone_of_general.append(neighbor)
+	#TODO check again
 
 func bfs_path_build() -> void:
 	# 重置所有距离为无穷大
@@ -58,15 +90,21 @@ func bfs_path_build() -> void:
 				# 将邻居加入队列
 				queue.append(neighbor)
 
+func is_city_occupyed(ratio_param: float) -> bool:
+	return true
+
 func is_city_path_reachable(ratio_param: float) -> bool:
 	for city_id in player_map.city_id_of_general[general.general_id]:
 		if distance_map[player_map.city_id_to_position[city_id]] != INF:
 			city_id_reachable.append(city_id)
+		else:
+			city_id_abandoned.append(city_id)
 	if city_id_reachable.size() >= player_map.city_id_of_general[general.general_id].size() * ratio_param:
 		return true
 	else:
-		#TODO 完成动作
 		return false
+
+
 
 func is_crucial_point_reachable(ratio_param: float) -> bool:
 	for crucial_point in crucial_point_list:
@@ -80,6 +118,8 @@ func is_crucial_point_reachable(ratio_param: float) -> bool:
 	
 func general_zone_fill() -> void:
 	#维护general的zone_of_general
+	#TODO 在这里写估价函数f(x)=((-(x (x-3)) (2010-(x+41.8)^(2)))/(356))
+	#方法：模仿搜索的BFS，途中遍历加入所有自己的节点，遍历所有自己的节点，若有边则添加入自己的边，最后计算
 	pass
 
 func path_manager() -> void:

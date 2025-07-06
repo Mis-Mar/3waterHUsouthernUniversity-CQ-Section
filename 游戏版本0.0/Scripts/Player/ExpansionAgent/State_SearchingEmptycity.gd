@@ -33,6 +33,7 @@ func search_empty_city(jump_param: int,estimated_demand: int) -> bool:
 		var path = agent.search_algorithm.M2S_Search(target_point,estimated_demand,3,1,20,20)
 		var path_coords = agent.search_algorithm.get_path_coords()
 		if path != [-1]:
+			#TODO 去尾
 			searh_path = path_coords
 			send_path(path_coords)
 			return true
@@ -42,13 +43,14 @@ func search_empty_city(jump_param: int,estimated_demand: int) -> bool:
 
 func is_vision_sufficient() -> bool:
 	#添加可抵达城市（视野之外
+	#TODO check只指未知山地城市可达视野
 	Vision_Sufficient = true
 	Not_Found = agent.Not_Found
 	
 	var distance_map: Dictionary = {}
-	for coord in agent.player_map.grid_map.keys():
+	for coord in agent.player_map.invis_state_map.keys():
 		distance_map[coord] = INF
-		
+	#HACK 根据invis_state_map修改整个文件
 	var queue: Array[Vector2i] = [main_city]
 	distance_map[main_city] = 0
 	# 开始BFS遍历

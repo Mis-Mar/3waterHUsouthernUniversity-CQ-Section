@@ -93,20 +93,20 @@ func get_neighbors_state1(center: Vector2i, general_id:int) -> Array[Vector2i]:
 				neighbors.append(neighbor_coords)
 	return neighbors
 
-# state2: 搜索用，对于已知排除山地、敌方节点，包含未知（所有节点）山地、水域、平原 对象：general
+# state2: 搜索用，对于已知排除山地、敌方节点、友军节点，包含未知（所有节点）山地、水域、平原 对象：general
 func get_neighbors_state2(center: Vector2i, general_id:int) -> Array[Vector2i]:
 	var neighbors: Array[Vector2i] = []
 	for dir in Global.HEX_DIRECTIONS:
 		var neighbor_coords: Vector2i = center + dir
 		if cell_map.has(neighbor_coords):
 			var cell := get_cell(neighbor_coords)
-			if cell.get_type() != Global.TERRAIN_MOUNTAIN and cell.get_general() == general_id:
+			if cell.get_type() != Global.TERRAIN_MOUNTAIN and cell.get_general() == general_id :
 				neighbors.append(neighbor_coords)
 		else:
 			neighbors.append(neighbor_coords)
 	return neighbors
 	
-# state3: 对于已知排除山地、敌方节点，对于未知排除山地 对象：general
+# state3: 对于已知排除山地、敌方节点、队友节点，对于未知排除山地 对象：general
 func get_neighbors_state3(center: Vector2i, general_id:int) -> Array[Vector2i]:
 	var neighbors: Array[Vector2i] = []
 	for dir in Global.HEX_DIRECTIONS:
@@ -130,6 +130,19 @@ func get_neighbors_state4(center: Vector2i, general_id:int) -> Array[Vector2i]:
 				neighbors.append(neighbor_coords)
 		elif self.invis_state_map[neighbor_coords] != Global.INVIS_MOUNTAIN:
 			neighbors.append(neighbor_coords)
+	return neighbors
+
+# state5: 对于已知排除山地和队友节点，对于未知排除山地 对象：general
+func get_neighbors_state5(center: Vector2i, general_id:int) -> Array[Vector2i]:
+	var neighbors: Array[Vector2i] = []
+	for dir in Global.HEX_DIRECTIONS:
+		var neighbor_coords: Vector2i = center + dir
+		if cell_map.has(neighbor_coords):
+			var cell := get_cell(neighbor_coords)
+			if cell.get_type() != Global.TERRAIN_MOUNTAIN and (cell.get_general() == general_id or cell.get_general_id() not in general_id_to_player_id[player_id] ):
+				neighbors.append(neighbor_coords)
+			elif self.invis_state_map[neighbor_coords] != Global.INVIS_MOUNTAIN:
+				neighbors.append(neighbor_coords)
 	return neighbors
 
 # ——————————同步函数
