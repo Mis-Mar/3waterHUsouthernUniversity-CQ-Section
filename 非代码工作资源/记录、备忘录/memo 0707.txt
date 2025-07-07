@@ -1,0 +1,37 @@
+动态kamikaze搜索方法,抵达某个区域：
+    关键，动态视野范围:
+    初始视野为1
+    若视野内无目标区域节点，则迭代+1直到可发现
+    按照kamikaze方法导航前往目标区域
+
+kamikaze方法加权：
+    加权低价值路径：
+        统计视野区域内价值均值，归一化（价值：敌负己正
+        加入f(n)，要求价值均值最高
+
+连接算法：
+    先发现处于哪一个block
+    然后连接block方法
+        出发点main_city
+        理想：蛛网
+
+连接block方法（出发点，目标block
+    动态kamikaze搜索方法
+
+path_manager
+    基本规则：
+        前段插入则clear后面所有path
+        后段插入则不变
+            对于未执行的path执行class优先级排序
+
+general_zone_fill方法：
+    对于pointOFzone not in pointOFgeneral，存储为队列
+    每次pop节点
+        若邻居节点可调动以占领其->立即执行
+        否则append至队尾
+
+对于DA设计全局状态变量以切换状态、暂停函数
+
+Cpoint含义（暂时
+    关键节点
+    必须占领的城市

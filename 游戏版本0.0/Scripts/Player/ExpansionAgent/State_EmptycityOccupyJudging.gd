@@ -10,18 +10,18 @@ func enter() -> void:
 	occupy_path.clear()
 	if could_occupy_empty_city():
 		path_class += 1
-		#TODO 行动
+		#TODO anything else？
 		start_occupation_process()
 	else:
 		state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.SEARCHING_EMPTYCITY)
-#TODO 城市占领队列按占领难度（路径长度）优先队列排序
+#HACK 待完成 城市占领队列按占领难度（路径长度）优先队列排序
 
 func could_occupy_empty_city() -> bool:
 	for target_point in Not_Occupy:
 		var cell: CellInfo = agent.player_map.get_cell(target_point)
 		var demand: int = cell.get_power()
 		var path = agent.search_algorithm.M2S_Search(target_point,demand,3,1,10,50)
-		#TODO 参数设置
+		#HACK 待完成 参数设置
 		if path != [-1]:
 			occupy_path = agent.search_algorithm.get_all_coords()
 			return true
@@ -31,6 +31,7 @@ func could_occupy_empty_city() -> bool:
 
 func start_occupation_process() -> void:
 	agent.path_add.emit(path_class, occupy_path)
-	#TODO 等待信号占领城市
+	#HACK 待完成 返回操作路径的格式？
+	#HACK 待完成 等待信号占领城市
 	state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.EMPTYCITY_OCCUPY)
 	pass	

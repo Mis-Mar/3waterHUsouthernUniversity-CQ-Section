@@ -98,7 +98,7 @@ func calculate_Standard_Deviation() -> float:
 	return Standard_Deviation
 
 func calculate_connection_degree() -> float:
-	#TODO 在这里写估价函数f(x)=((-(x (x-3)) (2010-(x+41.8)^(2)))/(356))
+	#估价函数f(x)=((-(x (x-3)) (2010-(x+41.8)^(2)))/(356))
 	var point_of_general_count: int = point_of_general.size()
 	var x: float = edge_of_general
 	x /= point_of_general_count
@@ -108,13 +108,13 @@ func calculate_connection_degree() -> float:
 func path_manager() -> void:
 	while !path_operations.is_empty():
 		var path_operate = path_operations.pop_front()
-		#TODO send to player
+		#HACK 待完成 send to player
 		pass
 	
 func switch_to_Defence_agent() -> void:
 	Defence_agent.run()
 		
 func on_path_add(agent_type:String, path_operate: Vector2i) -> void:
-	#TODO agent调用、区分
+	#HACK 待完成 agent调用、区分
 	path_operations.append(path_operate)
 	path_manager()

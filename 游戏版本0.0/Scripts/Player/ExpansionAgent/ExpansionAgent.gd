@@ -46,7 +46,7 @@ func path_manager() -> void:
 				general.agent_path_output.emit(agent_tpye,AY[1])
 			else:
 				break
-		#TODO 分类类比，单个输出
+		#HACK 待完成 分类类比，单个输出
 		pass
 
 func on_path_add(_path_class: int, _path_operations: Array[Vector2i]) -> void:

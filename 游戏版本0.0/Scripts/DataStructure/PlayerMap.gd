@@ -84,7 +84,7 @@ func init_from_dict(init_data: Dictionary) -> void:
 
 # 结束——————————
 
-# state1: 对于已知排除山地和非己方节点，排除所有未知 对象：general
+# state1: 对于已知排除山地、敌方节点、友军节点，排除所有未知 对象：general
 func get_neighbors_state1(center: Vector2i, general_id:int) -> Array[Vector2i]:
 	var neighbors: Array[Vector2i] = []
 	for dir in Global.HEX_DIRECTIONS:
@@ -144,6 +144,17 @@ func get_neighbors_state5(center: Vector2i, general_id:int) -> Array[Vector2i]:
 			if cell.get_type() != Global.TERRAIN_MOUNTAIN and (cell.get_general() == general_id or cell.get_general_id() not in general_id_to_player_id[player_id] ):
 				neighbors.append(neighbor_coords)
 			elif self.invis_state_map[neighbor_coords] != Global.INVIS_MOUNTAIN:
+				neighbors.append(neighbor_coords)
+	return neighbors
+	
+# state6: 对于已知排除山地和敌方节点，对于未知排除所有 对象：general
+func get_neighbors_state6(center: Vector2i, general_id:int) -> Array[Vector2i]:
+	var neighbors: Array[Vector2i] = []
+	for dir in Global.HEX_DIRECTIONS:
+		var neighbor_coords: Vector2i = center + dir
+		if cell_map.has(neighbor_coords):
+			var cell := get_cell(neighbor_coords)
+			if cell.get_type() != Global.TERRAIN_MOUNTAIN and cell.get_general_id() in general_id_to_player_id[player_id]:
 				neighbors.append(neighbor_coords)
 	return neighbors
 

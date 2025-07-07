@@ -153,7 +153,8 @@ func reverse_bfs(start_point: Vector2i, demand: int) -> bool:
 				print(self.get_cell(current).get_power())
 				print(general_id_to_player_id[self.get_cell(current).get_general_id()])
 				print(player_id)
-			accumulated_value += self.value_map[current] - 1
+			if current != start_point:
+				accumulated_value += self.value_map[current] - 1
 			print("accumulated_value:")
 			print(accumulated_value)
 			

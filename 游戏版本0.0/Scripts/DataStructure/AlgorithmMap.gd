@@ -37,7 +37,7 @@ func _init(original: PlayerMap, _general_id: int) -> void:
 		else:
 			value_map[coord] = 0
 		distance_map[coord] = INF
-	
+	#HACK 待完成 添加对敌方未知的预估功能，maybe in  set_value()？
 	# valuemap,distancemap更新已知节点
 	for coord in original.cell_map.keys():
 		if self.get_cell(coord).get_type() == Global.TERRAIN_MOUNTAIN:
