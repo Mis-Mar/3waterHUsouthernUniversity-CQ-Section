@@ -17,6 +17,7 @@ var point_of_general: Array[Vector2i]
 var edge_of_general: int = 0
 var full_power_of_general: int
 var mean_power_of_general: float
+var Variance : float
 var connection_degree : float
 
 var city_id_in_zone : Array[int]
@@ -59,7 +60,9 @@ func calculate_mean_power() -> void:
 	var mean_power: float = self.full_power_of_general
 	mean_power_of_general = mean_power / self.point_of_general.size()
 
-func calculate_morans_i() -> float:
+func calculate_Morans_I() -> float:
+	#莫兰指数
+	
 	var result: float
 	var spatial_weight = 0.0
 	var numerator = 0.0
@@ -79,8 +82,20 @@ func calculate_morans_i() -> float:
 	if denominator == 0 or spatial_weight == 0:
 		return 0.0
 	
+	self.Variance = denominator / point_of_general.size()
 	result = (point_of_general.size() * numerator) / (spatial_weight * denominator)
 	return result
+
+func calculate_Standard_Deviation() -> float:
+	#标准差
+	var Standard_Deviation: float = 0.0
+	for coord in self.point_of_general:
+		var z_i = player_map.get_cell(coord).get_power() - mean_power_of_general
+		Standard_Deviation += z_i * z_i
+	Standard_Deviation /= self.point_of_general.size()
+	self.Variance = Standard_Deviation
+	Standard_Deviation = sqrt(Standard_Deviation)
+	return Standard_Deviation
 
 func calculate_connection_degree() -> float:
 	#TODO 在这里写估价函数f(x)=((-(x (x-3)) (2010-(x+41.8)^(2)))/(356))
