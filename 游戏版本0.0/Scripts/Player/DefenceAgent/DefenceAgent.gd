@@ -79,6 +79,8 @@ func DIV_general_zone() -> void:
 	for block in block_point:
 		general.point_of_general.append_array(block_point[block])
 		general.edge_of_general += edge_count_block[block]
+	general.calculate_full_power()
+	general.calculate_mean_power()
 	general.calculate_connection_degree()
 	#TODO check again
 

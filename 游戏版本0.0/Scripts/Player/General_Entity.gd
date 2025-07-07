@@ -15,6 +15,8 @@ var path_operations: Array[Vector2i]
 var zone_of_general: Array[Vector2i]
 var point_of_general: Array[Vector2i]
 var edge_of_general: int = 0
+var full_power_of_general: int
+var mean_power_of_general: float
 var connection_degree : float
 
 var city_id_in_zone : Array[int]
@@ -46,6 +48,39 @@ func _run() -> void:
 		pass
 	else:
 		Expansion_agent._run()
+
+func calculate_full_power() -> void:
+	var power: int = 0
+	for point in point_of_general:
+		power += player_map.get_cell(point).get_power()
+	full_power_of_general = power
+
+func calculate_mean_power() -> void:
+	var mean_power: float = self.full_power_of_general
+	mean_power_of_general = mean_power / self.point_of_general.size()
+
+func calculate_morans_i() -> float:
+	var result: float
+	var spatial_weight = 0.0
+	var numerator = 0.0
+	var denominator = 0.0
+
+	for coord in self.point_of_general:
+		
+		var z_i = player_map.get_cell(coord).get_power() - mean_power_of_general
+		denominator += z_i * z_i
+
+		for neighbor in player_map.get_neighbors_state0(coord):
+			if neighbor in point_of_general:
+				var nz = player_map.get_cell(neighbor).get_power() - mean_power_of_general
+				numerator += z_i * nz
+				spatial_weight += 1
+
+	if denominator == 0 or spatial_weight == 0:
+		return 0.0
+	
+	result = (point_of_general.size() * numerator) / (spatial_weight * denominator)
+	return result
 
 func calculate_connection_degree() -> float:
 	#TODO 在这里写估价函数f(x)=((-(x (x-3)) (2010-(x+41.8)^(2)))/(356))
