@@ -6,6 +6,19 @@ var search_algorithm: M2S_SearchAlgorithm
 var algorithm_map: AlgorithmMap
 var main_city: Vector2i
 
+var current_state: int = self.SLEEP
+
+const SLEEP := 0
+const ZONE_DIV := 1
+const MAIN_GATHER := 2
+const NORMAL_GATHER := 3
+const CITY_DEFEND := 4
+const CPOINT_DEFEND := 5
+const CITY_ACHIEVE := 6
+const CPOINT_ACHIEVE := 7
+const HUNT_DEFEND := 8
+const EMPTY_DEFEND := 9
+
 const CONCENTRATION := 2
 const OCCUPYCITY := 3
 const OCCUPYCPOINT := 4
@@ -51,6 +64,7 @@ func run() -> void:
 	pass
 
 func DIV_general_zone() -> void:
+	self.current_state = self.ZONE_DIV
 	#建立复杂度 O（n2），故只可用于初始化，之后动态更新
 	#HACK 待完成 建立动态更新
 	general.zone_of_general.clear()
@@ -131,6 +145,7 @@ func bfs_path_build() -> void:
 				queue.append(neighbor)
 
 func is_city_occupyed(ratio_param: float) -> bool:
+	self.current_state = self.CITY_DEFEND
 	for city_id in general.city_id_in_zone:
 		if city_id not in general.city_id_of_general:
 			city_id_invaded.append(city_id)
@@ -141,6 +156,7 @@ func is_city_occupyed(ratio_param: float) -> bool:
 		return false
 
 func occupy_invaded_city() -> void:
+	self.current_state = self.CITY_DEFEND
 	var path_all: Dictionary = {}
 	var min_path_id: int = -1
 	for target_city_id in city_id_invaded:
@@ -152,10 +168,13 @@ func occupy_invaded_city() -> void:
 			path_all[target_city_id] = search_algorithm.get_all_coords()
 			if min_path_id == -1 or path_all[target_city_id] < path_all[min_path_id]:
 				min_path_id = target_city_id
+	if self.current_state != self.CITY_DEFEND:
+		return
 	if min_path_id != -1:
 		self.path_add.emit(self.OCCUPYCITY, path_all[min_path_id])
 
 func is_crucial_point_occupyed(ratio_param: float) -> bool:
+	self.current_state = self.CPOINT_DEFEND
 	for crucial_point in general.crucial_point_list:
 		if crucial_point not in general.crucial_point_of_general:
 			crucial_point_invaded.append(crucial_point)
@@ -166,6 +185,7 @@ func is_crucial_point_occupyed(ratio_param: float) -> bool:
 		return false
 
 func occupy_invaded_Cpoint() -> void:
+	self.current_state = self.CPOINT_DEFEND
 	var path_all: Dictionary = {}
 	var min_path_id: Vector2i = crucial_point_invaded[0]
 	for target_Cpoint in crucial_point_invaded:
@@ -176,10 +196,13 @@ func occupy_invaded_Cpoint() -> void:
 			path_all[target_Cpoint] = search_algorithm.get_all_coords()
 			if path_all[target_Cpoint] < path_all[min_path_id]:
 				min_path_id = target_Cpoint
+	if self.current_state != self.CPOINT_DEFEND:
+		return
 	if path_all[min_path_id] != [-1]:
 		self.path_add.emit(self.OCCUPYCPOINT, path_all[min_path_id])
 
 func is_city_path_reachable(ratio_param: float) -> bool:
+	self.current_state = self.CITY_ACHIEVE
 	for city_id in general.city_id_of_general:
 		if distance_map[player_map.city_id_to_position[city_id]] != INF:
 			city_id_reachable.append(city_id)
@@ -191,12 +214,14 @@ func is_city_path_reachable(ratio_param: float) -> bool:
 		return false
 
 func connect_abandoned_city(city_id: int):
+	self.current_state = self.CITY_ACHIEVE
 	var city_pos: Vector2i = player_map.city_id_to_position[city_id]
 	var city_block: int = point_to_block[city_pos]
-	self.dynamic_kamikaze_search_block(main_city,city_block)
+	self.dynamic_kamikaze_search_block(main_city,city_block,self.CITY_ACHIEVE)
 	#TODO anything else?
 
 func is_crucial_point_reachable(ratio_param: float) -> bool:
+	self.current_state = self.CPOINT_ACHIEVE
 	for crucial_point in general.crucial_point_list:
 		if distance_map[crucial_point] != INF:
 			crucial_point_reachable.append(crucial_point)
@@ -208,11 +233,13 @@ func is_crucial_point_reachable(ratio_param: float) -> bool:
 		return false
 
 func connect_abandoned_Cpoint(Cpoint: int):
+	self.current_state = self.CPOINT_ACHIEVE
 	var Cpoint_block: int = point_to_block[Cpoint]
-	self.dynamic_kamikaze_search_block(main_city,Cpoint_block)
+	self.dynamic_kamikaze_search_block(main_city,Cpoint_block,self.CPOINT_ACHIEVE)
 	#TODO anything else?
 
 func general_zone_fill(ratio: float) -> void:
+	self.current_state = self.EMPTY_DEFEND
 	var unoccupied_points: Array[Vector2i]
 	for point in general.zone_of_general:
 		if player_map.invis_state_map[point] != Global.TERRAIN_MOUNTAIN:
@@ -224,20 +251,29 @@ func general_zone_fill(ratio: float) -> void:
 		if player_map.cell_map.has(point):
 			for neighbor in player_map.get_neighbors_state6(point,general.general_id):
 				if player_map.get_cell(neighbor).get_power() > player_map.get_cell(point).get_power():
+					if self.current_state != self.EMPTY_DEFEND:
+						return
 					#HACK 待完成 返回操作路径的格式？
 					#add路径：neighbor to point
 					#HACK 待完成 等待更新
-					#HACK 待完成 添加结束该函数的中断操作，来自全局状态变量
 					achieve = true
 					break
 		if not achieve:
 			unoccupied_points.append(point)
 
 func defend_main_city(demand_param: float,range_threshold: int) -> void:
+	self.current_state = self.MAIN_GATHER
 	self.concentrate_power(main_city,demand_param,range_threshold)
 	#TODO 更多可写？
-
+#HACK 待完成 单独写函数控制王城防御和集中
 func concentrate_power(target_point: Vector2i,demand_param: float,range_threshold: int) -> void:
+	var start_state : int
+	if target_point == main_city:
+		self.current_state = self.MAIN_GATHER
+		start_state = self.MAIN_GATHERn
+	else:
+		self.current_state = self.NORMAL_GATHER
+		start_state = self.NORMAL_GATHER
 	var avaliable_power: int = 0
 	for city_id in general.city_id_of_general:
 		avaliable_power += algorithm_map.value_map[player_map.city_id_to_position[city_id]]
@@ -246,25 +282,31 @@ func concentrate_power(target_point: Vector2i,demand_param: float,range_threshol
 	var path = search_algorithm.M2S_Search(target_point,avaliable_power * demand_param,3,1,10,range_threshold)
 	if path != [-1]:
 		path = search_algorithm.get_all_coords()
+		if self.current_state != start_state:
+			return
 		self.path_add.emit(self.CONCENTRATION, path)
 
 func hunt_enemy_power() -> void:
+	self.current_state = self.HUNT_DEFEND
 	#HACK 待完成 先集中再A*索敌
 	pass
 	
-func dynamic_kamikaze_search_block(start_point: Vector2i, target_block: int) -> void:
+func dynamic_kamikaze_search_block(start_point: Vector2i, target_block: int,start_state: int) -> void:
+	self.current_state = start_state
 	#动态kamikaze搜索方法,抵达某个区域
 	var visited: Array[Vector2i] = [start_point]
 	var sight_range: Array = [1]
 	var cell: CellInfo = player_map.get_cell(start_point)
 	var direction: Vector2i
 	while cell.get_power() > 1:
+
 		direction = Block_points_in_sight_direction(start_point, sight_range, target_block)
 		start_point += direction
 		self.path_add.emit([start_point])
 		#HACK 待完成 返回操作路径的格式？
 		#HACK 待完成 等待更新
-		#HACK 待完成 添加结束该函数的中断操作，来自全局状态变量
+		if self.current_state != start_state:
+			return
 		cell = player_map.get_cell(start_point)
 		
 func Block_points_in_sight_direction(start_point: Vector2i, sight_range: Array, target_block: int) -> Vector2i:
