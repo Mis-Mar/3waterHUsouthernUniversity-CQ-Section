@@ -113,7 +113,6 @@ func update_ready_count(_ready_count:int)->void:
 # server向 client/server 发送开始游戏的信号
 @rpc("authority", "call_local")
 func send_start()->void:
-	print("start")
 	var err = get_tree().change_scene_to_file("res://Scenes/game_multi/game_multi_play.tscn")
 	if err != OK:
 		print("切换场景失败，错误码: ", err)

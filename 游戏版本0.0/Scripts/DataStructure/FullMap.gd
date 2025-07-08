@@ -245,8 +245,8 @@ func move_power_help(from_coords: Vector2i, to_coords: Vector2i, ratio: float) -
 	#添加到操作引起的变动表，用于联网的同步优化
 	acted_coords[from_coords] = true
 	acted_coords[to_coords] = true
-	# 同一个 general，直接合兵
-	if to_cell.get_general_id() == from_cell.get_general_id():
+	# 同一个 player，直接合兵
+	if general_id_to_player_id[ to_cell.get_general_id()]==general_id_to_player_id[ from_cell.get_general_id()]:
 		to_cell.set_power(to_cell.get_power() + move_amount)
 	else:
 		var last_power = to_cell.get_power() - move_amount
@@ -257,14 +257,14 @@ func move_power_help(from_coords: Vector2i, to_coords: Vector2i, ratio: float) -
 			to_cell.set_power(0)
 			# to_cell.set_general_id(0)原有的general不变，为了避免capital或者city变为general0的情况
 		else:
+			# 如果是主城
 			if to_cell.get_type() == Global.TERRAIN_CAPITAL:
 				occupy_general(from_cell.get_general_id(), to_cell.get_general_id())
-				from_cell.set_power(from_cell.get_power() + move_amount)
+				to_cell.set_power(to_cell.get_power() + move_amount)
 				return true
 			to_cell.set_power(move_amount - to_cell.get_power())
 			to_cell.set_general_id(from_cell.get_general_id())
 			general_id_to_player_id[to_cell.get_general_id()] = general_id_to_player_id[from_cell.get_general_id()]
-	
 	return true
 
 func occupy_general(from_general_id: int, to_general_id: int) -> void:

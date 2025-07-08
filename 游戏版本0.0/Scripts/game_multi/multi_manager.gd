@@ -15,7 +15,6 @@ var rpc_id_to_player_id: Dictionary = {}
 var player_id_to_rpc_id: Dictionary = {}
 # 
 var is_server:=false
-
 # 移动相关
 var selected_tile_coords: Vector2i = Vector2i.ZERO  # 当前鼠标选中的格子
 var current_highlighted_tile: Vector2i = Vector2i(-9999, -9999)  # 默认非法值
@@ -55,28 +54,25 @@ func start()->void:
 	map. display_playermap(playermap)
 		
 	# 显示playermap
-	
-
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	start()
 	pass # Replace with function body.
 
-
 # ——————————信号事件
 # 帧函数
 func _process(delta: float) -> void:
 	pass
 
+# 输入与操作
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			# 获取左键选中的格子
 			var tile_coords = map.get_tile_coords_from_screen_pos(event.position)
 			# 如果选中的格子不可见的
-			if playermap.invis_state_map[tile_coords]<0:
-				
+			if !playermap.invis_state_map.has(tile_coords) or playermap.invis_state_map[tile_coords]<0:
 				return
 			# 如果两次选中同一个格子就测取消选中
 			if tile_coords==selected_tile_coords:
@@ -116,7 +112,6 @@ func _input(event: InputEvent) -> void:
 		else:
 			printerr("操作访问到空cell")
 
-
 # 玩家加入，拒绝，重连功能先不考虑
 func _on_peer_connected(id: int) -> void:
 	print("玩家已加入，ID: ", id)
@@ -125,11 +120,14 @@ func _on_peer_connected(id: int) -> void:
 # 玩家断开，暂定
 func _on_peer_disconnected(id: int) -> void:
 	print("玩家离开，ID: ", id)
-	if rpc_id_to_player_id.has(id):
+	if is_server and rpc_id_to_player_id.has(id):
 		var pid = rpc_id_to_player_id[id]
 		# 清理两张表
 		rpc_id_to_player_id.erase(id)
 		player_id_to_rpc_id.erase(pid)
+	# 客户端返回界面
+	elif !is_server and id==1:
+		leave_room()
 
 # 回合计时器，只有服务端会调用
 func _on_timer_turn_timeout() -> void:
@@ -163,7 +161,6 @@ func rpc_update_playermap(delta_cell: Dictionary,delta_general_id_to_player_id: 
 func rpc_init_playermap(init_data: Dictionary)->void:
 	player_id=init_data.get("player_id",0)
 	playermap.init_from_dict(init_data)
-
 
 # 结束——————————
 
