@@ -23,7 +23,7 @@ func could_occupy_empty_city() -> bool:
 		var path = agent.search_algorithm.M2S_Search(target_point,demand,3,1,10,50)
 		#HACK 待完成 参数设置
 		if path != [-1]:
-			occupy_path = agent.search_algorithm.get_all_coords()
+			occupy_path = agent.search_algorithm.get_path_action()
 			return true
 		else:
 			pass
@@ -31,7 +31,6 @@ func could_occupy_empty_city() -> bool:
 
 func start_occupation_process() -> void:
 	agent.path_add.emit(path_class, occupy_path)
-	#HACK 待完成 返回操作路径的格式？
 	#HACK 待完成 等待信号占领城市
 	state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.EMPTYCITY_OCCUPY)
 	pass	

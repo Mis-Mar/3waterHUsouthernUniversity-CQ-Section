@@ -3,7 +3,13 @@ class_name State_SearchingEmptycity
 
 var Not_Found: Array[Vector2i]
 var Vision_Sufficient: bool = false
-var searh_path: Array[Vector2i]
+var search_path: Array[Vector2i]
+var search_pattern: int = self.PATTERN_SLEEP
+
+const PATTERN_SLEEP := 0
+const PATTERN_M2S := 1
+const PATTERN_KAMIKAZE := 2
+
 
 func enter() -> void:
 	if not is_vision_sufficient():
@@ -17,27 +23,29 @@ func enter() -> void:
 
 func found_empty_city() -> bool:
 	if(search_empty_city(2,20)):
-		agent.act(searh_path)
+		agent.act(search_path)
 		#HACK 待完成 触发发现新城市，条件判断
 		#agent.Not_Occupy.append()
 		return true
 	return false
 
 func search_empty_city(jump_param: int,estimated_demand: int) -> bool:
+	self.search_pattern = self.PATTERN_M2S
 	#前往可抵达城市
 	var target_point = Not_Found.pop_front()
-	searh_path.clear()
+	search_path.clear()
 	var path_point: Array[Vector2i] = agent.player_map.build_Astar_path(self.agent.general.main_city,target_point)
 	while !path_point.is_empty():
 		target_point = path_point.pop_front()
 		var path = agent.search_algorithm.M2S_Search(target_point,estimated_demand,3,1,20,20)
 		#HACK 待完成 参数设置
-		var path_coords = agent.search_algorithm.get_path_coords()
+		var path_action = agent.search_algorithm.get_path_action()
 		if path != [-1]:
-			searh_path = path_coords
-			send_path(path_coords)
-			#HACK 待完成 返回操作路径的格式？
-			#TODO 去尾
+			path_action.pop_back()#去尾
+			search_path = path_action
+			if self.search_pattern != self.PATTERN_M2S:
+				return false
+			send_path(path_action)
 			return true
 		else:
 			return false
@@ -78,17 +86,22 @@ func is_vision_sufficient() -> bool:
 		return true
 
 func kamikaze_search(start_point: Vector2i, sight_range: int) -> void:
+	self.search_pattern = self.PATTERN_KAMIKAZE
 	var visited: Array[Vector2i] = [start_point]
 	#TODO 考虑是否有必要？
 	var cell: CellInfo = agent.player_map.get_cell(start_point)
 	var direction: Vector2i
 	while cell.get_power() > 1:
 		direction = Not_Found_in_sight_direction(start_point, sight_range)
+		if self.search_pattern != self.PATTERN_KAMIKAZE:
+			return
+		send_path([{
+			"from": start_point,
+			"dir": direction,
+			"ratio": 1.0
+		}])
 		start_point += direction
-		send_path([start_point])
-		#HACK 待完成 返回操作路径的格式？
 		#HACK 待完成 等待更新
-		#HACK 待完成 添加结束该函数的中断操作，来自全局状态变量
 		cell = agent.player_map.get_cell(start_point)
 
 func Not_Found_in_sight_direction(start_point: Vector2i, sight_range: int) -> Vector2i:
@@ -105,7 +118,6 @@ func Not_Found_in_sight_direction(start_point: Vector2i, sight_range: int) -> Ve
 		#TODO 开关：是否节约power
 	return max_direction
 		
-func send_path(path_operations: Array[Vector2i]) -> void:
-	#HACK 待完成 返回操作路径的格式？
+func send_path(path_operations: Array) -> void:
 	agent.path_add.emit(0, path_operations)
 	pass
