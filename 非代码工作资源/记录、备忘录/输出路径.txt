@@ -1,0 +1,10 @@
+action: Array
+按顺序（先操作的先append）输出一个数组，格式例如
+action.append({
+		"from": from_coords,
+		"dir": direction_index,
+		"ratio": ratio （移动兵力的比例，这个暂时设置为1.0）
+})
+
+我就可以这样调用
+move_power(action["from"], action["dir"], action["ratio"])

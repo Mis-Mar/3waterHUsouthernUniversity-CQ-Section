@@ -26,7 +26,12 @@ func start()->void:
 	timer_turn.start()  # 每秒自动调用 timeout 
 	map. display_playermap_fog(playermap)
 	map. display_playermap(playermap)
+	# 这样可以绑定信号
+	playermap.connect("turn_updated", Callable(self, "_on_turn_updated"))
 	# map. display_map_for_player(fullmap,1)
+
+func _on_turn_updated()->void:
+	print("收到回合更新信号")
 
 func _ready() -> void:
 	start()

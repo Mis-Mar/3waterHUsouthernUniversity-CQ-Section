@@ -20,10 +20,24 @@ var city_id_of_general: Dictionary = {}  # Dictionary嵌套Array构成二维数�
 # 自增城市ID计数器（本地使用）
 var _next_city_id: int = 1
 
-# 信号
+# ——————————信号
 signal tile_newly_visible(coord: Vector2i)
 signal tile_hidden(coord: Vector2i)
 signal tile_updated(coord: Vector2i)
+# 回合更新信号，完成
+signal turn_updated(curr_turn:int)
+# 发现新的城市的信号，完成
+signal find_city(cityid:int,citypos:Vector2i,generalid:int)
+# 占领城市信号，待定，我想做一个占领格子的大信号，然后占领城市的信号由分析这个信号再发出
+signal occupy_cell(cityid:int,citypos:Vector2i,generalid:int)
+# 敌方兵力入侵信号，可做，没做完
+signal enemy_attack(pos:Vector2i,power:int,enemyid:int,generalid:int)
+# 敌方侦察信号，可做，没做完
+signal enemy_find(pos:Vector2i,power:int,enemyid:int,type:int)
+# 视野损失，已完成
+signal lost_vision(pos:Vector2i,_cellinfo:CellInfo)
+
+
 
 # ——————————初始化
 # 通过fullmap player_id初始化，测试用
@@ -161,8 +175,10 @@ func get_neighbors_state6(center: Vector2i, general_id:int) -> Array[Vector2i]:
 # ——————————同步函数
 func update_player_map(delta_cell: Dictionary,delta_general_id_to_player_id: Dictionary)->void:
 	update_power_by_terrain()
-	update_cell_from_delta(delta_cell)
 	import_general_id_to_player_id(delta_general_id_to_player_id)
+	update_cell_from_delta(delta_cell)
+	# 发出信号（测试）
+	emit_signal("turn_updated",turn_count)
 	pass
 
 # 更新视野，更新玩家操作的格子变化
@@ -177,19 +193,31 @@ func update_cell_from_delta(delta: Dictionary) -> void:
 			add_capital(cell_info.get_general_id(),coord)
 		elif cell_info.get_type()==Global.TERRAIN_CITY:
 			add_or_update_city(coord,cell_info.get_general_id())
-		# 发信号
+		# 发信号-新看见格子
 		emit_signal("tile_newly_visible", coord)
-
+		
+		
+	# 视野看不见的格子去掉，并发信号
 	for key in delta["now_invisible"]:
 		var coord = parse_vector2i(key)
 		if cell_map.has(coord):
+			# 发信号 丢失视野
+			emit_signal("lost_vision", coord,cell_map[coord])
 			cell_map.erase(coord)
 			emit_signal("tile_hidden", coord)
-
+	# 玩家操作改变的格子
 	for key in delta["changed"].keys():
 		var coord = parse_vector2i(key)
 		if cell_map.has(coord):
 			var cell_info = CellInfo.from_dict(delta["changed"][key])
+			var pre_cell_info=cell_map[coord]
+			#TODO 占领和被占领信号待完成
+			# if pre_cell_info.get_general()!=cell_info.get_general():
+				# if general_id_to_player_id[pre_cell_info.get_general()]==player_id:
+					# 信号，被占领格子
+					# emit_signal("tile_hidden", coord)
+			
+			
 			cell_map[coord] = cell_info
 			cell_map[coord].set_dirty_flag()
 			# 更新id到position等，那几个表
@@ -253,3 +281,5 @@ func add_or_update_city(position: Vector2i, general_id: int) -> void:
 		city_id_to_position[city_id] = position
 		city_id_to_general[city_id] = general_id
 		city_id_of_general[general_id].append(city_id)
+		# 信号 新发现城市
+		emit_signal("find_city",city_id,position,general_id)

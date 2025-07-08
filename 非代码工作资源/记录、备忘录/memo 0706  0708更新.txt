@@ -8,6 +8,10 @@ player_entity中信号
     敌方兵力侦察信号 （pos，power，enemyid，type）
         对于frontline_zone地区所有信息，存到玩家实体or地图中，所有general共享
     地图更新信号（pos，power，generalid）
+	发现城市，发现山地
+	发现空地
+	占领空地
+	占领城市
         想办法联系generalid好对应general的Agent的等待信号操作
         或者地图更新拆解成一个个特征小信号，类似上面
     路径操作信号（自定义，generalid
@@ -15,8 +19,29 @@ player_entity中信号
     回合更新信号（current_turn
         是否有必要存在
     
+7.8工作记录
+# 回合更新信号，完成
+signal turn_updated(curr_turn:int)
+# 发现新的城市的信号，完成
+signal find_city(cityid:int,citypos:Vector2i,generalid:int)
+# 占领城市信号，待定，我想做一个占领格子的大信号，然后占领城市的信号由分析这个信号再发出
+signal occupy_cell(cityid:int,citypos:Vector2i,generalid:int)
+# 敌方兵力入侵信号，可做，没做完
+signal enemy_attack(pos:Vector2i,power:int,enemyid:int,generalid:int)
+# 敌方侦察信号，可做，没做完
+signal enemy_find(pos:Vector2i,power:int,enemyid:int,type:int)
+# 视野损失，已完成
+signal lost_vision(pos:Vector2i,_cellinfo:CellInfo)
+
+
     剩下的我自己写：
     接管general信号
 
     剩下的进将来写：
     对general的一系列操作信号……
+
+地图更新信号（pos，power，generalid）
+	发现城市，发现山地
+	发现空地
+	占领空地
+	占领城市
