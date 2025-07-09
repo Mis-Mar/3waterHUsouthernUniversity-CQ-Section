@@ -7,7 +7,6 @@ var player_id: int = 0
 #存储区块不可见的情况：（空地/主城？） （山地/城市？）(水域)
 #也存储了所有的地图key，可用于表示地图范围
 var invis_state_map: Dictionary = {}  # Dictionary<Vector2i, int>
-
 # General ID → Capital position
 var general_to_capital: Dictionary = {}  # Dictionary[int, Vector2i]
 # City 坐标 → City ID (本地自增计算)
@@ -28,12 +27,25 @@ signal tile_updated(coord: Vector2i)
 signal turn_updated(curr_turn:int)
 # 发现新的城市的信号，完成
 signal find_city(cityid:int,citypos:Vector2i,generalid:int)
-# 占领城市信号，待定，我想做一个占领格子的大信号，然后占领城市的信号由分析这个信号再发出
-signal occupy_cell(cityid:int,citypos:Vector2i,generalid:int)
-# 敌方兵力入侵信号，可做，没做完
-signal enemy_attack(pos:Vector2i,power:int,enemyid:int,generalid:int)
-# 敌方侦察信号，可做，没做完
-signal enemy_find(pos:Vector2i,power:int,enemyid:int,type:int)
+
+# 占领cell信号（占领的大信号）,完成
+signal occupy_cell(pos:Vector2i,_cell_info:CellInfo,enemy_general_id:int,general_id:int)
+# 占领城市信号,完成
+signal occupy_city(cityid:int,citypos:Vector2i,enemy_general_id:int,general_id:int)
+# 占领capital信号,完成
+signal occupy_capital(general_id:int,capital_pos:Vector2i)
+
+# 被占领cell信号（被占领的大信号），完成
+signal be_occupied_cell(pos:Vector2i,_cell_info:CellInfo,general_id:int,enemy_general_id:int)
+# 被占领城市信号，完成
+signal be_occupied_city(cityid:int,citypos:Vector2i,general_id:int,enemy_general_id:int)
+# 被占领capital信号，完成
+signal be_occupied_capital(general_id:int,capital_pos:Vector2i)
+
+# 发现敌方信号，完成
+signal enemy_find(pos:Vector2i,_cell_info:CellInfo,enemyid:int)
+# 敌方cell更新信号（只更新由占领操作引起的改变
+signal enemy_update_cell(pos:Vector2i,_cell_info:CellInfo,pre_general_id:int,general_id:int)
 # 视野损失，已完成
 signal lost_vision(pos:Vector2i,_cellinfo:CellInfo)
 
@@ -175,18 +187,25 @@ func get_neighbors_state6(center: Vector2i, general_id:int) -> Array[Vector2i]:
 # ——————————同步函数
 func update_player_map(delta_cell: Dictionary,delta_general_id_to_player_id: Dictionary)->void:
 	update_power_by_terrain()
-	import_general_id_to_player_id(delta_general_id_to_player_id)
 	update_cell_from_delta(delta_cell)
+	import_general_id_to_player_id(delta_general_id_to_player_id)
 	# 发出信号（测试）
 	emit_signal("turn_updated",turn_count)
 	pass
 
 # 更新视野，更新玩家操作的格子变化
 func update_cell_from_delta(delta: Dictionary) -> void:
+	# 新可见的格子
 	for key in delta["newly_visible"].keys():
 		var coord = parse_vector2i(key)
 		var cell_info = CellInfo.from_dict(delta["newly_visible"][key])
 		cell_map[coord] = cell_info
+		# 新看见个格子是自己的，只有一种情况：占领了general，视野大幅拓展
+		if get_cell_player(cell_info)==player_id:
+			signal_manager_occupy(coord,cell_info,cell_info.get_general_id())
+		# 发现敌人格子
+		elif get_cell_player(cell_info)!=0:
+			emit_signal("enemy_find", coord,cell_info,get_cell_player(cell_info))
 		# 更新id到position等，那几个表
 		invis_state_map[coord]=cell_info.get_type()
 		if cell_info.get_type()==Global.TERRAIN_CAPITAL:
@@ -211,13 +230,17 @@ func update_cell_from_delta(delta: Dictionary) -> void:
 		if cell_map.has(coord):
 			var cell_info = CellInfo.from_dict(delta["changed"][key])
 			var pre_cell_info=cell_map[coord]
-			#TODO 占领和被占领信号待完成
-			# if pre_cell_info.get_general()!=cell_info.get_general():
-				# if general_id_to_player_id[pre_cell_info.get_general()]==player_id:
-					# 信号，被占领格子
-					# emit_signal("tile_hidden", coord)
-			
-			
+			# 对比更新前后的cellinfo判断占领和被占领信号待完成
+			if get_cell_player(cell_info)!=get_cell_player(pre_cell_info):
+				# 占领格子
+				if get_cell_player(cell_info)==player_id:
+					signal_manager_occupy(coord,cell_info,pre_cell_info.get_general_id())
+				# 被占领格子
+				elif get_cell_player(pre_cell_info)==player_id:
+					signal_manager_be_occupied(coord,cell_info,pre_cell_info.get_general_id())
+				# 视野内敌人占领敌人
+				else:
+					emit_signal("enemy_update_cell", coord,cell_info,pre_cell_info.get_general_id(),cell_info.get_general_id())
 			cell_map[coord] = cell_info
 			cell_map[coord].set_dirty_flag()
 			# 更新id到position等，那几个表
@@ -231,14 +254,28 @@ func update_cell_from_delta(delta: Dictionary) -> void:
 
 # 更新（复制）general_id_to_player_id
 func import_general_id_to_player_id(data: Dictionary) -> void:
+	for key in data.keys():
+		if general_id_to_player_id.has(key) and general_id_to_player_id[key]!=data[key]:
+			# 自己general被占领
+			if general_id_to_player_id[key]==player_id:
+				# 占领capital信号
+				emit_signal("occupy_capital", key,general_to_capital[key])
+				pass
+			# 占领别人general
+			elif data[key]==player_id:
+				emit_signal("be_occupied_capital", key,general_to_capital[key])
+				pass
+			# else 别人general被别人占领
+	
 	general_id_to_player_id.clear()
 	for key in data.keys():
 		general_id_to_player_id[key] = data[key]
 # 同步结束————————————
 
 
+
 # ——————————建立用于算法的city_id对应position和general_id的表
-# 接口——
+# 接口
 func get_city_coord(city_id:int)->Vector2i:
 	return city_id_to_position[city_id]
 
@@ -283,3 +320,20 @@ func add_or_update_city(position: Vector2i, general_id: int) -> void:
 		city_id_of_general[general_id].append(city_id)
 		# 信号 新发现城市
 		emit_signal("find_city",city_id,position,general_id)
+# 结束——————————
+
+# ——————————信号辅助函数
+func is_enemy_general_id(general_id:int)->bool:
+	return !general_id_to_player_id[general_id]==player_id
+	
+func signal_manager_occupy(pos:Vector2i,_cell_info:CellInfo,enemy_general_id:int)->void:
+	emit_signal("occupy_cell",pos,_cell_info,enemy_general_id,_cell_info.get_general_id())
+	if invis_state_map[pos]==Global.TERRAIN_CITY:
+		emit_signal("occupy_city",get_city_id(pos),pos,enemy_general_id,_cell_info.get_general_id())
+
+func signal_manager_be_occupied(pos:Vector2i,_cell_info:CellInfo,general_id:int)->void:
+	emit_signal("be_occupied_cell",pos,_cell_info,general_id,_cell_info.get_general_id())
+	if invis_state_map[pos]==Global.TERRAIN_CITY:
+		# emit_signal("find_city",city_id,position,general_id)
+		emit_signal("be_occupied_city",get_city_id(pos),pos,general_id,_cell_info.get_general_id())
+		pass

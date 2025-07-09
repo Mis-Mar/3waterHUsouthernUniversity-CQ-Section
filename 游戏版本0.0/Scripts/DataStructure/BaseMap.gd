@@ -83,6 +83,10 @@ func get_player_count() -> int:
 			players[player_id] = true
 	return players.size()
 
+# 获取 cell 的 player_id（不含 0）
+func get_cell_player(_cell_info:CellInfo) -> int:
+	return  general_id_to_player_id[_cell_info.get_general_id()] 
+
 # 设置一个格子的power
 func set_cell_power(coord: Vector2i, new_power) -> void:
 	if is_valid_coord(coord):
