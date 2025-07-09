@@ -86,7 +86,23 @@ func unhighlight_all_cells() -> void:
 func set_label(tile_coords: Vector2i, text: String)->void:
 	labels. update_label_on_tile(tile_coords, text)
 
+
+# 单个箭头
+func draw_arrow_label(tile_coords: Vector2i, direction_index: int) -> void:
+	labels.draw_arrow_label(tile_coords, direction_index)
+
 # ——————————————————————————————————————————外部接口
+# 清除全部箭头
+func clear_all_arrows() -> void:
+	labels.clear_all_arrows()
+# 绘制行动箭头组
+func draw_arrow_batch_from_actions(actions: Array) -> void:
+	for action in actions:
+		if typeof(action) == TYPE_DICTIONARY and action.has("from") and action.has("dir"):
+			draw_arrow_label(action["from"], action["dir"])
+		else:
+			push_warning("无效箭头数据: " + str(action))
+
 # 通过现有的地图，转化为fullmap
 func curr_map_to_fullmap() -> FullMap:
 	var new_map := FullMap.new()
@@ -228,7 +244,7 @@ func get_tile_coords_from_screen_pos(screen_pos: Vector2) -> Vector2i:
 
 func clear()->void:
 	main_layer.clear()
-	labels.clear_all_labels()
+	labels.clear_all_numbers()
 	color_layer.clear()
 	pass
 
