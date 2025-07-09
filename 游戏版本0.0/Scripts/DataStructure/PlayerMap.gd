@@ -254,6 +254,8 @@ func update_cell_from_delta(delta: Dictionary) -> void:
 		if cell_map.has(coord):
 			var cell_info = CellInfo.from_dict(delta["changed"][key])
 			var pre_cell_info=cell_map[coord]
+			cell_map[coord] = cell_info
+			cell_map[coord].set_dirty_flag()
 			# 对比更新前后的cellinfo判断占领和被占领信号待完成
 			if get_cell_player(cell_info)!=get_cell_player(pre_cell_info):
 				# 占领格子
@@ -265,8 +267,6 @@ func update_cell_from_delta(delta: Dictionary) -> void:
 				# 视野内敌人占领敌人
 				else:
 					emit_signal("enemy_update_cell", coord,cell_info,pre_cell_info.get_general_id(),cell_info.get_general_id())
-			cell_map[coord] = cell_info
-			cell_map[coord].set_dirty_flag()
 			# 更新id到position等，那几个表
 			invis_state_map[coord]=cell_info.get_type()
 			if cell_info.get_type()==Global.TERRAIN_CAPITAL:

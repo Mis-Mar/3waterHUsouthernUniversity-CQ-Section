@@ -5,6 +5,7 @@ extends Node
 @onready var camera_2d: Camera2D = $"../Camera2D"
 @onready var timer_turn: Timer = $"../Timers/Timer_turn"
 @onready var auto_turn_button: Button = $"../UI/AutoTurnButton"
+@onready var move_manager: Node = $MoveManager
 
 
 var fullmap=FullMap.new()
@@ -56,14 +57,12 @@ func start()->void:
 	await get_tree().create_timer(0.1).timeout
 	fullmap=map.curr_map_to_fullmap()
 	fullmap.update_general_index()
-	print(fullmap.export_init_data_for_player(1))
 	playermap.init_from_dict(fullmap.export_init_data_for_player(1))
 	map.clear()
 	timer_turn.start()  # 每秒自动调用 timeout
 	map.display_full_map(fullmap)
 	
 	test_a()
-	
 	
 
 func _ready() -> void:
@@ -92,7 +91,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_D: dir_index = Global.DIR_DOWM_R   # (1, 0) 右下
 		if dir_index != -1:
 			# fullmap.move_power(selected_tile_coords, dir_index, 1.0)
-			fullmap.queue_action(selected_tile_coords, dir_index, 1.0)
+			fullmap.add_general_action(selected_tile_coords, dir_index, 1.0)
 	# 空格手动跳回合
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_SPACE and not is_auto_turn:
