@@ -13,6 +13,7 @@ const PATTERN_KAMIKAZE := 2
 
 func enter() -> void:
 	if not is_vision_sufficient():
+		#FIXME 重构VS逻辑：NOTFOUND非空
 		if found_empty_city():
 			state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.EMPTYCITY_OCCUPY)
 		else:

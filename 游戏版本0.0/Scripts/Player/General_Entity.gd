@@ -27,9 +27,24 @@ var crucial_point_of_general : Array[Vector2i]
 signal agent_path_output(agent_type: String, path_operate: Vector2i)
 signal switch_to_Defence_pattern()
 
+signal general_find_city(cityid:int,citypos:Vector2i)
+signal general_occupy_cell(pos:Vector2i,_cell_info:CellInfo,enemy_general_id:int)
+signal general_occupy_city(cityid:int,citypos:Vector2i,enemy_general_id:int)
+signal general_be_occupied_cell(pos:Vector2i,_cell_info:CellInfo,enemy_general_id:int)
+signal general_be_occupied_city(cityid:int,citypos:Vector2i,enemy_general_id:int)
+
+#HACK 构建EADA间转换逻辑
+
 func _ready() -> void:
 	agent_path_output.connect(on_path_add)
 	switch_to_Defence_pattern.connect(switch_to_Defence_agent)
+	
+	player_map.find_city.connect(on_find_city)
+	player_map.occupy_cell.connect(on_occupy_cell)
+	player_map.occupy_city.connect(on_occupy_city)
+	player_map.be_occupied_cell.connect(on_be_occupied_cell)
+	player_map.be_occupied_city.connect(on_be_occupied_city)
+	
 	_run()
 
 func _init(_general_id: int,  _player_id: int, _player_map: PlayerMap) -> void:
@@ -118,3 +133,23 @@ func on_path_add(agent_type:String, path_operate: Vector2i) -> void:
 	#HACK 待完成 agent调用、区分
 	path_operations.append(path_operate)
 	path_manager()
+
+func on_find_city(cityid:int,citypos:Vector2i,generalid:int) -> void:
+	if generalid == self.general_id:
+		general_find_city.emit(cityid,citypos)
+
+func on_occupy_cell(pos:Vector2i,_cell_info:CellInfo,enemy_general_id:int,_general_id:int) -> void:
+	if _general_id == self.general_id:
+		general_occupy_cell.emit(pos,_cell_info,enemy_general_id)
+
+func on_occupy_city(cityid:int,citypos:Vector2i,enemy_general_id:int,_general_id:int) -> void:
+	if _general_id == self.general_id:
+		general_occupy_city.emit(cityid,citypos,enemy_general_id)
+
+func on_be_occupied_cell(pos:Vector2i,_cell_info:CellInfo,_general_id:int,enemy_general_id:int) -> void:
+	if _general_id == self.general_id:
+		general_be_occupied_cell.emit(pos,_cell_info,enemy_general_id)
+	
+func on_be_occupied_city(cityid:int,citypos:Vector2i,_general_id:int,enemy_general_id:int) -> void:
+	if _general_id == self.general_id:
+		general_be_occupied_city.emit(cityid,citypos,enemy_general_id)

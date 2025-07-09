@@ -33,6 +33,8 @@ func _init(_main_city: Vector2i, _player_map: PlayerMap) -> void:
 func _run() -> void:
 	state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.SEARCHING_EMPTYCITY)
 
+#FIXME 敌方入侵中断返回SE state操作
+
 func _process(delta: float) -> void:
 	pass
 

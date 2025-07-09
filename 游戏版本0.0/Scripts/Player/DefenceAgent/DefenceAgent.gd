@@ -52,6 +52,7 @@ signal path_add(path_class: int, _path_operations: Array)
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	path_add.connect(on_path_add)
+	general.general_occupy_cell.connect(block_updated_positive)
 
 func _init(_main_city: Vector2i, _player_map: PlayerMap) -> void:
 	self.player_id = general.player_id
@@ -63,13 +64,14 @@ func _init(_main_city: Vector2i, _player_map: PlayerMap) -> void:
 		distance_map[coord] = INF
 		point_to_block[coord] = 0
 
+#FIXME 敌方入侵控制全局中断操作
+
 func run() -> void:
 	pass
 
 func DIV_general_zone() -> void:
 	self.current_state = self.STATE_ZONE_DIV
 	#建立复杂度 O（n2），故只可用于初始化，之后动态更新
-	#HACK 待完成 建立动态更新
 	general.zone_of_general.clear()
 	var visited: Dictionary
 	for pos in player_map.cell_map:
@@ -104,6 +106,34 @@ func DIV_general_zone() -> void:
 	general.calculate_mean_power()
 	general.calculate_connection_degree()
 	#TODO check again
+
+func block_updated_positive(pos:Vector2i,_cell_info:CellInfo,enemy_general_id:int) -> void:
+	#接受更新，动态更新block，仅当拓展时使用
+	var neighbors = player_map.get_neighbors_state1(pos,general.general_id)
+	var near_block: Array[int]
+	for neighbor in neighbors:
+		if point_to_block[neighbor] not in near_block:
+			near_block.append(point_to_block[neighbor])
+	
+	if near_block.is_empty():
+		#孤立节点
+		block_count += 1
+		point_to_block[pos] = block_count
+		block_point[block_count].append(pos)
+		edge_count_block[block_count] = 0
+	else:
+		var min_block_id: int = near_block.min()
+		block_point[min_block_id].append(pos)
+		near_block.erase(min_block_id)
+		for block in near_block:
+			for point in block_point[block]:
+				point_to_block[point] = min_block_id
+				block_point[min_block_id].append(point)
+			block_point[block].clear()
+			edge_count_block[min_block_id]  += edge_count_block[block]
+			edge_count_block[block] = 0
+		point_to_block[pos] = min_block_id
+		edge_count_block[min_block_id]  += neighbors.size()
 
 func build_block(start_point: Vector2i) -> void:
 	block_count += 1
@@ -169,7 +199,7 @@ func occupy_invaded_city() -> void:
 		#HACK 待完成 写 range阈值和参数设置
 		if path_all[target_city_id] != [-1]:
 			path_all[target_city_id] = search_algorithm.get_path_action()
-			if min_path_id == -1 or path_all[target_city_id] < path_all[min_path_id]:
+			if min_path_id == -1 or path_all[target_city_id].size() < path_all[min_path_id].size():
 				min_path_id = target_city_id
 	if self.current_state != self.STATE_CITY_DEFEND:
 		return
@@ -197,7 +227,7 @@ func occupy_invaded_Cpoint() -> void:
 		#HACK 待完成 写 range阈值和参数设置
 		if path_all[target_Cpoint] != [-1]:
 			path_all[target_Cpoint] = search_algorithm.get_path_action()
-			if path_all[target_Cpoint] < path_all[min_path_id]:
+			if path_all[target_Cpoint].size() < path_all[min_path_id].size():
 				min_path_id = target_Cpoint
 	if self.current_state != self.STATE_CPOINT_DEFEND:
 		return
@@ -256,13 +286,17 @@ func general_zone_fill(ratio: float) -> void:
 				if player_map.get_cell(neighbor).get_power() > player_map.get_cell(point).get_power():
 					if self.current_state != self.STATE_EMPTY_DEFEND:
 						return
+					#中断操作
 					self.path_add.emit(self.PATHCLASS_OCCUPYEMPTY,[{
 						"from": neighbor,
 						"dir": neighbor - point,
 						"ratio": 1.0
 					}])
-					#HACK 待完成 等待更新
-					achieve = true
+					await player_map.turn_updated
+					if self.current_state != self.STATE_EMPTY_DEFEND:
+						return
+					if player_map.get_cell(point).get_general_id() in player_map.general_id_to_player_id[general.player_id]:
+						achieve = true
 					break
 		if not achieve:
 			unoccupied_points.append(point)
@@ -315,7 +349,9 @@ func dynamic_kamikaze_search_block(start_point: Vector2i, target_block: int,star
 			"ratio": 1.0
 		}])
 		start_point += direction
-		#HACK 待完成 等待更新
+		await player_map.turn_updated
+		if self.current_state != start_state:
+			return
 		cell = player_map.get_cell(start_point)
 		
 func Block_points_in_sight_direction(start_point: Vector2i, sight_range: Array, target_block: int) -> Vector2i:
@@ -366,7 +402,7 @@ func path_manager() -> void:
 				break
 		pass
 
-func on_path_add(_path_class: int, _path_operations: Array[Vector2i]) -> void:
+func on_path_add(_path_class: int, _path_operations: Array) -> void:
 	#读入新操作，删除优先级为0的操作（空地占领
 	#HACK 待完成 改写这块
 	if(_path_class != 0):

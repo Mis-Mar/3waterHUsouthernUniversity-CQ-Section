@@ -11,7 +11,6 @@ var frontline_zone : Array[Vector2i]
 var player_map: PlayerMap
 var path_operations: Array[Vector2i]
 
-
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	#general_occupy.emit()
@@ -24,3 +23,4 @@ func _init(_player_id: int, _player_map: PlayerMap) -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
+	
