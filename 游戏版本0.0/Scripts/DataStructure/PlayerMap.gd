@@ -183,6 +183,30 @@ func get_neighbors_state6(center: Vector2i, general_id:int) -> Array[Vector2i]:
 			if cell.get_type() != Global.TERRAIN_MOUNTAIN and cell.get_general_id() in general_id_to_player_id[player_id]:
 				neighbors.append(neighbor_coords)
 	return neighbors
+	
+func build_Astar_path_in_general(start_point:Vector2i, end_point:Vector2i, general_id:int) -> Array:
+	#构建起点-终点最短A*路径，输出 起点……终点 list
+	if is_valid_coord(start_point) and is_valid_coord(end_point):
+		var open_list: PriorityQueue=PriorityQueue.new()
+		var close_list: Array[Vector2i] = []
+		var distance: Dictionary = {}
+		
+		distance[start_point] = 0
+		open_list.push(distance[start_point] + get_distance_2coords(start_point, end_point), start_point)
+		
+		while not open_list.is_empty():
+			var current: Vector2i = open_list.pop()
+			if current not in close_list:
+				close_list.push_back(current)
+				var neighbors: Array[Vector2i] = self.get_neighbors_state3(current,general_id)
+				for neighbor: Vector2i in neighbors:
+					if neighbor not in close_list:
+						distance[neighbor] = distance[current] + 1
+						open_list.push(distance[neighbor]+get_distance_2coords(neighbor, end_point), neighbor)
+		return close_list
+	else:
+		printerr("坐标超界")
+		return [-1]
 
 # ——————————同步函数
 func update_player_map(delta_cell: Dictionary,delta_general_id_to_player_id: Dictionary)->void:

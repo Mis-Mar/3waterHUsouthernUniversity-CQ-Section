@@ -201,6 +201,23 @@ func build_Astar_path(start_point:Vector2i, end_point:Vector2i) -> Array:
 		printerr("坐标超界")
 		return [-1]
 
+func coord_path_to_actions(path: Array[Vector2i]) -> Array:
+	var path_action:Array = []
+	if path == [-1]:
+		return [-1]
+	while !path.is_empty():
+		var start_point = path.pop_front()
+		if path.is_empty():
+			break
+		else:
+			var end_point:Vector2i = path.front()
+			var direction:Vector2i = end_point - start_point
+			path_action.append({
+				"from": start_point,
+				"dir": direction,
+				"ratio": 1.0
+			})
+	return path_action
 
 func get_generals_of_player(player_id: int) -> Array[int]:
 	var result: Array[int] = []
