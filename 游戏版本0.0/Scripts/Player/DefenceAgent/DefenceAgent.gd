@@ -6,17 +6,18 @@ var search_algorithm: M2S_SearchAlgorithm
 var algorithm_map: AlgorithmMap
 var main_city: Vector2i
 
+var auto_HUNT_defend: bool = false
 var current_state: int = self.STATE_SLEEP
 
 const STATE_SLEEP := 0
 const STATE_ZONE_DIV := 1
 const STATE_MAIN_GATHER := 2
-const STATE_NORMAL_GATHER := 3
-const STATE_CITY_DEFEND := 4
-const STATE_CPOINT_DEFEND := 5
-const STATE_CITY_ACHIEVE := 6
-const STATE_CPOINT_ACHIEVE := 7
-const STATE_HUNT_DEFEND := 8
+const STATE_HUNT_DEFEND := 3
+const STATE_NORMAL_GATHER := 4
+const STATE_CITY_DEFEND := 5
+const STATE_CPOINT_DEFEND := 6
+const STATE_CITY_ACHIEVE := 7
+const STATE_CPOINT_ACHIEVE := 8
 const STATE_EMPTY_DEFEND := 9
 const STATE_REMAIN_POWER_DEAL := 10
 
@@ -50,31 +51,86 @@ var path_operations: Array
 var path_class: int
 
 signal path_add(path_class: int, _path_operations: Array)
+signal end_manual_concentrate()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	path_add.connect(on_path_add)
 	general.general_occupy_cell.connect(block_updated_positive)
+	general.general_occupy_cell.connect(on_be_occupied_cell)
 
 func _init(_main_city: Vector2i, _player_map: PlayerMap) -> void:
 	self.player_id = general.player_id
 	self.main_city = _main_city
 	self.player_map = _player_map
+	self.current_state = self.STATE_SLEEP
 	algorithm_map = AlgorithmMap.new(self.player_map, general.general_id)
 	search_algorithm = M2S_SearchAlgorithm.new(self.algorithm_map)
 	for coord in player_map.cell_map:
 		distance_map[coord] = INF
 		point_to_block[coord] = 0
 
-#FIXME 敌方入侵控制全局中断操作
 
-func run() -> void:
-	pass
+func defend_class_trend() -> void:
+	self.current_state = self.STATE_SLEEP
+	self.DIV_general_zone()
+	self.is_city_occupyed(1.0)
+	self.is_crucial_point_occupyed(1.0)
+	self.is_city_path_reachable(1.0)
+	self.is_crucial_point_reachable(1.0)
+	self.general_zone_fill(1.0)
+	#HACK 根据区域内敌我兵力数量对比设置ratio
+	self.current_state = self.STATE_SLEEP
+	
+func urgent_defend_class_trend() -> void:
+	self.current_state = self.STATE_SLEEP
+	self.is_city_occupyed(1.0)
+	self.is_crucial_point_occupyed(1.0)
+	self.DIV_general_zone()
+	self.is_city_path_reachable(1.0)
+	self.is_crucial_point_reachable(1.0)
+	self.general_zone_fill(1.0)
+	#HACK 根据区域内敌我兵力数量对比设置ratio
+	self.current_state = self.STATE_SLEEP
+
+func defend_main_city(demand_param: float,range_threshold: int) -> void:
+	self.current_state = self.STATE_MAIN_GATHER
+	self.concentrate_power(main_city,demand_param,range_threshold)
+	self.current_state = self.STATE_SLEEP
+#TODO 更多可写？
+
+#HACK 待完成 单独写函数控制王城防御和集中,使用信号调用，对应ui
+
+func concentrate_power(target_point: Vector2i,demand_param: float,range_threshold: int) -> void:
+	var start_state : int
+	if target_point == main_city:
+		self.current_state = self.STATE_MAIN_GATHER
+		start_state = self.STATE_MAIN_GATHERn
+	else:
+		self.current_state = self.STATE_NORMAL_GATHER
+		start_state = self.STATE_NORMAL_GATHER
+	var avaliable_power: int = 0
+	for city_id in general.city_id_of_general:
+		avaliable_power += algorithm_map.value_map[player_map.city_id_to_position[city_id]]
+	for crucial_point in general.crucial_point_of_general:
+		avaliable_power += algorithm_map.value_map[crucial_point]
+	var path = search_algorithm.M2S_Search(target_point,avaliable_power * demand_param,3,1,10,range_threshold)
+	if path != [-1]:
+		path = search_algorithm.get_path_action()
+		if self.current_state != start_state:
+			return
+		self.path_add.emit(self.PATHCLASS_CONCENTRATION, path)
+	self.current_state = self.STATE_SLEEP
+	self.end_manual_concentrate.emit()
 
 func DIV_general_zone() -> void:
 	self.current_state = self.STATE_ZONE_DIV
 	#建立复杂度 O（n2），故只可用于初始化，之后动态更新
 	general.zone_of_general.clear()
+	block_count = 0
+	point_to_block.clear()
+	block_point.clear()
+	edge_count_block.clear()
 	var visited: Dictionary
 	for pos in player_map.cell_map:
 		visited[pos] = false
@@ -322,35 +378,6 @@ func general_zone_fill(ratio: float) -> void:
 			unoccupied_points.append(point)
 	self.current_state = self.STATE_SLEEP
 
-func defend_main_city(demand_param: float,range_threshold: int) -> void:
-	self.current_state = self.STATE_MAIN_GATHER
-	self.concentrate_power(main_city,demand_param,range_threshold)
-	self.current_state = self.STATE_SLEEP
-#TODO 更多可写？
-
-#HACK 待完成 单独写函数控制王城防御和集中
-
-func concentrate_power(target_point: Vector2i,demand_param: float,range_threshold: int) -> void:
-	var start_state : int
-	if target_point == main_city:
-		self.current_state = self.STATE_MAIN_GATHER
-		start_state = self.STATE_MAIN_GATHERn
-	else:
-		self.current_state = self.STATE_NORMAL_GATHER
-		start_state = self.STATE_NORMAL_GATHER
-	var avaliable_power: int = 0
-	for city_id in general.city_id_of_general:
-		avaliable_power += algorithm_map.value_map[player_map.city_id_to_position[city_id]]
-	for crucial_point in general.crucial_point_of_general:
-		avaliable_power += algorithm_map.value_map[crucial_point]
-	var path = search_algorithm.M2S_Search(target_point,avaliable_power * demand_param,3,1,10,range_threshold)
-	if path != [-1]:
-		path = search_algorithm.get_path_action()
-		if self.current_state != start_state:
-			return
-		self.path_add.emit(self.PATHCLASS_CONCENTRATION, path)
-	self.current_state = self.STATE_SLEEP
-
 func hunt_enemy_power() -> void:
 	self.current_state = self.STATE_HUNT_DEFEND
 	#HACK 待完成 先集中再A*索敌
@@ -462,3 +489,16 @@ func on_path_add(_path_class: int, _path_operations: Array) -> void:
 		var AY: Array = [_path_class,_path_operate]
 		self.path_operations.append_array(AY)
 	path_manager()
+
+func on_be_occupied_cell(pos:Vector2i,_cell_info:CellInfo,enemy_general_id:int) -> void:
+	#敌方入侵控制全局中断操作,回滚工作流状态
+	if self.current_state == self.STATE_MAIN_GATHER or self.current_state == self.STATE_NORMAL_GATHER:
+		await self.end_manual_concentrate
+	if self.auto_HUNT_defend == true:
+		hunt_enemy_power()
+		#HACK 待完善hunt的使用
+	if _cell_info.get_type() == Global.TERRAIN_CITY:
+		self.urgent_defend_class_trend()
+	else:
+		self.defend_class_trend()
+	#TODO 检查是否这样即可？divzone是否可优化？

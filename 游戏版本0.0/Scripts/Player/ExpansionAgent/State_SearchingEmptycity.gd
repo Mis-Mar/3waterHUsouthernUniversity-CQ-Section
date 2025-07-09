@@ -2,15 +2,16 @@ extends BaseState_ExpansionAgent
 class_name State_SearchingEmptycity
 
 var Not_Found: Array[Vector2i] = agent.Not_Found
-var Vision_Sufficient: bool = false
-var search_path: Array[Vector2i]
 var search_pattern: int = self.PATTERN_SLEEP
 
 const PATTERN_SLEEP := 0
 const PATTERN_M2S := 1
 const PATTERN_KAMIKAZE := 2
 
+signal place_into_notfound()
+
 func _ready() -> void:
+	place_into_notfound.connect(self.on_place_not_found)
 	agent.general.general_find_city.connect(on_city_find)
 	pass
 	
@@ -21,6 +22,8 @@ func enter() -> void:
 		is_vision_sufficient()
 		if Not_Found.is_empty():
 			break
+		else:
+			self.place_into_notfound.emit()
 	if !agent.Not_Occupy.is_empty():
 		state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.EMPTYCITY_OCCUPY)
 	else:
@@ -28,7 +31,6 @@ func enter() -> void:
 
 func is_vision_sufficient() -> void:
 	#添加可抵达城市（视野之外
-	#TODO check只指未知山地城市可达视野
 	var distance_map: Dictionary = {}
 	for coord in agent.player_map.invis_state_map.keys():
 		distance_map[coord] = INF
@@ -38,51 +40,44 @@ func is_vision_sufficient() -> void:
 	while not queue.is_empty():
 		var current = queue.pop_front()  # 从队列头部取出
 		var current_distance = distance_map[current]
-		if agent.player_map.invis_state_map[current] == Global.INVIS_MOUNTAIN and current not in Not_Found:
-			Not_Found.append(current)
-			agent.Not_Found.append(current)
-		# 获取所有邻居
-		var neighbors = agent.player_map.get_neighbors_state2(current,agent.general.general_id)
-		for neighbor in neighbors:
-			# 如果邻居尚未访问过 (距离为无穷大)
-			if distance_map[neighbor] == INF:
-				# 更新邻居距离
-				distance_map[neighbor] = current_distance + 1
-				# 将邻居加入队列
-				queue.append(neighbor)
+		if agent.player_map.invis_state_map[current] == Global.INVIS_MOUNTAIN:
+			if current not in Not_Found:
+				self.place_into_notfound.emit()
+				Not_Found.append(current)
+		else:
+			# 获取所有邻居
+			var neighbors = agent.player_map.get_neighbors_state2(current,agent.general.general_id)
+			for neighbor in neighbors:
+				# 如果邻居尚未访问过 (距离为无穷大)
+				if distance_map[neighbor] == INF:
+					# 更新邻居距离
+					distance_map[neighbor] = current_distance + 1
+					# 将邻居加入队列
+					queue.append(neighbor)
 
 func to_found_empty_city() -> void:
-	pass
-	
+	#FIXME 选择搜索方式，M2S搜索或者kamikaze搜索
+	while !Not_Found.is_empty():
+		var target_point = Not_Found.pop_front()
+		if !search_empty_city(target_point,2,20):
+			Not_Found.append(target_point)
+		#self.dynamic_kamikaze_search_Not_Found(main_city)
+	self.search_pattern = self.PATTERN_SLEEP
 
-func found_empty_city() -> bool:
-	if(search_empty_city(2,20)):
-		agent.act(search_path)
-		#HACK 待完成 触发发现新城市，条件判断
-		#agent.Not_Occupy.append()
-		return true
-	return false
-
-func search_empty_city(jump_param: int,estimated_demand: int) -> bool:
+func search_empty_city(target_point: Vector2i,jump_param: int,estimated_demand: int) -> bool:
 	self.search_pattern = self.PATTERN_M2S
 	#前往可抵达城市
-	var target_point = Not_Found.pop_front()
-	search_path.clear()
 	var path_point: Array[Vector2i] = agent.player_map.build_Astar_path(self.agent.general.main_city,target_point)
 	while !path_point.is_empty():
-		target_point = path_point.pop_front()
 		var path = agent.search_algorithm.M2S_Search(target_point,estimated_demand,3,1,20,20)
 		#HACK 待完成 参数设置
 		var path_action = agent.search_algorithm.get_path_action()
 		if path != [-1]:
 			path_action.pop_back()#去尾
-			search_path = path_action
 			if self.search_pattern != self.PATTERN_M2S:
 				return false
 			send_path(path_action)
 			return true
-		else:
-			return false
 	return false
 
 func kamikaze_search(start_point: Vector2i, sight_range: int) -> void:
@@ -195,7 +190,10 @@ func on_city_find(cityid:int,citypos:Vector2i) -> void:
 func on_place_not_found() -> void:
 	#add to not found
 	#activate search pattern
-	pass
+	if self.search_pattern == self.PATTERN_SLEEP:
+		to_found_empty_city()
+	else:
+		pass
 	
 func send_path(path_operations: Array) -> void:
 	agent.path_add.emit(0, path_operations)
