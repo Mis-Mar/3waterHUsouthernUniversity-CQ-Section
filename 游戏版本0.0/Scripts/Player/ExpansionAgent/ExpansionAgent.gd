@@ -17,7 +17,7 @@ var player_map: PlayerMap
 var path_operations: Array
 var path_class: int
 
-signal path_add(path_class: int, _path_operations: Array[Vector2i])
+signal path_add(path_class: int, _path_operations: Array)
 
 func _ready() -> void:
 	path_add.connect(on_path_add)
@@ -49,8 +49,9 @@ func path_manager() -> void:
 		#HACK 待完成 分类类比，单个输出
 		pass
 
-func on_path_add(_path_class: int, _path_operations: Array[Vector2i]) -> void:
+func on_path_add(_path_class: int, _path_operations: Array) -> void:
 	#读入新操作，删除优先级为0的操作（空地占领
+	#HACK check this part?
 	if(_path_class != 0):
 		for AR in path_operations:
 			if(AR[0] == 0):

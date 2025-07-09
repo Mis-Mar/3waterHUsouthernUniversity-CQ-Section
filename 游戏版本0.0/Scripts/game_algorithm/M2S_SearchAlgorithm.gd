@@ -219,3 +219,16 @@ func get_path_coords() -> Array[Vector2i]:
 		if vec not in coords:
 			coords.append(vec)
 	return coords
+	
+func get_path_action() -> Array:
+	var path_action:Array = []
+	for sp_ep in path_operations:
+		var start_point:Vector2i = sp_ep[0]
+		var end_point:Vector2i = sp_ep[1]
+		var direction:Vector2i = end_point - start_point
+		path_action.append({
+			"from": start_point,
+			"dir": direction,
+			"ratio": 1.0
+		})
+	return path_action
