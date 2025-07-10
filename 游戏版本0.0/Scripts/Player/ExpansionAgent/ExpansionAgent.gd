@@ -14,13 +14,18 @@ var general: General_Entity
 var player_id: int
 var player_map: PlayerMap
 
-var path_operations: Array
-var path_class: int
+var path_operations_city: Array
+var path_operations_city_class: Array
+var path_operations_search: Array
+var path_current_class: int #当前path_manager操作等级
+
+var is_path_manager_working: bool = false
 
 signal path_add(path_class: int, _path_operations: Array)
 
 func _ready() -> void:
 	path_add.connect(on_path_add)
+	general.general_be_occupied_cell.connect(on_be_occupied_cell)
 
 func _init(_main_city: Vector2i, _player_map: PlayerMap) -> void:
 	self.player_id = general.player_id
@@ -33,32 +38,46 @@ func _init(_main_city: Vector2i, _player_map: PlayerMap) -> void:
 func _run() -> void:
 	state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.SEARCHING_EMPTYCITY)
 
-#FIXME 敌方入侵中断返回SE state操作
-
 func _process(delta: float) -> void:
 	pass
 
 func path_manager() -> void:
-	while !path_operations.is_empty():
-		var AY: Array = path_operations.front()
-		path_class = AY[0]
-		while !path_operations.is_empty():
-			AY = path_operations.front()
-			if path_class == AY[0]:
-				general.agent_path_output.emit(agent_tpye,AY[1])
-			else:
+	self.is_path_manager_working = true
+	var insert_replace: bool = false
+	while !path_operations_city.is_empty():
+		path_current_class = path_operations_city_class.pop_front()
+		var path_operation = path_operations_city.pop_front()
+		for path in path_operation:
+			general.agent_path_output.emit(agent_tpye,path)
+	while !path_operations_search.is_empty():
+		path_current_class = 0
+		for path in path_operations_search.pop_front():
+			if path_current_class != 0:
+				insert_replace = true
 				break
-		#HACK 待完成 分类类比，单个输出
-		pass
-
+			general.agent_path_output.emit(agent_tpye,path)
+	if insert_replace:
+		path_manager()
+	self.is_path_manager_working = false
+	#TODO check
+	
 func on_path_add(_path_class: int, _path_operations: Array) -> void:
 	#读入新操作，删除优先级为0的操作（空地占领
-	#HACK check this part?
-	if(_path_class != 0):
-		for AR in path_operations:
-			if(AR[0] == 0):
-				path_operations.erase(AR)
-	for _path_operate in _path_operations:
-		var AY: Array = [_path_class,_path_operate]
-		self.path_operations.append_array(AY)
-	path_manager()
+	if(_path_class == 0):
+		path_operations_search.append(_path_operations)
+	else:
+		path_operations_city.append(_path_operations)
+		path_operations_city_class.append(_path_class)
+		if path_current_class == 0:
+			path_operations_search.clear()
+			path_current_class = path_operations_city_class.front()
+	if not self.is_path_manager_working:
+		path_manager()
+	
+func on_be_occupied_cell(pos:Vector2i,_cell_info:CellInfo,enemy_general_id:int) -> void:
+	#敌方入侵控制全局中断操作，若是,回滚搜索状态
+	Not_Found.clear()
+	if self.state_machine.current_state != state_machine.states[state_machine.ExpansionAgent_State.EMPTYCITY_OCCUPY]:
+		state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.SEARCHING_EMPTYCITY)
+	
+	#TODO 检查是否这样即可？divzone是否可优化？

@@ -1,7 +1,7 @@
 extends BaseState_ExpansionAgent
 class_name State_EmptycityOccupy
 
-var Not_Occupy: Array[Vector2i]
+var Not_Occupy: Array[Vector2i] = agent.Not_Occupy
 var path_class: int = 1
 
 var current_state: int = self.STATE_SLEEP
@@ -25,6 +25,7 @@ func to_occupy_city() -> void:
 		if self.current_state != self.STATE_ACT:
 			break 
 		occupy_empty_city()
+	self.current_state = self.STATE_SLEEP
 	end_to_searching()
 
 
@@ -63,7 +64,7 @@ func end_to_searching() -> void:
 	state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.SEARCHING_EMPTYCITY)
 
 func on_city_occupied(cityid:int,citypos:Vector2i,enemy_general_id:int) -> void:
-	Not_Occupy.append(citypos)
+	Not_Occupy.erase(citypos)
 	if self.current_state == self.STATE_SLEEP:
 		to_occupy_city()
 	else:
