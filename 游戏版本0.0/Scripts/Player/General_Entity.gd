@@ -49,7 +49,7 @@ func _init(_general_id: int,  _player_id: int, _player_map: PlayerMap) -> void:
 	self.player_map = _player_map
 	self.main_city = player_map.general_to_capital[self.general_id]
 	self.city_id_of_general = player_map.city_id_of_general[self.general_id]
-	agent_path_output.connect(on_path_add)
+	self.connect("agent_path_output", Callable(self, "on_path_add"))
 	switch_to_Defence_pattern.connect(switch_to_Defence_agent)
 	switch_to_Expansion_pattern.connect(switch_to_Expansion_agent)
 	
@@ -68,6 +68,7 @@ func _run() -> void:
 	if player_id == 0:
 		pass
 	else:
+		print("71")
 		self.current_agent = Expansion_agent.agent_tpye
 		Expansion_agent._run()
 
@@ -146,7 +147,9 @@ func path_manager() -> void:
 	self.is_path_manager_working = false
 
 func on_path_add(agent_type:String, path_operate: Array) -> void:
+	print("agent type",agent_type)
 	if agent_type == Expansion_agent.agent_tpye:
+		print("on_path_add==")
 		path_operations_EA.append(path_operate)
 	elif agent_type == Defence_agent.agent_tpye:
 		path_operations_DA.append(path_operate)

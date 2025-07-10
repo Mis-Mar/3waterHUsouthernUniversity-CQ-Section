@@ -24,9 +24,9 @@ func _init(_agent:ExpansionAgent) -> void:
 	# 设置状态机引用
 	for state in states.values():
 		state.state_machine = self
-
+	print("27")
 	# 进入初始状态
-	self.transition_to(initial_state)
+	# self.transition_to(initial_state)
 	
 func transition_to(new_state_key: ExpansionAgent_State) -> void:
 	if current_state:

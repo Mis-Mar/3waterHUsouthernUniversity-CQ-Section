@@ -24,19 +24,22 @@ func enter() -> void:
 	search_pattern = self.PATTERN_SLEEP
 	
 	while true:
-		#do while
-		print("while in")
+		# do while
+		# print("while in")
 		is_vision_sufficient()
 		# print( Not_Found)
 		if Not_Found.is_empty():
 			break
 		else:
 			self.place_into_notfound.emit()
+			# print("34")
 			await agent.player_map.turn_updated
+
 	if !agent.Not_Occupy.is_empty():
 		state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.EMPTYCITY_OCCUPY)
 	else:
 		state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.EXPANSION_COMPLETE)
+	
 
 func is_vision_sufficient() -> void:
 	var count=1
@@ -78,8 +81,8 @@ func to_found_empty_city() -> void:
 	#FIXME 选择搜索方式，M2S搜索或者kamikaze搜索
 	for target_point in Not_Found:
 		#HACK 需要一个外部信号调整estimated_demand
-		print(target_point)
-		print(Not_Found)
+		# print(target_point)
+		# print(Not_Found)
 		if search_to_Not_Found[target_point]:
 			continue
 		if !search_empty_city(target_point,1,20):

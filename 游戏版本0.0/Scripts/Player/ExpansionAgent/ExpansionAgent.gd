@@ -41,7 +41,7 @@ func _init(_main_city: Vector2i, _player_map: PlayerMap,_general:General_Entity)
 	
 
 func _run() -> void:
-	# print("agent run")
+	print("agent run")
 	self.path_operations_city.clear()
 	self.path_operations_city_class.clear()
 	self.path_operations_search.clear()
@@ -66,6 +66,7 @@ func path_manager() -> void:
 				insert_replace = true
 				break
 			general.agent_path_output.emit(agent_tpye,path)
+			# print("signal")
 	if insert_replace:
 		path_manager()
 	self.is_path_manager_working = false
@@ -84,6 +85,7 @@ func on_path_add(_path_class: int, _path_operations: Array) -> void:
 			path_current_class = path_operations_city_class.front()
 	if not self.is_path_manager_working:
 		path_manager()
+		# print("path_manager")
 	
 func on_be_occupied_cell(pos:Vector2i,_cell_info:CellInfo,enemy_general_id:int) -> void:
 	#敌方入侵控制全局中断操作，若是,回滚搜索状态
