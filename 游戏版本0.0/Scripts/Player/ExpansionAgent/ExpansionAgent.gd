@@ -59,6 +59,7 @@ func path_manager() -> void:
 		var path_operation = path_operations_city.pop_front()
 		for path in path_operation:
 			general.agent_path_output.emit(agent_tpye,path)
+			await player_map.turn_updated
 	while !path_operations_search.is_empty():
 		path_current_class = 0
 		for path in path_operations_search.pop_front():
@@ -66,6 +67,7 @@ func path_manager() -> void:
 				insert_replace = true
 				break
 			general.agent_path_output.emit(agent_tpye,path)
+			await player_map.turn_updated
 	if insert_replace:
 		path_manager()
 	self.is_path_manager_working = false

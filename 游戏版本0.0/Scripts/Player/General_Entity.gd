@@ -140,9 +140,13 @@ func path_manager() -> void:
 	if self.current_agent == Expansion_agent.agent_tpye:
 		while !path_operations_EA.is_empty():
 			var path = path_operations_EA.pop_front()
+			player.general_path_output.emit(general_id,path)
+			await player_map.turn_updated
 	elif self.current_agent == Defence_agent.agent_tpye:
 		while !path_operations_DA.is_empty():
 			var path = path_operations_DA.pop_front()
+			player.general_path_output.emit(general_id,path)
+			await player_map.turn_updated
 	self.is_path_manager_working = false
 
 func on_path_add(agent_type:String, path_operate: Array) -> void:
