@@ -99,12 +99,14 @@ func check_and_show_general_panel(tile_coords: Vector2i) -> void:
 # 显示general状态面板
 func show_general_panel(general_id: int, capital_pos: Vector2i) -> void:
 	# 关闭现有面板
-	if current_general_panel:
+	if is_instance_valid(current_general_panel):
 		current_general_panel.queue_free()
+		current_general_panel = null
 	
 	# 创建新面板
 	current_general_panel = general_panel_scene.instantiate()
-	add_child(current_general_panel)
+	# 添加到CanvasLayer，确保在UI层下不随摄像机变化
+	get_tree().root.add_child(current_general_panel)
 	
 	# 设置面板数据
 	current_general_panel.setup_panel(general_id, capital_pos, player_entity.general[general_id])

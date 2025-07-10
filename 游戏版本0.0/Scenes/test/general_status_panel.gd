@@ -10,15 +10,14 @@ var general_entity: General_Entity
 @onready var current_agent_label: Label = $Panel/VBoxContainer/GeneralInfo/CurrentAgent
 
 # Expansion Agent UI元素
-@onready var jump_param_spinbox: SpinBox = $Panel/VBoxContainer/TabContainer/Expansion Agent/ExpansionSettings/M2S_Search_Params/JumpParam/JumpParamSpinBox
-@onready var estimated_demand_spinbox: SpinBox = $Panel/VBoxContainer/TabContainer/Expansion Agent/ExpansionSettings/M2S_Search_Params/EstimatedDemand/EstimatedDemandSpinBox
-@onready var range_threshold_spinbox: SpinBox = $Panel/VBoxContainer/TabContainer/Expansion Agent/ExpansionSettings/M2S_Search_Params/RangeThreshold/RangeThresholdSpinBox
+@onready var jump_param_spinbox: SpinBox = $Panel/VBoxContainer/TabContainer/"Expansion Agent"/ExpansionSettings/M2S_Search_Params/JumpParam/JumpParamSpinBox
+@onready var estimated_demand_spinbox: SpinBox = $Panel/VBoxContainer/TabContainer/"Expansion Agent"/ExpansionSettings/M2S_Search_Params/EstimatedDemand/EstimatedDemandSpinBox
+@onready var range_threshold_spinbox: SpinBox = $Panel/VBoxContainer/TabContainer/"Expansion Agent"/ExpansionSettings/M2S_Search_Params/RangeThreshold/RangeThresholdSpinBox
 
 # Defence Agent UI元素
-@onready var auto_hunt_defend_checkbox: CheckBox = $Panel/VBoxContainer/TabContainer/Defence Agent/DefenceSettings/Defence_Params/AutoHuntDefend/AutoHuntDefendCheckBox
-@onready var demand_param_spinbox: SpinBox = $Panel/VBoxContainer/TabContainer/Defence Agent/DefenceSettings/Defence_Params/DemandParam/DemandParamSpinBox
-@onready var range_threshold_defence_spinbox: SpinBox = $Panel/VBoxContainer/TabContainer/Defence Agent/DefenceSettings/Defence_Params/RangeThresholdDefence/RangeThresholdDefenceSpinBox
-
+@onready var auto_hunt_defend_checkbox: CheckBox = $Panel/VBoxContainer/TabContainer/"Defence Agent"/DefenceSettings/Defence_Params/AutoHuntDefend/AutoHuntDefendCheckBox
+@onready var demand_param_spinbox: SpinBox = $Panel/VBoxContainer/TabContainer/"Defence Agent"/DefenceSettings/Defence_Params/DemandParam/DemandParamSpinBox
+@onready var range_threshold_defence_spinbox: SpinBox = $Panel/VBoxContainer/TabContainer/"Defence Agent"/DefenceSettings/Defence_Params/RangeThresholdDefence/RangeThresholdDefenceSpinBox
 # 默认参数值
 var default_expansion_params = {
 	"jump_param": 20,
@@ -33,8 +32,8 @@ var default_defence_params = {
 }
 
 func _ready() -> void:
-	# 设置背景点击关闭
-	$Background.gui_input.connect(_on_background_input)
+	# 不再需要设置背景点击关闭，因为已经移除了背景板
+	pass
 
 func setup_panel(_general_id: int, _capital_pos: Vector2i, _general_entity: General_Entity) -> void:
 	general_id = _general_id
@@ -118,10 +117,6 @@ func reset_to_default() -> void:
 	range_threshold_defence_spinbox.value = default_defence_params.range_threshold
 	
 	print("Parameters reset to default for General ", general_id)
-
-func _on_background_input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		queue_free()
 
 func _on_close_button_pressed() -> void:
 	queue_free()

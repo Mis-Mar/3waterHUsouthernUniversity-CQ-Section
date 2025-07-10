@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://bq8x7y9z0a1b2"]
+[gd_scene load_steps=2 format=3 uid="uid://bq8x70a00a1b2"]
 
 [ext_resource type="Script" path="res://Scenes/test/general_status_panel.gd" id="1_script"]
 
@@ -9,16 +9,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+scale = Vector2(3, 3)
 script = ExtResource("1_script")
-
-[node name="Background" type="ColorRect" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 0.5)
 
 [node name="Panel" type="Panel" parent="."]
 layout_mode = 1
@@ -27,10 +19,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -250.0
-offset_right = 300.0
-offset_bottom = 250.0
+offset_left = -574.0
+offset_top = -324.0
+offset_right = 26.0
+offset_bottom = 176.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -83,11 +75,13 @@ layout_mode = 2
 [node name="TabContainer" type="TabContainer" parent="Panel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+current_tab = 0
 
 [node name="Expansion Agent" type="ScrollContainer" parent="Panel/VBoxContainer/TabContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+metadata/_tab_index = 0
 
 [node name="ExpansionSettings" type="VBoxContainer" parent="Panel/VBoxContainer/TabContainer/Expansion Agent"]
 layout_mode = 2
@@ -126,7 +120,6 @@ text = "Estimated Demand:"
 layout_mode = 2
 size_flags_horizontal = 3
 min_value = 1.0
-max_value = 100.0
 value = 30.0
 
 [node name="RangeThreshold" type="HBoxContainer" parent="Panel/VBoxContainer/TabContainer/Expansion Agent/ExpansionSettings/M2S_Search_Params"]
@@ -140,7 +133,6 @@ text = "Range Threshold:"
 layout_mode = 2
 size_flags_horizontal = 3
 min_value = 1.0
-max_value = 100.0
 value = 50.0
 
 [node name="Defence Agent" type="ScrollContainer" parent="Panel/VBoxContainer/TabContainer"]
@@ -148,6 +140,7 @@ visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+metadata/_tab_index = 1
 
 [node name="DefenceSettings" type="VBoxContainer" parent="Panel/VBoxContainer/TabContainer/Defence Agent"]
 layout_mode = 2
@@ -197,7 +190,6 @@ text = "Range Threshold:"
 layout_mode = 2
 size_flags_horizontal = 3
 min_value = 1.0
-max_value = 100.0
 value = 50.0
 
 [node name="HSeparator3" type="HSeparator" parent="Panel/VBoxContainer"]
@@ -217,4 +209,4 @@ text = "Reset to Default"
 
 [connection signal="pressed" from="Panel/VBoxContainer/Header/CloseButton" to="." method="_on_close_button_pressed"]
 [connection signal="pressed" from="Panel/VBoxContainer/Buttons/ApplyButton" to="." method="_on_apply_button_pressed"]
-[connection signal="pressed" from="Panel/VBoxContainer/Buttons/ResetButton" to="." method="_on_reset_button_pressed"] 
+[connection signal="pressed" from="Panel/VBoxContainer/Buttons/ResetButton" to="." method="_on_reset_button_pressed"]
