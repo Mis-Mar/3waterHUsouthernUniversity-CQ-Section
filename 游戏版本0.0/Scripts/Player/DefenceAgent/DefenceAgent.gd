@@ -72,7 +72,6 @@ func _init(_main_city: Vector2i, _player_map: PlayerMap) -> void:
 		distance_map[coord] = INF
 		point_to_block[coord] = 0
 
-
 func defend_class_trend() -> void:
 	self.current_state = self.STATE_SLEEP
 	self.DIV_general_zone()
@@ -419,11 +418,19 @@ func Block_points_in_sight_direction(start_point: Vector2i, sight_range: Array, 
 	
 	var direction_count_tarBlock: Dictionary = {} #记录视野内含block节点数
 	var direction_count_cost: Dictionary = {} #记录视野内节点总代价:value_map,敌负我正
+	var sum_count_tarBlock: int
+	var sum_count_cost: int
+	var direction_ratio_tarBlock: Dictionary = {}
+	var direction_ratio_cost: Dictionary = {}
+	var direction_final_ratio: Dictionary = {}
+	
 	for direction in Global.HEX_DIRECTIONS:
 		direction_count_tarBlock[direction] = 0
 		direction_count_cost[direction] = 0
 		
-	var max_block_direction: Vector2i = Vector2i(0,0)
+	var max_block_direction: Vector2i = Vector2i(1,0)
+	var max_direction: Vector2i = Vector2i(1,0)
+	
 	for coord in cells_in_sight:
 		var direction:Vector2i = player_map.get_direction(start_point, coord)
 		if self.point_to_block[coord] == target_block:
@@ -445,9 +452,18 @@ func Block_points_in_sight_direction(start_point: Vector2i, sight_range: Array, 
 					max_block_direction = direction
 			if player_map.invis_state_map[coord] != Global.TERRAIN_MOUNTAIN:
 				direction_count_cost[direction] += algorithm_map.value_map[coord]
-	#HACK 待完成 设计对比cost和block的估价方法
-	#FIXME direction能否通行
-	return max_block_direction
+				
+	for direction in direction_count_tarBlock:
+		sum_count_tarBlock += direction_count_tarBlock[direction]
+		sum_count_cost += direction_count_cost[direction]
+	for direction in direction_count_tarBlock:
+		direction_ratio_tarBlock[direction] = float(direction_count_tarBlock[direction] / sum_count_tarBlock)
+		direction_ratio_cost[direction] = float(direction_count_cost[direction] / sum_count_cost)
+		direction_final_ratio[direction] = float(direction_ratio_tarBlock[direction] + direction_ratio_cost[direction])
+		if direction_final_ratio[direction] > direction_final_ratio[max_direction]:
+			if player_map.invis_state_map[start_point + max_direction] != Global.TERRAIN_MOUNTAIN:
+				max_direction = direction
+	return max_direction
 
 func move_power_to_nearest_city(start_point: Vector2i) -> void:
 	#直接general内A*最短路径，用于处理多余兵力

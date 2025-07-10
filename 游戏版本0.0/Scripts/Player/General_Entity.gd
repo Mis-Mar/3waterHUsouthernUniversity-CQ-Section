@@ -31,6 +31,7 @@ var is_path_manager_working: bool = false
 
 signal agent_path_output(agent_type: String, path_operate: Array)
 signal switch_to_Defence_pattern()
+signal switch_to_Expansion_pattern()
 
 signal general_find_city(cityid:int,citypos:Vector2i)
 signal general_occupy_cell(pos:Vector2i,_cell_info:CellInfo,enemy_general_id:int)
@@ -38,11 +39,11 @@ signal general_occupy_city(cityid:int,citypos:Vector2i,enemy_general_id:int)
 signal general_be_occupied_cell(pos:Vector2i,_cell_info:CellInfo,enemy_general_id:int)
 signal general_be_occupied_city(cityid:int,citypos:Vector2i,enemy_general_id:int)
 
-#HACK 构建EADA间转换逻辑
 
 func _ready() -> void:
 	agent_path_output.connect(on_path_add)
 	switch_to_Defence_pattern.connect(switch_to_Defence_agent)
+	switch_to_Expansion_pattern.connect(switch_to_Expansion_agent)
 	
 	player_map.find_city.connect(on_find_city)
 	player_map.occupy_cell.connect(on_occupy_cell)
@@ -74,7 +75,11 @@ func _run() -> void:
 
 func switch_to_Defence_agent() -> void:
 	self.current_agent = Defence_agent.agent_tpye
-	Defence_agent.run()
+	Defence_agent.defend_class_trend()
+	
+func switch_to_Expansion_agent() -> void:
+	self.current_agent = Expansion_agent.agent_tpye
+	Expansion_agent.run()
 
 func calculate_full_power() -> void:
 	var power: int = 0
