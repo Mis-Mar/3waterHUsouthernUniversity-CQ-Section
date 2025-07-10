@@ -35,14 +35,18 @@ func enter() -> void:
 func is_vision_sufficient() -> void:
 	#添加可抵达城市（视野之外
 	var distance_map: Dictionary = {}
+	var visited: Dictionary = {}
 	for coord in agent.player_map.invis_state_map:
 		distance_map[coord] = INF
+		visited[coord] = false
 	var queue: Array[Vector2i] = [main_city]
 	distance_map[main_city] = 0
+	visited[main_city] = true
 	# 开始BFS遍历
 	while not queue.is_empty():
 		var current = queue.pop_front()  # 从队列头部取出
 		var current_distance = distance_map[current]
+		visited[current] = true
 		if agent.player_map.invis_state_map[current] == Global.INVIS_MOUNTAIN:
 			if current not in Not_Found:
 				self.place_into_notfound.emit()
@@ -52,7 +56,7 @@ func is_vision_sufficient() -> void:
 			var neighbors = agent.player_map.get_neighbors_state2(current,agent.general.general_id)
 			for neighbor in neighbors:
 				# 如果邻居尚未访问过 (距离为无穷大)
-				if distance_map[neighbor] == INF:
+				if visited[neighbor] == false:
 					# 更新邻居距离
 					distance_map[neighbor] = current_distance + 1
 					# 将邻居加入队列
