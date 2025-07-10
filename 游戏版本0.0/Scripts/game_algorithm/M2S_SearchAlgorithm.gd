@@ -147,18 +147,20 @@ func reverse_bfs(start_point: Vector2i, demand: int) -> bool:
 		if current not in close_list and distance_map[current] <= range_threshold:
 			close_list.append(current)
 			
-			print("current:")
-			print(current)
-			print("value:")
-			print(value_map[current])
+			# print("current:")
+			# print(current)
+			# print("value:")
+			# print(value_map[current])
 			if self.cell_map.has(current):
-				print(self.get_cell(current).get_power())
-				print(general_id_to_player_id[self.get_cell(current).get_general_id()])
-				print(player_id)
+				# print(self.get_cell(current).get_power())
+				# print(general_id_to_player_id[self.get_cell(current).get_general_id()])
+				# print(player_id)
+				pass
+			# 
 			if current != start_point:
 				accumulated_value += self.value_map[current] - 1
-			print("accumulated_value:")
-			print(accumulated_value)
+			# print("accumulated_value:")
+			# print(accumulated_value)
 			
 			if(self.value_map[current]>1):
 				source_points.append(current)
@@ -167,7 +169,7 @@ func reverse_bfs(start_point: Vector2i, demand: int) -> bool:
 					has_solution = true
 					break
 			
-			print("neighbors:")
+			# print("neighbors:")
 			var neighbors: Array[Vector2i] = self.get_neighbors_state4(current,self.general_id)
 			for neighbor: Vector2i in neighbors:
 				print(neighbor)

@@ -28,11 +28,16 @@ func appoint_general(general_id: int) -> void:
 	general[general_id] = General_Entity.new(general_id,player_id,player_map)
 	#其余动态分派工作
 
+func run_all_general() -> void:
+	for general_id in player_map.get_generals_of_player(player_id):
+		general[general_id]._run()
+
 func path_manager() -> void:
 	self.is_path_manager_working = true
 	while not path_operations.is_empty():
 		for general_id in player_map.get_generals_of_player(player_id):
 			#FIXME 传递操作信号：path_operations[general_id].pop_front()
+			print(path_operations[general_id].pop_front())
 			pass
 		await player_map.turn_updated
 	self.is_path_manager_working = false
