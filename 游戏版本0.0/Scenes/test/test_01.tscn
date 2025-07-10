@@ -88,7 +88,7 @@ tile_set = SubResource("TileSet_rflty")
 [node name="Timers" type="Node" parent="."]
 
 [node name="Timer_turn" type="Timer" parent="Timers"]
-wait_time = 0.25
+wait_time = 0.5
 
 [node name="UI" type="CanvasLayer" parent="."]
 layer = 3
@@ -103,3 +103,6 @@ offset_right = 33.0
 offset_bottom = 85.0
 theme_override_font_sizes/font_size = 50
 text = "手动(空格)"
+
+[connection signal="timeout" from="Timers/Timer_turn" to="test_01_manager" method="_on_timer_turn_timeout"]
+[connection signal="pressed" from="UI/AutoTurnButton" to="test_01_manager" method="_on_auto_turn_button_pressed"]

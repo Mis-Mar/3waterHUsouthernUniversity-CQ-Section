@@ -9,6 +9,10 @@ var main_city: Vector2i
 var auto_HUNT_defend: bool = false
 var current_state: int = self.STATE_SLEEP
 
+# 添加可配置参数
+var demand_param: float = 1.0
+var range_threshold: int = 50
+
 const STATE_SLEEP := 0
 const STATE_ZONE_DIV := 1
 const STATE_MAIN_GATHER := 2
@@ -57,6 +61,10 @@ signal end_manual_concentrate()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	# 确保在节点完全初始化后连接信号
+	if general != null:
+		general.general_occupy_cell.connect(block_updated_positive)
+		general.general_be_occupied_cell.connect(on_be_occupied_cell)
 	pass
 
 func _init(_main_city: Vector2i, _player_map: PlayerMap,_general:General_Entity) -> void:
@@ -72,8 +80,21 @@ func _init(_main_city: Vector2i, _player_map: PlayerMap,_general:General_Entity)
 		distance_map[coord] = 1145141919
 		point_to_block[coord] = 0
 	path_add.connect(on_path_add)
-	general.general_occupy_cell.connect(block_updated_positive)
-	general.general_occupy_cell.connect(on_be_occupied_cell)
+	# 信号连接移到_ready方法中
+
+# 添加参数设置方法
+func set_parameters(_auto_hunt_defend: bool, _demand_param: float, _range_threshold: int) -> void:
+	auto_HUNT_defend = _auto_hunt_defend
+	demand_param = _demand_param
+	range_threshold = _range_threshold
+	print("DefenceAgent parameters updated: auto_hunt=", auto_HUNT_defend, ", demand=", demand_param, ", range=", range_threshold)
+
+func get_parameters() -> Dictionary:
+	return {
+		"auto_hunt_defend": auto_HUNT_defend,
+		"demand_param": demand_param,
+		"range_threshold": range_threshold
+	}
 
 func clear_path_list() -> void:
 	self.path_operations.clear()
@@ -108,7 +129,7 @@ func urgent_defend_class_trend() -> void:
 
 func defend_main_city(demand_param: float,range_threshold: int) -> void:
 	self.current_state = self.STATE_MAIN_GATHER
-	self.concentrate_power(main_city,demand_param,range_threshold)
+	self.concentrate_power(main_city,self.demand_param,self.range_threshold)
 	self.current_state = self.STATE_SLEEP
 #TODO 更多可写？
 
@@ -275,7 +296,7 @@ func occupy_invaded_city() -> void:
 	for target_city_id in city_id_invaded:
 		var target_city_pos = player_map.city_id_to_position[target_city_id]
 		var demand: int = player_map.get_cell(target_city_pos).get_power()
-		path_all[target_city_id] = search_algorithm.M2S_Search(target_city_pos,demand,3,1,10,50)
+		path_all[target_city_id] = search_algorithm.M2S_Search(target_city_pos,demand,3,1,10,range_threshold)
 		#HACK 待完成 写 range阈值和参数设置
 		if path_all[target_city_id] != [-1]:
 			path_all[target_city_id] = search_algorithm.get_path_action()
@@ -307,7 +328,7 @@ func occupy_invaded_Cpoint() -> void:
 	var min_path_id: Vector2i = crucial_point_invaded[0]
 	for target_Cpoint in crucial_point_invaded:
 		var demand: int = player_map.get_cell(target_Cpoint).get_power()
-		path_all[target_Cpoint] = search_algorithm.M2S_Search(target_Cpoint,demand,3,1,10,50)
+		path_all[target_Cpoint] = search_algorithm.M2S_Search(target_Cpoint,demand,3,1,10,range_threshold)
 		#HACK 待完成 写 range阈值和参数设置
 		if path_all[target_Cpoint] != [-1]:
 			path_all[target_Cpoint] = search_algorithm.get_path_action()

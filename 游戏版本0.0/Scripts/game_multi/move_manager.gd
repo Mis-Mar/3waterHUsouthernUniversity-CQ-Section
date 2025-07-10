@@ -11,7 +11,6 @@ var player_id=0
 var selected_tile_coords: Vector2i = Vector2i.ZERO  # 当前鼠标选中的格子
 var current_highlighted_tile: Vector2i = Vector2i(-9999, -9999)  # 默认非法值
 var action_queue: Array = []  # 每项结构为 {from: Vector2i, dir: int, ratio: float}
-
 signal load_action(from_coords: Vector2i, direction_index: int, ratio: float)
 
 func activate(_playermap:PlayerMap) -> void:

@@ -49,6 +49,14 @@ func _init(_general_id: int,  _player_id: int, _player_map: PlayerMap) -> void:
 	self.player_map = _player_map
 	self.main_city = player_map.general_to_capital[self.general_id]
 	self.city_id_of_general = player_map.city_id_of_general[self.general_id]
+	
+	# 先创建agents
+	Expansion_agent = ExpansionAgent.new(main_city, player_map,self)
+	Expansion_agent.general = self
+	Defence_agent = DefenceAgent.new(main_city, player_map,self)
+	Defence_agent.general = self
+	
+	# 然后连接信号
 	self.connect("agent_path_output", Callable(self, "on_path_add"))
 	switch_to_Defence_pattern.connect(switch_to_Defence_agent)
 	switch_to_Expansion_pattern.connect(switch_to_Expansion_agent)
@@ -58,10 +66,6 @@ func _init(_general_id: int,  _player_id: int, _player_map: PlayerMap) -> void:
 	player_map.occupy_city.connect(on_occupy_city)
 	player_map.be_occupied_cell.connect(on_be_occupied_cell)
 	player_map.be_occupied_city.connect(on_be_occupied_city)
-	Expansion_agent = ExpansionAgent.new(main_city, player_map,self)
-	Expansion_agent.general = self
-	Defence_agent = DefenceAgent.new(main_city, player_map,self)
-	Defence_agent.general = self
 	pass
 	
 func _run() -> void:
@@ -79,7 +83,7 @@ func switch_to_Defence_agent() -> void:
 	
 func switch_to_Expansion_agent() -> void:
 	self.current_agent = Expansion_agent.agent_tpye
-	Expansion_agent.run()
+	Expansion_agent._run()
 
 func calculate_full_power() -> void:
 	var power: int = 0

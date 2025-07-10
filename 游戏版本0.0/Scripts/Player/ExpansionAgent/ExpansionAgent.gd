@@ -7,6 +7,11 @@ var search_algorithm: M2S_SearchAlgorithm
 var algorithm_map: AlgorithmMap
 var main_city: Vector2i
 
+# 添加可配置参数
+var jump_param: int = 20
+var estimated_demand: int = 30
+var range_threshold: int = 50
+
 var Not_Found: Array[Vector2i] = []
 var Not_Occupy: Array[Vector2i] = []
 
@@ -25,18 +30,35 @@ signal path_add(path_class: int, _path_operations: Array)
 signal clear_search_path()
 
 func _ready() -> void:
-	pass
+	# 确保在节点完全初始化后连接信号
+	if general != null:
+		general.general_be_occupied_cell.connect(on_be_occupied_cell)
 
 func _init(_main_city: Vector2i, _player_map: PlayerMap,_general:General_Entity) -> void:
+	print("a init")
 	path_add.connect(on_path_add)
 	general=_general
-	general.general_be_occupied_cell.connect(on_be_occupied_cell)
+	# 信号连接移到_ready方法中
 	self.player_id = _player_map.player_id
 	self.main_city = _main_city
 	self.player_map = _player_map
 	algorithm_map = AlgorithmMap.new(self.player_map, general.general_id)
 	search_algorithm = M2S_SearchAlgorithm.new(self.algorithm_map)
 	state_machine=ExpansionAgent_StateMachine.new(self)
+
+# 添加参数设置方法
+func set_parameters(_jump_param: int, _estimated_demand: int, _range_threshold: int) -> void:
+	jump_param = _jump_param
+	estimated_demand = _estimated_demand
+	range_threshold = _range_threshold
+	print("ExpansionAgent parameters updated: jump=", jump_param, ", demand=", estimated_demand, ", range=", range_threshold)
+
+func get_parameters() -> Dictionary:
+	return {
+		"jump_param": jump_param,
+		"estimated_demand": estimated_demand,
+		"range_threshold": range_threshold
+	}
 
 	
 
@@ -58,6 +80,7 @@ func path_manager() -> void:
 		path_current_class = path_operations_city_class.pop_front()
 		var path_operation = path_operations_city.pop_front()
 		for path in path_operation:
+			print("agent 發送信號")
 			general.agent_path_output.emit(agent_tpye,path)
 			await player_map.turn_updated
 	while !path_operations_search.is_empty():
@@ -66,6 +89,7 @@ func path_manager() -> void:
 			if path_current_class != 0:
 				insert_replace = true
 				break
+			print("agent 發送信號")
 			general.agent_path_output.emit(agent_tpye,path)
 			await player_map.turn_updated
 	if insert_replace:

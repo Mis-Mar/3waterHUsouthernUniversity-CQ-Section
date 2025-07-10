@@ -6,65 +6,33 @@ extends Node
 @onready var timer_turn: Timer = $"../Timers/Timer_turn"
 @onready var auto_turn_button: Button = $"../UI/AutoTurnButton"
 
-
+# 添加general状态面板
+var general_panel_scene = preload("res://Scenes/test/general_status_panel.tscn")
+var current_general_panel: Node = null
 
 var fullmap=FullMap.new()
 var playermap=PlayerMap.new()
-
+var player_entity:Player_Entity
 var is_auto_turn := false  # 默认是手动回合
 var player_id=1
 
 func test_a()->void:
 	# 设置cell信息
-	#fullmap.set_cell_power(Vector2i(-2,3) ,10)
+	#fullmap.set_cell_power(Vector2i(-2,1) ,10)
 	#fullmap.set_cell_general_id(Vector2i(-2,3),1)
-	#
-	#fullmap.set_cell_power(Vector2i(-3,2) ,10)
-	#fullmap.set_cell_general_id(Vector2i(-3,2),1)
-	#
-	#fullmap.set_cell_power(Vector2i(-4,1) ,10)
-	#fullmap.set_cell_general_id(Vector2i(-4,1),1)
-	#
-	#fullmap.set_cell_power(Vector2i(-5,0) ,10)
-	#fullmap.set_cell_general_id(Vector2i(-5,0),1)
-	
+
 	fullmap.update_general_index()
 	fullmap.compute_player_deltas()
 
 	# playermap.update_cell_from_delta(fullmap.export_player_delta(1))
 	
-	var player_entity:=Player_Entity.new(playermap.player_id,playermap)
-	
+	player_entity=Player_Entity.new(playermap.player_id,playermap)
+	player_entity.export_action.connect(_on_export_action)
 	player_entity.appoint_general(player_id)
-	
 	player_entity.run_all_general()
-	
-	
-	
-	
-	
-	
+
 	map.display_full_map(fullmap)
-	#print("playerid")
-	#print(playermap.player_id)
-	#print("general_id_to_player_id")
-	#print(playermap.general_id_to_player_id[1])
-	#playermap.player_id = 1
-	##HACK bug from
-	#var almap=AlgorithmMap. new(playermap,1)
-	##TODO 补写generalid指定
-	#var m2s=M2S_SearchAlgorithm. new(almap)
-	#var pt:Array = m2s.M2S_Search(Vector2i(-3,4),30,3,1,0,50)
-	#print(pt)
-	#var ans:Array[Vector2i]=m2s.get_path_coords() 
-	#print(ans)
-	#for coord in ans:
-		#map.highlight_cell(coord)
 
-
-
-	#for coord in m2s.final_influence_map.keys():
-	#	map.set_label(coord,str(m2s.final_influence_map[coord]))
 	
 
 # 开场的函数
@@ -94,6 +62,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			var tile_coords = map.get_tile_coords_from_screen_pos(event.position)
 			selected_tile_coords = tile_coords
 			map. print_cell(tile_coords)
+		elif event.button_index == MOUSE_BUTTON_RIGHT:
+			# 右键点击检测
+			var tile_coords = map.get_tile_coords_from_screen_pos(event.position)
+			check_and_show_general_panel(tile_coords)
 	# 移动选择
 	elif event is InputEventKey and event.pressed:
 		var dir_index := -1
@@ -113,8 +85,31 @@ func _unhandled_input(event: InputEvent) -> void:
 			fullmap.execute_turn()
 			map.display_full_map(fullmap)
 
+# 检查并显示general状态面板
+func check_and_show_general_panel(tile_coords: Vector2i) -> void:
+	# 检查是否是自己的首都
+	if fullmap.cell_map.has(tile_coords):
+		var cell = fullmap.cell_map[tile_coords]
+		if cell.get_type() == Global.TERRAIN_CAPITAL:
+			# 检查是否是自己的general
+			var general_id = cell.get_general_id()
+			if general_id in fullmap.general_id_to_player_id and fullmap.general_id_to_player_id[general_id] == player_id:
+				show_general_panel(general_id, tile_coords)
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
+# 显示general状态面板
+func show_general_panel(general_id: int, capital_pos: Vector2i) -> void:
+	# 关闭现有面板
+	if current_general_panel:
+		current_general_panel.queue_free()
+	
+	# 创建新面板
+	current_general_panel = general_panel_scene.instantiate()
+	add_child(current_general_panel)
+	
+	# 设置面板数据
+	current_general_panel.setup_panel(general_id, capital_pos, player_entity.general[general_id])
+
+# ——————————信號
 func _process(delta: float) -> void:
 	pass
 
@@ -128,7 +123,6 @@ func _on_timer_turn_timeout() -> void:
 	pass 
 
 
-
 func _on_auto_turn_button_pressed() -> void:
 	is_auto_turn =! is_auto_turn
 	if is_auto_turn:
@@ -138,3 +132,16 @@ func _on_auto_turn_button_pressed() -> void:
 		auto_turn_button.text = "手动(空格)"
 		timer_turn.stop()  # 停止自动回合
 	pass # Replace with function body.
+
+# 连接player_entity中操作输出，只要有输出就加入操作队列
+func _on_export_action(action_info:Array)->void:
+	fullmap.add_general_action(action_info[0]["from"], action_info[0]["dir"], action_info[0]["ratio"])
+	pass
+
+# 辅助函数
+func run_turn()->void:
+	fullmap.execute_turn()
+	fullmap.compute_player_deltas()
+	# 更新playermap
+	playermap.update_player_map(fullmap.export_player_delta(player_id),fullmap.export_general_id_to_player_id())
+	map.display_full_map(fullmap)

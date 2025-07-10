@@ -58,7 +58,7 @@ func could_occupy_empty_city(target_point:Vector2i) -> Array:
 	self.current_state = self.STATE_ACT
 	var cell: CellInfo = agent.player_map.get_cell(target_point)
 	var demand: int = cell.get_power()
-	var path = agent.search_algorithm.M2S_Search(target_point,demand,3,1,10,50)
+	var path = agent.search_algorithm.M2S_Search(target_point,demand,3,1,agent.jump_param,agent.range_threshold)
 	#HACK 待完成 参数设置
 	if path != [-1]:
 		path = agent.search_algorithm.get_path_action()

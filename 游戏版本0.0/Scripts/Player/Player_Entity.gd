@@ -15,6 +15,8 @@ var is_path_manager_working:bool = false
 
 signal general_path_output(general_id: int, path_operate: Array)
 
+signal export_action(action_info:Array)
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	#general_occupy.emit()
@@ -39,6 +41,7 @@ func path_manager() -> void:
 	while not path_operations.is_empty():
 		for general_id in player_map.get_generals_of_player(player_id):
 			#FIXME 传递操作信号：path_operations[general_id].pop_front()
+			emit_signal("export_option",path_operations[general_id].pop_front())
 			print("操作信号")
 			print(path_operations[general_id].pop_front())
 			pass

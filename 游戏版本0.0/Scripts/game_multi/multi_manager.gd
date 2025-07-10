@@ -10,7 +10,6 @@ extends Node
 @onready var background: Node2D = $"../Camera2D/background"
 
 
-
 var fullmap:=FullMap.new()
 var playermap:=PlayerMap.new()
 # server的函数

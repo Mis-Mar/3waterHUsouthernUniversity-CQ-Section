@@ -98,7 +98,7 @@ func search_empty_city(target_point: Vector2i,jump_param: int,estimated_demand: 
 	#前往可抵达城市
 	var path_point: Array = agent.player_map.build_Astar_path(self.agent.general.main_city,target_point)
 	while !path_point.is_empty():
-		var path = agent.search_algorithm.M2S_Search(target_point,estimated_demand,3,1,20,20)
+		var path = agent.search_algorithm.M2S_Search(target_point,estimated_demand,3,1,agent.jump_param,agent.range_threshold)
 		#HACK 待完成 参数设置
 		var path_action = agent.search_algorithm.get_path_action()
 		if path != [-1]:
