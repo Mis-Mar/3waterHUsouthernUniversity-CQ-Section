@@ -104,9 +104,11 @@ func calculate_influence(target_point: Vector2i) -> void:
 
 func value_preprocessing(target_point: Vector2i) -> void:
 	#预处理节点价值
-	#TODO 完成预处理功能
+	#预处理暂定为：平原最大积累兵力值*参数
+	var preprocessing_threshold: int = (player_map.turn_count / 50) * 0.5
 	for coord in value_map:
-		influence_map[coord] = value_map[coord] - 1
+		if value_map[coord] >= preprocessing_threshold:
+			influence_map[coord] = value_map[coord] - 1
 		
 func propagate_influence(start_point: Vector2i) -> void:
 	# 创建队列 (使用数组模拟队列)

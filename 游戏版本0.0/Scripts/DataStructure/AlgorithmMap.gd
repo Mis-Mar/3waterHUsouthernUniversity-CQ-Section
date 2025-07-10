@@ -10,7 +10,7 @@ var general_id: int
 # 算法专用的附加内容（这只是示例，看你需要什么用什么类型）
 var value_map: Dictionary = {}  # 己方节点=power，敌方节点=-power，山地=-INF，未知空地水域=0
 var distance_map: Dictionary = {}
-
+#HACK  重写此类，不继承自playermap而是使用组合
 # 初始化AlgorithmMap 用一个PlayerMap
 func _init(original: PlayerMap, _general_id: int) -> void:
 	player_map = original
