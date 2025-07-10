@@ -72,8 +72,15 @@ func _init(_main_city: Vector2i, _player_map: PlayerMap) -> void:
 		distance_map[coord] = INF
 		point_to_block[coord] = 0
 
+func clear_path_list() -> void:
+	self.path_operations.clear()
+	self.path_current_class = -1
+	self.is_path_manager_working = false
+
 func defend_class_trend() -> void:
 	self.current_state = self.STATE_SLEEP
+	self.clear_path_list()
+	self.bfs_path_build()
 	self.DIV_general_zone()
 	self.is_city_occupyed(1.0)
 	self.is_crucial_point_occupyed(1.0)
@@ -85,6 +92,8 @@ func defend_class_trend() -> void:
 	
 func urgent_defend_class_trend() -> void:
 	self.current_state = self.STATE_SLEEP
+	self.clear_path_list()
+	self.bfs_path_build()
 	self.is_city_occupyed(1.0)
 	self.is_crucial_point_occupyed(1.0)
 	self.DIV_general_zone()
@@ -114,7 +123,8 @@ func concentrate_power(target_point: Vector2i,demand_param: float,range_threshol
 	for city_id in general.city_id_of_general:
 		avaliable_power += algorithm_map.value_map[player_map.city_id_to_position[city_id]]
 	for crucial_point in general.crucial_point_of_general:
-		avaliable_power += algorithm_map.value_map[crucial_point]
+		if crucial_point not in general.city_id_of_general:
+			avaliable_power += algorithm_map.value_map[crucial_point]
 	var path = search_algorithm.M2S_Search(target_point,avaliable_power * demand_param,3,1,10,range_threshold)
 	if path != [-1]:
 		path = search_algorithm.get_path_action()
@@ -360,7 +370,7 @@ func general_zone_fill(ratio: float) -> void:
 		var achieve: bool = false
 		if player_map.cell_map.has(point):
 			for neighbor in player_map.get_neighbors_state6(point,general.general_id):
-				if player_map.get_cell(neighbor).get_power() > player_map.get_cell(point).get_power():
+				if player_map.get_cell(neighbor).get_power() > player_map.get_cell(point).get_power() + 1:
 					if self.current_state != self.STATE_EMPTY_DEFEND:
 						return
 					#中断操作

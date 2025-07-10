@@ -26,6 +26,7 @@ func _init(_player_id: int, _player_map: PlayerMap) -> void:
 
 func appoint_general(general_id: int) -> void:
 	general[general_id] = General_Entity.new(general_id,player_id,player_map)
+	general[general_id].player = self
 	#其余动态分派工作
 
 func run_all_general() -> void:
