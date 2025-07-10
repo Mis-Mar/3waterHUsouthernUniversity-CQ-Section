@@ -15,9 +15,26 @@ var current_highlighted_tile: Vector2i = Vector2i(-9999, -9999)  # 默认非法�
 
 var playermap=PlayerMap.new()
 
+# 在适当的地方加这个，比如 _ready 或 start 末尾等
+func replace_main_layer_with_scene():
+	var tile_scene = preload("res://Scenes/game_maps/game_map_3.tscn")
+	var new_layer_instance = tile_scene.instantiate()
+
+	# 删除旧的 main_layer，如果存在
+	var old_main_layer = map.get_node_or_null("MainLayer")
+	if old_main_layer:
+		old_main_layer.queue_free()
+
+	# 添加新的 layer
+	map.add_child(new_layer_instance)
+	new_layer_instance.name = "MainLayer"
+	map.main_layer = new_layer_instance
+
+
 # 启动函数
 func start()->void:
-	await get_tree().create_timer(0.5).timeout
+	await get_tree().create_timer(0.1).timeout
+	await replace_main_layer_with_scene()
 	# fullmap.random_init(10,3,8)
 	fullmap=map.curr_map_to_fullmap()
 	#playermap.init_from_fullmap(fullmap,1)
@@ -27,11 +44,8 @@ func start()->void:
 	map. display_playermap_fog(playermap)
 	map. display_playermap(playermap)
 	# 这样可以绑定信号
-	playermap.connect("turn_updated", Callable(self, "_on_turn_updated"))
 	# map. display_map_for_player(fullmap,1)
 
-func _on_turn_updated()->void:
-	print("收到回合更新信号")
 
 func _ready() -> void:
 	start()
@@ -48,7 +62,7 @@ func _input(event: InputEvent) -> void:
 			# 获取左键选中的格子
 			var tile_coords = map.get_tile_coords_from_screen_pos(event.position)
 			# 如果选中的格子不可见的
-			if playermap.invis_state_map[tile_coords]<0:
+			if !playermap.invis_state_map.has(tile_coords) or playermap.invis_state_map[tile_coords]<0:
 				
 				return
 			# 如果两次选中同一个格子就测取消选中
@@ -64,29 +78,6 @@ func _input(event: InputEvent) -> void:
 				selected_tile_coords = tile_coords
 			highlight_selected_tile(selected_tile_coords)
 
-	elif event is InputEventKey and event.pressed:
-		var cell = playermap.get_cell(selected_tile_coords)
-		if cell != null:
-			var general = cell.get_general_id()
-			var dir_index := -1
-			match event.keycode:
-				KEY_Q: dir_index = Global.DIR_UP_L     # (-1, 0) 左上
-				KEY_W: dir_index = Global.DIR_UP       # (-1, -1) 上
-				KEY_E: dir_index = Global.DIR_UP_R     # (0, -1) 右上
-				KEY_A: dir_index = Global.DIR_DOWM_L   # (0, 1) 左下
-				KEY_S: dir_index = Global.DIR_DOWN     # (1, 1) 下
-				KEY_D: dir_index = Global.DIR_DOWM_R   # (1, 0) 右下
-
-			if dir_index != -1:
-				var target_tile_coords=selected_tile_coords+Global.HEX_DIRECTIONS[dir_index]
-				if general != 0 and playermap.general_id_to_player_id.has(general) and playermap.general_id_to_player_id[general] == player_id :
-					playermap.add_general_action(selected_tile_coords,dir_index,1.0)
-				if playermap.cell_visible_for_player(target_tile_coords,player_id):
-					# 若目标可见，更新选中格子的位置和高亮
-					selected_tile_coords=target_tile_coords
-					highlight_selected_tile(selected_tile_coords)
-		else:
-			printerr("操作访问到空cell")
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:

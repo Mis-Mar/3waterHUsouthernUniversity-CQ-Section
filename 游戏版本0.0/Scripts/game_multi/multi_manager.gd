@@ -6,6 +6,10 @@ extends Node
 @onready var timer_turn: Timer = $"../Timers/Timer_turn"
 @onready var move_manager: Node = $"../MoveManager"
 @onready var turn_count_label: Label = $"../UI/turn_count_label"
+@onready var loading_item: Node2D = $"../UI/loading_item"
+@onready var background: Node2D = $"../Camera2D/background"
+
+
 
 var fullmap:=FullMap.new()
 var playermap:=PlayerMap.new()
@@ -24,7 +28,7 @@ var is_server:=false
 
 func start()->void:
 	# 等待加载
-	await get_tree().create_timer(0.1).timeout
+	await get_tree().create_timer(1).timeout
 	# 检查连接状态，并连接信号
 	if multiplayer.multiplayer_peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED:
 		multiplayer.peer_connected.connect(_on_peer_connected)
@@ -37,6 +41,8 @@ func start()->void:
 	# 服务端初始化fullmap并发送
 	if multiplayer.is_server():
 		is_server=true
+		# 服务端要初始化fullmap，后续转化发送给客户端
+		replace_main_layer_with_map(Global.game_map_id)
 		# 初始化双向表
 		_init_peer_player_maps()
 		# 初始化fullmap
@@ -49,7 +55,8 @@ func start()->void:
 	playermap.game_lose.connect(_on_game_lose)
 	playermap.game_win.connect(_on_game_win)
 	# 双方等待初始化完成
-	await get_tree().create_timer(0.5).timeout
+	await get_tree().create_timer(2).timeout
+	
 	# 激活移动脚本
 	move_manager.load_action.connect(upload_action)
 	move_manager.activate(playermap)
@@ -62,6 +69,10 @@ func start()->void:
 	map. display_playermap(playermap)
 	display_turn_count(playermap.turn_count)
 	center_camera_on_capital(playermap, map.main_layer, camera_2d)
+	turn_count_label.visible=true
+	loading_item.visible=false
+	map.visible=true
+	background.visible=true
 		
 	# 显示playermap
 
@@ -141,6 +152,25 @@ func rpc_init_playermap(init_data: Dictionary)->void:
 # 结束——————————
 
 # ——————————低级辅助函数
+# 按要求替换函数
+func replace_main_layer_with_map(map_id: int) -> void:
+	var path := "res://Scenes/game_maps/game_map_%d.tscn" % map_id
+	var tile_scene = load(path)
+	if not tile_scene:
+		push_error("地图载入失败：%s" % path)
+		return
+
+	var new_main_layer = tile_scene.instantiate()
+	new_main_layer.name = "MainLayer"
+
+	var old_main_layer = map.get_node_or_null("MainLayer")
+	if old_main_layer:
+		old_main_layer.queue_free()
+
+	map.add_child(new_main_layer)
+	map.move_child(new_main_layer, 0)  # 保证它在最前面
+	map.main_layer = new_main_layer  # 如果 main_layer 是变量（不是 onready）
+
 # 开局时的摄像头居中首都
 func center_camera_on_capital(playermap: PlayerMap, main_layer: TileMapLayer, camera_2d: Camera2D) -> void:
 	if not playermap.general_to_capital.has(playermap.player_id):

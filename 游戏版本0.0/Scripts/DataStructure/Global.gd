@@ -71,3 +71,5 @@ const TERRAIN_TILE_INFO := {
 
 # rpc连接
 const MAX_CLIENTS:=7# 最大连接数（不算自己）
+# 游玩的地图选择
+var game_map_id:=0

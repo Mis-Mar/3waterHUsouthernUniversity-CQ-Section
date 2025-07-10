@@ -1,9 +1,14 @@
-[gd_scene load_steps=2 format=3 uid="uid://dndnhatnjk6xb"]
+[gd_scene load_steps=3 format=3 uid="uid://dndnhatnjk6xb"]
 
 [ext_resource type="Script" path="res://Scripts/game_multi/game_multi_room.gd" id="1_qxpn5"]
+[ext_resource type="PackedScene" uid="uid://dwqtj0wmdhoxo" path="res://Scenes/items/background.tscn" id="2_58o54"]
 
 [node name="game_multi_room" type="Node2D"]
 script = ExtResource("1_qxpn5")
+
+[node name="background" parent="." instance=ExtResource("2_58o54")]
+position = Vector2(575, 335)
+scale = Vector2(0.4, 0.4)
 
 [node name="UI" type="CanvasLayer" parent="."]
 
@@ -20,16 +25,16 @@ offset_bottom = 117.0
 
 [node name="ready_button" type="Button" parent="UI"]
 offset_left = 463.0
-offset_top = 307.0
+offset_top = 520.0
 offset_right = 670.0
-offset_bottom = 361.0
+offset_bottom = 574.0
 text = "准备"
 
 [node name="label-ready-info" type="Label" parent="UI"]
 offset_left = 486.0
-offset_top = 371.0
+offset_top = 584.0
 offset_right = 642.0
-offset_bottom = 408.0
+offset_bottom = 621.0
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -41,6 +46,30 @@ offset_right = 624.0
 offset_bottom = 509.0
 text = "开始"
 
+[node name="map_selector" type="OptionButton" parent="UI"]
+visible = false
+offset_left = 968.0
+offset_top = 17.0
+offset_right = 1135.0
+offset_bottom = 83.0
+item_count = 3
+popup/item_0/text = "地图2"
+popup/item_0/id = 2
+popup/item_1/text = "地图3"
+popup/item_1/id = 3
+popup/item_2/text = "地图4"
+popup/item_2/id = 4
+
+[node name="map_previewer" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 576.0
+offset_top = 339.0
+offset_right = 1097.0
+offset_bottom = 731.0
+scale = Vector2(0.05, 0.05)
+
 [connection signal="pressed" from="UI/leave_button" to="." method="_on_leave_button_pressed"]
 [connection signal="pressed" from="UI/ready_button" to="." method="_on_ready_button_pressed"]
 [connection signal="pressed" from="UI/start-button" to="." method="_on_startbutton_pressed"]
+[connection signal="item_selected" from="UI/map_selector" to="." method="_on_map_selector_item_selected"]

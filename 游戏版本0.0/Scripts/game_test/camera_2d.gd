@@ -4,11 +4,16 @@ var is_dragging := false
 var drag_start_mouse := Vector2()
 var drag_start_position := Vector2()
 
+@onready var background: Node2D = $background
+
+
+
 # 缩放限制
-const ZOOM_MIN := 0.01
-const ZOOM_MAX := 0.5
+const ZOOM_MIN := 0.05 # 反比，上限
+const ZOOM_MAX := 0.3  # 反比，下限
 const ZOOM_SPEED := 0.1
 const ZOOM_LERP_SPEED := 7.0  # 插值速度，值越大缩放越快
+const background_scale=0.3
 
 var target_zoom: Vector2 = Vector2.ONE  # 初始目标
 
@@ -44,3 +49,5 @@ func _process(delta: float) -> void:
 	if is_dragging:
 		var drag_offset = drag_start_mouse - get_viewport().get_mouse_position()
 		global_position = drag_start_position + drag_offset / zoom
+	# 让背景随着摄像机缩放（同步比例）
+	background.scale = Vector2(background_scale / zoom.x, background_scale / zoom.y)  # 或者 1.0 / zoom，取决于视觉需求

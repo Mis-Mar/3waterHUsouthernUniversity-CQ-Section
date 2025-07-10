@@ -1,5 +1,5 @@
 extends Node
-@onready var main_layer: TileMapLayer = $MainLayer
+
 # @onready var number_labels: Control = $NumberLabels
 @onready var labels: Control = $Labels
 @onready var color_layer: TileMapLayer = $ColorLayer
@@ -9,6 +9,11 @@ extends Node
 # 上一帧的可见格子集合，性能优化
 var last_visible_tiles: Dictionary = {}  
 
+# 改成普通变量，在 _ready 初始化一次
+var main_layer: TileMapLayer
+
+func _ready():
+	main_layer = $MainLayer
 
 # 单个可见格子输出地块层
 func display_cell_terrain(tile_coords: Vector2i, cell: CellInfo) -> void:

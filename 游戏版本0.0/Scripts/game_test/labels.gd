@@ -1,8 +1,10 @@
 #每个数字都有单独的label，这个节点存储了这些label，然后封装了方法
 extends Control
 
-@onready var main_layer: TileMapLayer = $"../MainLayer"
+
 @onready var color_layer: TileMapLayer = $"../ColorLayer"
+@onready var map: Control = $".."
+
 
 var number_labels := {}  # 用于记录每个 tile 的 label: Dictionary<Vector2i, Label>
 var arrow_labels: Array[Label] = []
@@ -47,8 +49,8 @@ func deep_update_label_on_tile(tile_coords: Vector2i, text: String, font_size: i
 	label.text = text
 	label.modulate = color
 	# 格子中心位置
-	var tile_local_pos = main_layer.map_to_local(tile_coords)
-	var global_pos = main_layer.to_global(tile_local_pos)
+	var tile_local_pos = map.main_layer.map_to_local(tile_coords)
+	var global_pos = map.main_layer.to_global(tile_local_pos)
 	var screen_pos = get_viewport().get_final_transform() * global_pos
 	# 文本宽度估计（使用固定字符宽度估计）
 	var total_text_width = text.length() * CHAR_WIDTH
@@ -82,8 +84,8 @@ func draw_arrow_label(tile_coords: Vector2i, direction_index: int) -> void:
 	label.modulate = DEFAULT_LABEL_COLOR
 	label.rotation_degrees = HEX_DIRECTION_ANGLES[direction_index]
 
-	var base_local_pos = main_layer.map_to_local(tile_coords)
-	var base_global_pos = main_layer.to_global(base_local_pos)
+	var base_local_pos = map.main_layer.map_to_local(tile_coords)
+	var base_global_pos = map.main_layer.to_global(base_local_pos)
 	var base_screen_pos =get_viewport().get_final_transform() * base_global_pos
 
 	var offset: Vector2 = HEX_DIRECTION_OFFSETS[direction_index]

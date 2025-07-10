@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://cm18awoj15uto"]
+
+[ext_resource type="Script" path="res://Scripts/game_test/camera_2d.gd" id="1_cw20b"]
+[ext_resource type="PackedScene" uid="uid://dwqtj0wmdhoxo" path="res://Scenes/items/background.tscn" id="2_mywc7"]
+
+[node name="Camera2D" type="Camera2D"]
+zoom = Vector2(0.25, 0.25)
+script = ExtResource("1_cw20b")
+
+[node name="background" parent="." instance=ExtResource("2_mywc7")]
+z_index = -3

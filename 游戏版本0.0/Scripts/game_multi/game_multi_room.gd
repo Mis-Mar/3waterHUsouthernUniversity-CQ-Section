@@ -6,6 +6,9 @@ extends Node2D
 @onready var ready_button: Button = $UI/ready_button
 @onready var label_ready_info: Label = $"UI/label-ready-info"
 @onready var start_button: Button = $"UI/start-button"
+@onready var map_previewer: Control = $map_previewer
+@onready var map_selector: OptionButton = $UI/map_selector
+
 
 var role:String
 var is_ready := false
@@ -13,6 +16,8 @@ var is_server:= false
 var ready_count:=0
 # 房主记录玩家准备状态
 var player_ready: Dictionary = {} # int bool 玩家id到玩家是否准备的映射表
+
+var map_id=-1
 
 func _ready():
 	# 检查连接状态，并连接信号
@@ -30,6 +35,7 @@ func _ready():
 		is_server=true
 		# 表中加入自己
 		player_ready[1]=false
+		map_selector.visible=true
 	else:
 		role="成员"
 		multiplayer.server_disconnected.connect(_on_server_disconnected)
@@ -37,6 +43,7 @@ func _ready():
 	# 初始化显示
 	update_room_status()
 	display_ready_info()
+	# load_map_preview(2)
 
 # ——————————信号事件
 # 玩家加入
@@ -61,7 +68,10 @@ func _on_server_disconnected()->void:
 	print("与服务器断开连接")
 	leave_room()
 
-
+# 房主选择地图
+func _on_map_selector_item_selected(index: int) -> void:
+	update_map_id.rpc(index+2)
+	pass # Replace with function body.
 
 # 按下离开房间按钮
 func _on_leave_button_pressed() -> void:
@@ -74,8 +84,11 @@ func _on_ready_button_pressed() -> void:
 	pass # Replace with function body.
 # 按下开始按钮
 func _on_startbutton_pressed() -> void:
-	send_start.rpc()
-	pass # Replace with function body.
+	# 选择了地图而且地图人数合适才能开始游戏
+	if map_id!=-1 and map_id>=get_player_count():
+		Global.game_map_id=map_id
+		send_start.rpc()
+		pass # Replace with function body.
 # 结束——————————
 
 # ——————————rpc远程函数
@@ -117,9 +130,30 @@ func send_start()->void:
 	if err != OK:
 		print("切换场景失败，错误码: ", err)
 
+# server向 client/server 发送选择地图的信号
+@rpc("authority", "call_local")
+func update_map_id(_map_id:int)->void:
+	map_id=_map_id
+	load_map_preview(_map_id)
 # 结束——————————
 
 # ——————————底层的简化封装
+# 显示地图预览
+func load_map_preview(id: int) -> void:
+	var path = "res://Scenes/game_maps/game_map_%d.tscn" % id
+	var scene = load(path)
+	if not scene:
+		print("地图加载失败：", path)
+		return
+
+	# 清空旧的子节点
+	for child in map_previewer.get_children():
+		child.queue_free()
+
+	var instance = scene.instantiate()
+	map_previewer.add_child(instance)
+
+
 func update_room_status() -> void:
 	var player_ids = multiplayer.get_peers()
 	player_ids.insert(0, multiplayer.get_unique_id())  # 加上自己
