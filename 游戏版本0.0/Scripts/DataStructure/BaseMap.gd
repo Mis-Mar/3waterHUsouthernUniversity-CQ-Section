@@ -20,12 +20,7 @@ func get_all_coords() -> Array[Vector2i]:
 func is_valid_coord(coord: Vector2i) -> bool:
 	return cell_map.has(coord)
 	
-func get_distance_2coords(coord1: Vector2i, coord2: Vector2i) -> int:
-	if is_valid_coord(coord1) and is_valid_coord(coord2):
-		return max(abs(coord1.x - coord2.x), abs(coord1.y - coord2.y), abs((coord1.x-coord1.y) - (coord2.x-coord2.y)))
-	else:
-		printerr("坐标超界")
-		return -1
+
 
 func get_direction(start_coord: Vector2i, end_coord: Vector2i) -> Vector2i:
 	var vector: Vector2i = end_coord - start_coord
@@ -93,6 +88,7 @@ func set_cell_power(coord: Vector2i, new_power) -> void:
 		get_cell(coord).set_power(new_power)
 	else:
 		printerr("坐标超界")
+		pass
 	return
 	
 # 设置一个格子的general
@@ -129,15 +125,7 @@ func get_adjacent_vector_id(pos_a: Vector2i, pos_b: Vector2i) -> int:
 			return i  # 返回邻接方向的索引
 	return -1  # 不相邻
 
-# state0: 排除山地
-func get_neighbors_state0(center: Vector2i) -> Array[Vector2i]:
-	var neighbors: Array[Vector2i] = []
-	for dir in Global.HEX_DIRECTIONS:
-		var neighbor_coords: Vector2i = center + dir
-		if cell_map.has(neighbor_coords):
-			if get_cell(neighbor_coords).get_type() != Global.TERRAIN_MOUNTAIN:
-				neighbors.append(neighbor_coords)
-	return neighbors
+
 
 # 字符串转化为Vector2i,同步的标准转化用
 func parse_vector2i(key: String) -> Vector2i:
@@ -177,29 +165,7 @@ func update_power_by_terrain() -> void:
 				if power == 0:
 					cell.set_general_id(0)
 
-func build_Astar_path(start_point:Vector2i, end_point:Vector2i) -> Array:
-	#构建起点-终点最短A*路径，输出 起点……终点 list
-	if is_valid_coord(start_point) and is_valid_coord(end_point):
-		var open_list: PriorityQueue=PriorityQueue.new()
-		var close_list: Array[Vector2i] = []
-		var distance: Dictionary = {}
-		
-		distance[start_point] = 0
-		open_list.push(distance[start_point] + get_distance_2coords(start_point, end_point), start_point)
-		
-		while not open_list.is_empty():
-			var current: Vector2i = open_list.pop()
-			if current not in close_list:
-				close_list.push_back(current)
-				var neighbors: Array[Vector2i] = self.get_neighbors_state0(current)
-				for neighbor: Vector2i in neighbors:
-					if neighbor not in close_list:
-						distance[neighbor] = distance[current] + 1
-						open_list.push(distance[neighbor]+get_distance_2coords(neighbor, end_point), neighbor)
-		return close_list
-	else:
-		printerr("坐标超界")
-		return [-1]
+
 
 func coord_path_to_actions(path: Array[Vector2i]) -> Array:
 	var path_action:Array = []

@@ -10,7 +10,8 @@ const PATTERN_KAMIKAZE := 2
 
 signal place_into_notfound()
 
-func _ready() -> void:
+func _init(_agent:ExpansionAgent) -> void:
+	agent=_agent
 	place_into_notfound.connect(self.on_place_not_found)
 	agent.general.general_find_city.connect(on_city_find)
 	pass
@@ -23,16 +24,19 @@ func enter() -> void:
 	while true:
 		#do while
 		is_vision_sufficient()
+		# print( Not_Found)
 		if Not_Found.is_empty():
 			break
 		else:
 			self.place_into_notfound.emit()
+			await agent.player_map.turn_updated
 	if !agent.Not_Occupy.is_empty():
 		state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.EMPTYCITY_OCCUPY)
 	else:
 		state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.EXPANSION_COMPLETE)
 
 func is_vision_sufficient() -> void:
+	var count=1
 	#添加可抵达城市（视野之外
 	var distance_map: Dictionary = {}
 	var visited: Dictionary = {}
@@ -44,6 +48,9 @@ func is_vision_sufficient() -> void:
 	visited[main_city] = true
 	# 开始BFS遍历
 	while not queue.is_empty():
+		if count>50:
+			return
+		count+=1
 		var current = queue.pop_front()  # 从队列头部取出
 		var current_distance = distance_map[current]
 		visited[current] = true
@@ -61,20 +68,24 @@ func is_vision_sufficient() -> void:
 					distance_map[neighbor] = current_distance + 1
 					# 将邻居加入队列
 					queue.append(neighbor)
+					visited[neighbor]=true
 
 func to_found_empty_city() -> void:
 	#FIXME 选择搜索方式，M2S搜索或者kamikaze搜索
 	while !Not_Found.is_empty():
 		var target_point = Not_Found.pop_front()
-		if !search_empty_city(target_point,2,20):
+		#HACK 需要一个外部信号调整estimated_demand
+		# print(target_point)
+		if !search_empty_city(target_point,1,20):
 			Not_Found.append(target_point)
+			await agent.player_map.turn_updated
 		#self.dynamic_kamikaze_search_Not_Found(main_city)
 	self.search_pattern = self.PATTERN_SLEEP
 
 func search_empty_city(target_point: Vector2i,jump_param: int,estimated_demand: int) -> bool:
 	self.search_pattern = self.PATTERN_M2S
 	#前往可抵达城市
-	var path_point: Array[Vector2i] = agent.player_map.build_Astar_path(self.agent.general.main_city,target_point)
+	var path_point: Array = agent.player_map.build_Astar_path(self.agent.general.main_city,target_point)
 	while !path_point.is_empty():
 		var path = agent.search_algorithm.M2S_Search(target_point,estimated_demand,3,1,20,20)
 		#HACK 待完成 参数设置
@@ -214,6 +225,7 @@ func on_city_find(cityid:int,citypos:Vector2i) -> void:
 func on_place_not_found() -> void:
 	#add to not found
 	#activate search pattern
+	# print("on_place_not_found")
 	if self.search_pattern == self.PATTERN_SLEEP:
 		to_found_empty_city()
 	else:

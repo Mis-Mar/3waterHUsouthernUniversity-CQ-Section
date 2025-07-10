@@ -115,6 +115,18 @@ func init_from_dict(init_data: Dictionary) -> void:
 
 # 结束——————————
 
+# state0: 排除山地,包含所有未知
+func get_neighbors_state0(center: Vector2i) -> Array[Vector2i]:
+	var neighbors: Array[Vector2i] = []
+	for dir in Global.HEX_DIRECTIONS:
+		var neighbor_coords: Vector2i = center + dir
+		if cell_map.has(neighbor_coords):
+			if get_cell(neighbor_coords).get_type() != Global.TERRAIN_MOUNTAIN:
+				neighbors.append(neighbor_coords)
+		elif invis_state_map.has(neighbor_coords):
+			neighbors.append(neighbor_coords)
+	return neighbors
+
 # state1: 对于已知排除山地、敌方节点、友军节点，排除所有未知 对象：general
 func get_neighbors_state1(center: Vector2i, general_id:int) -> Array[Vector2i]:
 	var neighbors: Array[Vector2i] = []
@@ -188,10 +200,18 @@ func get_neighbors_state6(center: Vector2i, general_id:int) -> Array[Vector2i]:
 			if cell.get_type() != Global.TERRAIN_MOUNTAIN and (cell.get_general_id() in general_id_to_player_id[player_id] or cell.get_general_id() == 0):
 				neighbors.append(neighbor_coords)
 	return neighbors
-	
+
+
+func get_distance_2coords(coord1: Vector2i, coord2: Vector2i) -> int:
+	if invis_state_map.has(coord1) and invis_state_map.has(coord2):
+		return max(abs(coord1.x - coord2.x), abs(coord1.y - coord2.y), abs((coord1.x-coord1.y) - (coord2.x-coord2.y)))
+	else:
+		# printerr("坐标超界")
+		return -1
+
 func build_Astar_path_in_general(start_point:Vector2i, end_point:Vector2i, general_id:int) -> Array:
 	#构建起点-终点最短A*路径，输出 起点……终点 list
-	if is_valid_coord(start_point) and is_valid_coord(end_point):
+	if invis_state_map.has(start_point) and invis_state_map.has(end_point):
 		var open_list: PriorityQueue=PriorityQueue.new()
 		var close_list: Array[Vector2i] = []
 		var distance: Dictionary = {}
@@ -204,6 +224,30 @@ func build_Astar_path_in_general(start_point:Vector2i, end_point:Vector2i, gener
 			if current not in close_list:
 				close_list.push_back(current)
 				var neighbors: Array[Vector2i] = self.get_neighbors_state3(current,general_id)
+				for neighbor: Vector2i in neighbors:
+					if neighbor not in close_list:
+						distance[neighbor] = distance[current] + 1
+						open_list.push(distance[neighbor]+get_distance_2coords(neighbor, end_point), neighbor)
+		return close_list
+	else:
+		printerr("坐标超界")
+		return [-1]
+
+func build_Astar_path(start_point:Vector2i, end_point:Vector2i) -> Array:
+	#构建起点-终点最短A*路径，输出 起点……终点 list
+	if invis_state_map.has(start_point) and invis_state_map.has(end_point):
+		var open_list: PriorityQueue=PriorityQueue.new()
+		var close_list: Array[Vector2i] = []
+		var distance: Dictionary = {}
+		
+		distance[start_point] = 0
+		open_list.push(distance[start_point] + get_distance_2coords(start_point, end_point), start_point)
+		
+		while not open_list.is_empty():
+			var current: Vector2i = open_list.pop()
+			if current not in close_list:
+				close_list.push_back(current)
+				var neighbors: Array[Vector2i] = self.get_neighbors_state0(current)
 				for neighbor: Vector2i in neighbors:
 					if neighbor not in close_list:
 						distance[neighbor] = distance[current] + 1

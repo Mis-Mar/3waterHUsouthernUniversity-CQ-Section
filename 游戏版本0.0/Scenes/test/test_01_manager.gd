@@ -5,7 +5,7 @@ extends Node
 @onready var camera_2d: Camera2D = $"../Camera2D"
 @onready var timer_turn: Timer = $"../Timers/Timer_turn"
 @onready var auto_turn_button: Button = $"../UI/AutoTurnButton"
-@onready var move_manager: Node = $MoveManager
+
 
 
 var fullmap=FullMap.new()

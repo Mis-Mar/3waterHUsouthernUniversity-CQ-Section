@@ -57,11 +57,10 @@ signal end_manual_concentrate()
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	path_add.connect(on_path_add)
-	general.general_occupy_cell.connect(block_updated_positive)
-	general.general_occupy_cell.connect(on_be_occupied_cell)
+	pass
 
 func _init(_main_city: Vector2i, _player_map: PlayerMap,_general:General_Entity) -> void:
+	
 	general=_general
 	self.player_id = general.player_id
 	self.main_city = _main_city
@@ -70,8 +69,11 @@ func _init(_main_city: Vector2i, _player_map: PlayerMap,_general:General_Entity)
 	algorithm_map = AlgorithmMap.new(self.player_map, general.general_id)
 	search_algorithm = M2S_SearchAlgorithm.new(self.algorithm_map)
 	for coord in player_map.cell_map:
-		distance_map[coord] = INF
+		distance_map[coord] = 1145141919
 		point_to_block[coord] = 0
+	path_add.connect(on_path_add)
+	general.general_occupy_cell.connect(block_updated_positive)
+	general.general_occupy_cell.connect(on_be_occupied_cell)
 
 func clear_path_list() -> void:
 	self.path_operations.clear()
@@ -228,9 +230,11 @@ func build_block(start_point: Vector2i) -> void:
 				edge_count_block[block_count] += 1
 
 func bfs_path_build() -> void:
+	var visited: Dictionary = {}
 	# 重置所有距离为无穷大
 	for coord in distance_map.keys():
-		distance_map[coord] = INF
+		distance_map[coord] = 1145141919
+		visited[coord]=false
 	# 初始化起点距离为0
 	distance_map[general.main_city] = 0
 	# 创建队列 (使用数组模拟队列)
@@ -238,16 +242,18 @@ func bfs_path_build() -> void:
 	# 开始BFS遍历
 	while not queue.is_empty():
 		var current = queue.pop_front()  # 从队列头部取出
+		visited[current]=true
 		var current_distance = distance_map[current]
 		# 获取所有邻居
 		var neighbors = player_map.get_neighbors_state1(current,general.general_id)
 		for neighbor in neighbors:
 			# 如果邻居尚未访问过 (距离为无穷大)
-			if distance_map[neighbor] == INF:
+			if  visited[neighbor] == false:
 				# 更新邻居距离
 				distance_map[neighbor] = current_distance + 1
 				# 将邻居加入队列
 				queue.append(neighbor)
+				visited[neighbor]=true
 
 func is_city_occupyed(ratio_param: float) -> bool:
 	self.current_state = self.STATE_CITY_DEFEND
@@ -317,7 +323,7 @@ func occupy_invaded_Cpoint() -> void:
 func is_city_path_reachable(ratio_param: float) -> bool:
 	self.current_state = self.STATE_CITY_ACHIEVE
 	for city_id in general.city_id_of_general:
-		if distance_map[player_map.city_id_to_position[city_id]] != INF:
+		if distance_map[player_map.city_id_to_position[city_id]] != 1145141919:
 			city_id_reachable.append(city_id)
 		else:
 			city_id_abandoned.append(city_id)
@@ -340,7 +346,7 @@ func connect_abandoned_city(city_id: int):
 func is_crucial_point_reachable(ratio_param: float) -> bool:
 	self.current_state = self.STATE_CPOINT_ACHIEVE
 	for crucial_point in general.crucial_point_list:
-		if distance_map[crucial_point] != INF:
+		if distance_map[crucial_point] != 1145141919:
 			crucial_point_reachable.append(crucial_point)
 		else:
 			crucial_point_abandoned.append(crucial_point)

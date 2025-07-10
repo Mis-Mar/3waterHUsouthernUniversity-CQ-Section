@@ -25,8 +25,6 @@ signal path_add(path_class: int, _path_operations: Array)
 
 func _ready() -> void:
 	pass
-	
-	
 
 func _init(_main_city: Vector2i, _player_map: PlayerMap,_general:General_Entity) -> void:
 	path_add.connect(on_path_add)

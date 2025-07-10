@@ -69,22 +69,28 @@ func get_distance(coord: Vector2i) -> int:
 
 func bfs_distance(start_node: Vector2i) -> void:
 	# 重置所有距离为无穷大
+	var visited: Dictionary = {}
 	for coord in distance_map.keys():
 		distance_map[coord] = INF
+		visited[coord]=false
 	# 初始化起点距离为0
 	distance_map[start_node] = 0
+	
 	# 创建队列 (使用数组模拟队列)
 	var queue: Array[Vector2i] = [start_node]
 	# 开始BFS遍历
 	while not queue.is_empty():
 		var current = queue.pop_front()  # 从队列头部取出
+		visited[current]=true
 		var current_distance = distance_map[current]
+		# print(current,distance_map[current])
 		# 获取所有邻居
 		var neighbors = self.get_neighbors_state0(current)
 		for neighbor in neighbors:
 			# 如果邻居尚未访问过 (距离为无穷大)
-			if distance_map[neighbor] == INF:
+			if  visited[neighbor]==false:
 				# 更新邻居距离
 				distance_map[neighbor] = current_distance + 1
 				# 将邻居加入队列
 				queue.append(neighbor)
+				visited[neighbor]=true

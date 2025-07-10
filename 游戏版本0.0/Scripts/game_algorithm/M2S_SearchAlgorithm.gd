@@ -137,16 +137,16 @@ func reverse_bfs(start_point: Vector2i, demand: int) -> bool:
 	var close_list: Array[Vector2i] = []
 	var accumulated_value: int = 0
 	var has_solution: bool = false
-
 	open_list.push(-final_influence_map[start_point], start_point)
 	
 	while not open_list.is_empty():
 		var current: Vector2i = open_list.pop()
-		print(current)
+		# print(current in close_list)
+		# print(current)
 		#TODO range_threshold参数使用方法
-		if current not in close_list and distance_map[current] <= range_threshold:
+		if (current not in close_list) and distance_map[current] <= range_threshold:
 			close_list.append(current)
-			
+			# print(close_list)
 			# print("current:")
 			# print(current)
 			# print("value:")
@@ -168,16 +168,20 @@ func reverse_bfs(start_point: Vector2i, demand: int) -> bool:
 				if accumulated_value > demand:
 					has_solution = true
 					break
-			
-			# print("neighbors:")
+
 			var neighbors: Array[Vector2i] = self.get_neighbors_state4(current,self.general_id)
+			# print(neighbors)
 			for neighbor: Vector2i in neighbors:
-				print(neighbor)
+				# 
 				if neighbor not in close_list:
+					# print(neighbor)
+					# print("distancemap[]",self.distance_map[neighbor])
 					if self.distance_map[neighbor] <= self.range_threshold:
+						
 						if not self.search_tree.get_node(str(neighbor)):
 							self.search_tree.add_node(str(neighbor), str(current), neighbor)
 							open_list.push(-final_influence_map[neighbor], neighbor)
+							# print("openlist",open_list)
 	
 	return has_solution
 
@@ -212,7 +216,7 @@ func postorder_traverse(node_id: String) -> void:
 		postorder_traverse(child.identifier)
 	var parent = self.search_tree.get_parent(node_id)
 	if parent:
-		self.path_operations.append([node_id, parent.identifier])
+		self.path_operations.append([search_tree.get_node(node_id).data, search_tree.get_node(parent.identifier).data])
 		
 # 输出接口
 func get_path_coords() -> Array[Vector2i]:

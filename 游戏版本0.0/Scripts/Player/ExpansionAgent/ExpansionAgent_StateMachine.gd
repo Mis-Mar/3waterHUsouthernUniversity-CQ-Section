@@ -17,9 +17,9 @@ func _init(_agent:ExpansionAgent) -> void:
 	agent=_agent
 	# 初始化所有状态
 	states = {} # 确保字典被初始化
-	states[ExpansionAgent_State.SEARCHING_EMPTYCITY] = State_SearchingEmptycity.new()
-	states[ExpansionAgent_State.EMPTYCITY_OCCUPY] = State_EmptycityOccupy.new()
-	states[ExpansionAgent_State.EXPANSION_COMPLETE] = State_ExpansionComplete.new()
+	states[ExpansionAgent_State.SEARCHING_EMPTYCITY] = State_SearchingEmptycity.new(agent)
+	states[ExpansionAgent_State.EMPTYCITY_OCCUPY] = State_EmptycityOccupy.new(agent)
+	states[ExpansionAgent_State.EXPANSION_COMPLETE] = State_ExpansionComplete.new(agent)
 	
 	# 设置状态机引用
 	for state in states.values():

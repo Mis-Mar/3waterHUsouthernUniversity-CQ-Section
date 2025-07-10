@@ -13,6 +13,8 @@ const HEX_DIRECTIONS := [# 六边形邻接向量
 	Vector2i(1, 0), Vector2i(0, -1), Vector2i(-1, -1),
 	Vector2i(-1, 0), Vector2i(0, 1), Vector2i(1, 1)
 ]
+
+
 # 地块信息相关  TERRAIN
 const TERRAIN_CAPITAL := 1   # 主城
 const TERRAIN_WATER := 2     # 水域

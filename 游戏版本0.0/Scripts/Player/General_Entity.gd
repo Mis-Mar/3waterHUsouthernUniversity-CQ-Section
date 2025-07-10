@@ -41,6 +41,14 @@ signal general_be_occupied_city(cityid:int,citypos:Vector2i,enemy_general_id:int
 
 
 func _ready() -> void:
+	pass
+
+func _init(_general_id: int,  _player_id: int, _player_map: PlayerMap) -> void:
+	self.general_id = _general_id
+	self.player_id = _player_id
+	self.player_map = _player_map
+	self.main_city = player_map.general_to_capital[self.general_id]
+	self.city_id_of_general = player_map.city_id_of_general[self.general_id]
 	agent_path_output.connect(on_path_add)
 	switch_to_Defence_pattern.connect(switch_to_Defence_agent)
 	switch_to_Expansion_pattern.connect(switch_to_Expansion_agent)
@@ -50,15 +58,6 @@ func _ready() -> void:
 	player_map.occupy_city.connect(on_occupy_city)
 	player_map.be_occupied_cell.connect(on_be_occupied_cell)
 	player_map.be_occupied_city.connect(on_be_occupied_city)
-	
-	_run()
-
-func _init(_general_id: int,  _player_id: int, _player_map: PlayerMap) -> void:
-	self.general_id = _general_id
-	self.player_id = _player_id
-	self.player_map = _player_map
-	self.main_city = player_map.general_to_capital[self.general_id]
-	self.city_id_of_general = player_map.city_id_of_general[self.general_id]
 	Expansion_agent = ExpansionAgent.new(main_city, player_map,self)
 	Expansion_agent.general = self
 	Defence_agent = DefenceAgent.new(main_city, player_map,self)

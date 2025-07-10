@@ -12,7 +12,8 @@ const STATE_ACT := 1
 #TODO 再check状态机切换？
 #TODO 强制停止：收到外部信号
 
-func _ready() -> void:
+func _init(_agent:ExpansionAgent) -> void:
+	agent=_agent
 	agent.general.general_occupy_city.connect(on_city_occupied)
 
 func enter() -> void:
