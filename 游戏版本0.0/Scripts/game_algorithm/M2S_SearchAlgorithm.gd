@@ -55,6 +55,9 @@ func M2S_Search(target_point: Vector2i, demand: int, _value_param: float, _dista
 	#前向BFS：计算所有节点的最终影响值
 	self.compute_final_influences(target_point)
 	#反向BFS：从目标点出发获取源点表、路径
+	#print("m2s info")
+	#for point in final_influence_map:
+		#print(point,final_influence_map[point])
 	if not self.reverse_bfs(target_point, demand):
 		return [-1]
 	else:
@@ -63,6 +66,7 @@ func M2S_Search(target_point: Vector2i, demand: int, _value_param: float, _dista
 		#后序遍历形成路径操作序列
 		self.postorder_traversal()
 		return path_operations
+	
 
 func reset() -> void:
 	influence_map.clear()
@@ -100,7 +104,7 @@ func calculate_influence(target_point: Vector2i) -> void:
 			self.propagate_influence(coord)
 		elif influence_map[coord] < 0 :
 			influence_map[coord] = -pow(influence_map[coord], 2) * self.value_param
-			final_influence_map[coord] += influence_map[coord]
+		final_influence_map[coord] += influence_map[coord]
 
 func value_preprocessing(target_point: Vector2i) -> void:
 	#预处理节点价值
@@ -111,24 +115,30 @@ func value_preprocessing(target_point: Vector2i) -> void:
 			influence_map[coord] = value_map[coord] - 1
 		
 func propagate_influence(start_point: Vector2i) -> void:
+	# print(start_point)
 	# 创建队列 (使用数组模拟队列)
 	var queue: Array = [[start_point, 0]]
 	var visited: Dictionary = {}
+	for point in invis_state_map:
+		visited[point]=false
 	# 开始BFS遍历
 	while not queue.is_empty():
 		var AR: Array = queue.pop_front()
 		var current: Vector2i = AR[0]  # 从队列头部取出
+		# print(current)
 		var dist: int = AR[1]
-		if not visited.has(current):
+		if not visited[current]:
 			# 获取所有邻居
 			visited[current] = true
 			var additional_influence: float = influence_map[start_point] / sqrt((1 + dist) * self.distance_param)
 			if additional_influence >= self.influence_threshold:
 				final_influence_map[current] += additional_influence
 				var neighbors: Array[Vector2i] = self.get_neighbors_state4(current, self.general_id)
+				# print(neighbors)
 				for neighbor: Vector2i in neighbors:
-					if not visited.has(current):
-							queue.append([neighbor, dist + 1])
+					if not visited[neighbor]:
+						# print(neighbor)
+						queue.append([neighbor, dist + 1])
 
 func reverse_bfs(start_point: Vector2i, demand: int) -> bool:
 	self.search_tree.create_root(str(start_point), start_point)

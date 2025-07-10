@@ -17,12 +17,13 @@ func _init(_agent:ExpansionAgent) -> void:
 	pass
 	
 func enter() -> void:
-	
 	super.enter()
 	Not_Found = agent.Not_Found
 	search_pattern = self.PATTERN_SLEEP
+	
 	while true:
 		#do while
+		print("while in")
 		is_vision_sufficient()
 		# print( Not_Found)
 		if Not_Found.is_empty():
@@ -72,12 +73,12 @@ func is_vision_sufficient() -> void:
 
 func to_found_empty_city() -> void:
 	#FIXME 选择搜索方式，M2S搜索或者kamikaze搜索
-	while !Not_Found.is_empty():
-		var target_point = Not_Found.pop_front()
+	for target_point in Not_Found:
 		#HACK 需要一个外部信号调整estimated_demand
-		# print(target_point)
+		print(target_point)
+		print(Not_Found)
 		if !search_empty_city(target_point,1,20):
-			Not_Found.append(target_point)
+			# Not_Found.append(target_point)
 			await agent.player_map.turn_updated
 		#self.dynamic_kamikaze_search_Not_Found(main_city)
 	self.search_pattern = self.PATTERN_SLEEP
@@ -233,4 +234,5 @@ func on_place_not_found() -> void:
 	
 func send_path(path_operations: Array) -> void:
 	agent.path_add.emit(0, path_operations)
+	print(path_operations)
 	pass
