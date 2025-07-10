@@ -27,6 +27,10 @@ func pop():
 func peek():
 	return null if is_empty() else _heap[0][1]
 
+# 返回最小元素的优先级（不弹出）
+func peek_priority():
+	return null if is_empty() else _heap[0][0]
+
 # 检查队列是否为空
 func is_empty() -> bool:
 	return _heap.is_empty()

@@ -47,8 +47,10 @@ var crucial_point_reachable : Array[Vector2i]
 var crucial_point_invaded : Array[Vector2i]
 var crucial_point_abandoned : Array[Vector2i]
 
-var path_operations: Array
-var path_class: int
+var path_operations: PriorityQueue
+var path_current_class: int = -1 #当前path_manager操作等级
+
+var is_path_manager_working: bool = false
 
 signal path_add(path_class: int, _path_operations: Array)
 signal end_manual_concentrate()
@@ -466,29 +468,28 @@ func move_power_to_nearest_city(start_point: Vector2i) -> void:
 	self.current_state = self.STATE_SLEEP
 
 func path_manager() -> void:
-	#HACK 待完成 改写这块
+	#两层循环，外层读取优先队列低优先级工作，内层逐步执行操作
+	self.is_path_manager_working = true
 	while !path_operations.is_empty():
-		var AY: Array = path_operations.front()
-		path_class = AY[0]
-		while !path_operations.is_empty():
-			AY = path_operations.front()
-			if path_class == AY[0]:
-				general.agent_path_output.emit(agent_tpye,AY[1])
-			else:
+		path_current_class = path_operations.peek_priority()
+		var insert_replace: bool = false
+		for path in path_operations.peek():
+			if path_current_class != path_operations.peek_priority():
+				insert_replace = true
 				break
-		pass
+			general.agent_path_output.emit(agent_tpye,path)
+			await player_map.turn_updated
+		if not insert_replace:
+			path_operations.pop()
+	self.is_path_manager_working = false
 
 func on_path_add(_path_class: int, _path_operations: Array) -> void:
-	#读入新操作，删除优先级为0的操作（空地占领
-	#HACK 待完成 改写这块
-	if(_path_class != 0):
-		for AR in path_operations:
-			if(AR[0] == 0):
-				path_operations.erase(AR)
-	for _path_operate in _path_operations:
-		var AY: Array = [_path_class,_path_operate]
-		self.path_operations.append_array(AY)
-	path_manager()
+	#读入新操作，删除正在进行的低优先级工作
+	if _path_class < path_current_class or path_current_class == -1:
+		path_operations.pop()
+	path_operations.push(_path_class,_path_operations)
+	if not is_path_manager_working:
+		path_manager()
 
 func on_be_occupied_cell(pos:Vector2i,_cell_info:CellInfo,enemy_general_id:int) -> void:
 	#敌方入侵控制全局中断操作,回滚工作流状态
