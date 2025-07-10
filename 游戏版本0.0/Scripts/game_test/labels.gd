@@ -84,7 +84,7 @@ func draw_arrow_label(tile_coords: Vector2i, direction_index: int) -> void:
 
 	var base_local_pos = main_layer.map_to_local(tile_coords)
 	var base_global_pos = main_layer.to_global(base_local_pos)
-	var base_screen_pos = get_viewport().get_final_transform() * base_global_pos
+	var base_screen_pos =get_viewport().get_final_transform() * base_global_pos
 
 	var offset: Vector2 = HEX_DIRECTION_OFFSETS[direction_index]
 	label.position = base_screen_pos + offset

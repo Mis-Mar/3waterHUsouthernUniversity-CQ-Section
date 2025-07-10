@@ -1,29 +1,149 @@
-[gd_scene load_steps=2 format=3 uid="uid://cpfdpdlfqwhj6"]
+[gd_scene load_steps=17 format=4 uid="uid://cpfdpdlfqwhj6"]
 
 [ext_resource type="Script" path="res://Scripts/game_multi/game_muti_prepare.gd" id="1_p6ehk"]
+[ext_resource type="Texture2D" uid="uid://bc4gcjaj7dea4" path="res://Asserts/Sprites/Grids/city0_Main.png" id="2_dtuxo"]
+[ext_resource type="Texture2D" uid="uid://p0p77jc1rift" path="res://Asserts/Sprites/Grid_group/citys.png" id="3_sks3u"]
+[ext_resource type="Texture2D" uid="uid://bbc0r6muohce6" path="res://Asserts/Sprites/Grid_group/grounds.png" id="4_85q0q"]
+[ext_resource type="Texture2D" uid="uid://p675u1wfdbqd" path="res://Asserts/Sprites/Grid_group/more.png" id="5_gmpkc"]
+[ext_resource type="Texture2D" uid="uid://b3fkiv6seg2n7" path="res://Asserts/Sprites/Grid_group/mountains.png" id="6_cegrs"]
+[ext_resource type="Texture2D" uid="uid://b0s5mnndejhul" path="res://Asserts/Sprites/Grid_group/waters.png" id="7_v5h3s"]
+[ext_resource type="Script" path="res://Scenes/items/menu_camera.gd" id="8_2l1xq"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_8ksim"]
+texture = ExtResource("2_dtuxo")
+texture_region_size = Vector2i(932, 810)
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_qtdgu"]
+texture = ExtResource("3_sks3u")
+texture_region_size = Vector2i(932, 810)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+5:0/0 = 0
+6:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_jy1wj"]
+texture = ExtResource("4_85q0q")
+texture_region_size = Vector2i(932, 810)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+5:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_h0lt5"]
+texture = ExtResource("5_gmpkc")
+texture_region_size = Vector2i(932, 810)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+2:1/0 = 0
+3:1/0 = 0
+4:1/0 = 0
+0:2/0 = 0
+1:2/0 = 0
+2:2/0 = 0
+3:2/0 = 0
+4:2/0 = 0
+0:3/0 = 0
+1:3/0 = 0
+2:3/0 = 0
+3:3/0 = 0
+4:3/0 = 0
+0:4/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_wpc8v"]
+texture = ExtResource("6_cegrs")
+texture_region_size = Vector2i(932, 810)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+4:0/0/texture_origin = Vector2i(-47, -1)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_tky3b"]
+texture = ExtResource("7_v5h3s")
+texture_region_size = Vector2i(932, 810)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+5:0/0 = 0
+6:0/0 = 0
+7:0/0 = 0
+8:0/0 = 0
+9:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_irmye"]
+tile_shape = 3
+tile_layout = 5
+tile_offset_axis = 1
+tile_size = Vector2i(477, 413)
+sources/0 = SubResource("TileSetAtlasSource_8ksim")
+sources/15 = SubResource("TileSetAtlasSource_qtdgu")
+sources/22 = SubResource("TileSetAtlasSource_jy1wj")
+sources/38 = SubResource("TileSetAtlasSource_tky3b")
+sources/27 = SubResource("TileSetAtlasSource_wpc8v")
+sources/25 = SubResource("TileSetAtlasSource_h0lt5")
+tile_proxies/coords_level = [[1, Vector2i(0, 0)], [2, Vector2i(0, 0)], [2, Vector2i(0, 0)], [25, Vector2i(0, 0)], [3, Vector2i(0, 0)], [25, Vector2i(1, 0)], [4, Vector2i(0, 0)], [25, Vector2i(2, 0)], [5, Vector2i(0, 0)], [25, Vector2i(3, 0)], [6, Vector2i(0, 0)], [25, Vector2i(4, 0)], [7, Vector2i(0, 0)], [25, Vector2i(0, 1)], [8, Vector2i(0, 0)], [25, Vector2i(1, 1)], [9, Vector2i(0, 0)], [25, Vector2i(2, 1)], [10, Vector2i(0, 0)], [25, Vector2i(3, 1)], [11, Vector2i(0, 0)], [25, Vector2i(4, 1)], [12, Vector2i(0, 0)], [25, Vector2i(0, 2)], [13, Vector2i(0, 0)], [25, Vector2i(1, 2)], [14, Vector2i(0, 0)], [25, Vector2i(2, 2)], [16, Vector2i(0, 0)], [25, Vector2i(3, 2)], [17, Vector2i(0, 0)], [25, Vector2i(4, 2)], [18, Vector2i(0, 0)], [25, Vector2i(0, 3)], [19, Vector2i(0, 0)], [25, Vector2i(1, 3)], [20, Vector2i(0, 0)], [25, Vector2i(2, 3)], [21, Vector2i(0, 0)], [25, Vector2i(3, 3)], [23, Vector2i(0, 0)], [25, Vector2i(4, 3)], [24, Vector2i(0, 0)], [25, Vector2i(0, 4)], [25, Vector2i(0, 0)], [27, Vector2i(2, 0)], [26, Vector2i(0, 0)], [27, Vector2i(3, 0)], [27, Vector2i(0, 0)], [2, Vector2i(1, 0)], [27, Vector2i(1, 0)], [2, Vector2i(2, 0)], [27, Vector2i(2, 0)], [2, Vector2i(3, 0)], [27, Vector2i(3, 0)], [2, Vector2i(4, 0)], [28, Vector2i(0, 0)], [38, Vector2i(0, 0)], [29, Vector2i(0, 0)], [38, Vector2i(1, 0)], [30, Vector2i(0, 0)], [38, Vector2i(2, 0)], [31, Vector2i(0, 0)], [38, Vector2i(3, 0)], [32, Vector2i(0, 0)], [38, Vector2i(4, 0)], [33, Vector2i(0, 0)], [38, Vector2i(5, 0)], [34, Vector2i(0, 0)], [38, Vector2i(6, 0)], [35, Vector2i(0, 0)], [38, Vector2i(7, 0)], [36, Vector2i(0, 0)], [38, Vector2i(8, 0)], [37, Vector2i(0, 0)], [38, Vector2i(9, 0)]]
+
+[sub_resource type="GDScript" id="GDScript_t7xdt"]
+script/source = "extends CanvasLayer
+"
 
 [node name="game_multi_prepare" type="Node2D"]
 position = Vector2(44, 33)
 script = ExtResource("1_p6ehk")
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="MainLayer" type="TileMapLayer" parent="."]
+z_index = -2
+position = Vector2(5, 96)
+tile_map_data = PackedByteArray("AAD9/wQAGwAAAAAAAAD8/wUAGwACAAAAAAD8/wQAGwADAAAAAAD7/wMAGwAEAAAAAAD9/wIAAAAAAAAAAAD8/wEADwABAAAAAAD//wUADwABAAAAAAAAAAMADwADAAAAAAD8/wMADwAFAAAAAAD8/wIAFgADAAAAAAD7/wIAGQABAAIAAAD7/wEAGQAAAAMAAAD9/wMAFgAAAAAAAAD+/wQAJgAHAAAAAAD+/wUAJgAHAAAAAAD+/wMAFgAAAAAAAAD+/wIAGQAEAAIAAAD9/wEAFgAAAAAAAAD5/wAAGwACAAAAAAD6/wEAGwAAAAAAAAD5/wEAGwACAAAAAAD6/wMAGwACAAAAAAD7/wQAGwACAAAAAAD5/wIAGwACAAAAAAD6/wIAGQAAAAIAAAD9/wUAFgAEAAAAAAD//wYAFgAEAAAAAAD+/wYAJgAHAAAAAAD//wMAJgAHAAAAAAD9/wYAGwACAAAAAAD+/wcAGwACAAAAAAD//wcAGwAEAAAAAAD//wgAGwACAAAAAAAAAAcAGwAAAAAAAAAAAAYAGQAEAAIAAAABAAYAGQAAAAMAAAAAAAUAFgAFAAAAAAD//wQAJgAHAAAAAAAAAAQAFgAAAAAAAAABAAUAFgAAAAAAAAACAAYAFgABAAAAAAACAAUAFgAAAAAAAAABAAQAFgAAAAAAAAACAAQAFgAAAAAAAAD4/wAAGQADAAMAAAD4/wEAGQABAAMAAAD4////GwAEAAAAAAD5////GwACAAAAAAD6/wAAGQAEAAIAAAD3////GQACAAIAAAD7/wAAFgAAAAAAAAD8/wAAFgAAAAAAAAD9/wAAFgAAAAAAAAD+/wEAFgABAAAAAAD//wIAJgAHAAAAAAAAAAIAJgAHAAAAAAABAAMAFgAAAAAAAAACAAMAFgAAAAAAAAADAAQAFgAAAAAAAAD4//7/GwABAAAAAAD5//7/GwACAAAAAAD6////GwAAAAAAAAD6//7/GwAEAAAAAAD7////GQABAAIAAAD8////FgAAAAAAAAD9////FgAAAAAAAAD+/wAAFgAAAAAAAAD//wEAFgAAAAAAAAAAAAEAJgAHAAAAAAABAAIAFgAAAAAAAAACAAIAFgABAAAAAAADAAMAFgAAAAAAAAAEAAQAFgAAAAAAAAD6//3/JgAAAAAAAAD7//7/JgAAAAAAAAD7//3/JgAAAAAAAAD8//7/JgACAAAAAAD9//7/JgAAAAAAAAD+////JgAAAAAAAAD//wAAJgADAAAAAAAAAAAAJgAAAAAAAAABAAEAJgACAAAAAAD8//3/JgAAAAAAAAD3/wAAGQADAAIAAAD3//7/GwABAAAAAAABAP//JgAHAAAAAAAEAAAAJgAHAAAAAAD///z/JgAHAAAAAAACAPz/JgACAAAAAAD///7/JgACAAAAAAAAAP7/JgAHAAAAAAAAAP//JgAEAAAAAAD/////JgAEAAAAAAD+//7/JgAEAAAAAAD///3/JgAHAAAAAAD+//3/JgAEAAAAAAD9//3/JgAAAAAAAAD///r/JgAHAAAAAAACAP7/JgAEAAAAAAACAP//JgAHAAAAAAABAAAAJgAEAAAAAAACAAEAJgAEAAAAAAAEAAEAJgAEAAAAAAACAAAAJgAGAAAAAAADAAIAJgAAAAAAAAADAAEAJgAAAAAAAAAEAAMAJgAGAAAAAAAEAAIAJgAGAAAAAAAFAAIAJgAHAAAAAAADAAAAJgAHAAAAAAADAP//JgAHAAAAAAAFAAEAJgAHAAAAAAABAP7/JgAIAAAAAAAAAP3/JgAHAAAAAAAAAPz/JgAGAAAAAAABAP3/JgAHAAAAAAABAPz/JgAGAAAAAAAAAPv/JgABAAAAAAACAP3/JgAAAAAAAAADAP7/JgAHAAAAAAAEAP7/JgAAAAAAAAAFAP//JgAAAAAAAAAGAAAAJgAHAAAAAAAEAP//JgAIAAAAAAAFAAAAJgAIAAAAAAAGAAEAJgAHAAAAAAADAP3/JgABAAAAAAAHAAAAJgAHAAAAAAAGAP//JgAHAAAAAAAFAP7/JgAHAAAAAAAEAP3/JgAAAAAAAAADAPz/JgAAAAAAAAACAPv/JgAEAAAAAAABAPv/JgAJAAAAAAD8//z/JgAHAAAAAAD9//z/JgAEAAAAAAD+//v/JgAHAAAAAAD+//z/JgAHAAAAAAD///v/JgAAAAAAAAD9//v/JgAHAAAAAAD7//z/JgAEAAAAAAD8//v/JgAAAAAAAAD9//r/JgAIAAAAAAD+//r/JgAHAAAAAAD+//n/JgAHAAAAAAD///n/JgAEAAAAAAAAAPr/JgAAAAAAAAAAAPn/JgAEAAAAAAABAPr/JgAHAAAAAAD///j/JgAAAAAAAAABAAcADwAEAAAAAAADAAUADwAGAAAAAAADAAcADwAGAAAAAAAEAAUADwAAAAAAAAD5//3/GwAEAAAAAAD5//z/GwADAAAAAAD4//z/GwADAAAAAAACAAcAGQAAAAMAAAADAAgAGQABAAIAAAAEAAcAGQAAAAMAAAADAAYAGQAAAAMAAAAEAAYAFgAAAAAAAAAFAAUAJgAAAAAAAAAFAAQAJgAAAAAAAAAAAAgAGQAAAAIAAAABAAgAGQAEAAIAAAACAAgAGQAAAAIAAAACAAkAGQAAAAIAAAABAAkAGQAAAAIAAAADAAkAGQAAAAIAAAAEAAkAGQAAAAIAAAAEAAgAGQABAAIAAAAFAAgAGQAAAAMAAAAFAAcAGQAAAAMAAAAFAAYAFgAAAAAAAAAGAAYAJgAAAAAAAAD6/wQAGwABAAAAAAD9/wcAGwABAAAAAAD4//3/GwAEAAAAAAD3//3/GwACAAAAAAD3//z/GwAEAAAAAAD4/wIAGQAEAAMAAAD5/wMAGQAEAAMAAAD3/wEAGQADAAIAAAD4//v/GwAEAAAAAAD3//v/GwAEAAAAAAD2/wAAGQADAAIAAAD2////GQADAAIAAAD2//7/GQADAAIAAAD6//z/JgAAAAAAAAD5//v/JgAAAAAAAAD6//v/JgAAAAAAAAD6//r/JgAHAAAAAAD7//v/JgAIAAAAAAD5//r/JgAAAAAAAAAFAAMAJgAHAAAAAAAGAAQAJgAJAAAAAAAGAAUAJgAAAAAAAAAGAAIAJgAHAAAAAAAGAAMAJgAHAAAAAAAHAAQAJgAHAAAAAAAHAAUAJgAJAAAAAAAHAAYAJgAAAAAAAAAHAAMAJgAHAAAAAAAIAAMAJgAHAAAAAAAIAAIAJgAHAAAAAAAHAAEAJgAHAAAAAAAHAAIAJgAHAAAAAAAIAAQAJgAAAAAAAAAIAAUAJgAIAAAAAAAJAAQAJgAAAAAAAAAJAAMAJgAAAAAAAAAJAAIAJgAIAAAAAAAIAAEAJgAAAAAAAAAKAAIAJgAHAAAAAAAJAAEAJgAHAAAAAAAJAAAAJgAHAAAAAAAIAAAAJgAHAAAAAAAHAP//JgAHAAAAAAAGAP7/JgAHAAAAAAAFAP3/JgAHAAAAAAAEAPz/JgAAAAAAAAAEAPv/JgAHAAAAAAADAPv/JgAHAAAAAAADAPr/JgAHAAAAAAACAPr/JgAAAAAAAAACAPn/JgAHAAAAAAABAPj/JgAJAAAAAAAAAPf/JgAAAAAAAAAAAPj/JgAHAAAAAAABAPn/JgAHAAAAAAAIAP//JgAHAAAAAAAHAP7/JgAHAAAAAAAGAP3/JgAHAAAAAAAFAPz/JgAHAAAAAAD7//r/JgAHAAAAAAD8//r/JgAAAAAAAAD8//n/JgAAAAAAAAD9//n/JgAIAAAAAAD8//j/JgAAAAAAAAD7//n/JgAHAAAAAAD6//n/JgAHAAAAAAD7//j/JgAHAAAAAAD9//j/JgAHAAAAAAD+//j/JgABAAAAAAD+//f/JgAAAAAAAAD+//b/JgAHAAAAAAD9//b/JgAAAAAAAAD9//f/JgAJAAAAAAD8//f/JgAHAAAAAAD7//f/JgAHAAAAAAD6//j/JgAHAAAAAAD5//j/JgAAAAAAAAD5//n/JgAHAAAAAAD6//f/JgAHAAAAAAD7//b/JgAHAAAAAAD8//b/JgAIAAAAAAD+//X/JgAIAAAAAAD///b/JgAHAAAAAAD///f/JgAHAAAAAAAEAPr/JgAAAAAAAAAFAPv/JgAHAAAAAAAGAAcAGQABAAIAAAAGAAgAGQABAAIAAAAHAAgAGQABAAIAAAAHAAcAGQABAAIAAAD7/wUAGwACAAAAAAD8/wYAGwACAAAAAAD+/wgAGwACAAAAAAD//wkAGwACAAAAAAAAAAkAGwACAAAAAAABAAoAGwACAAAAAAACAAoAGwACAAAAAAD8/wcAGwACAAAAAAD9/wgAGwACAAAAAAD7/wYAGQACAAMAAAD5/wQAGQACAAMAAAD6/wUAGQAEAAMAAAD5/wUAGQACAAMAAAD6/wYAGQACAAMAAAD7/wgAGQACAAMAAAD8/wkAGQAEAAMAAAD7/wcAGQACAAMAAAD8/wgAGQAEAAMAAAD9/wkAGQACAAMAAAD+/wkAGQAEAAMAAAD//woAGQACAAMAAAABAAsAGQACAAMAAAD6/wcAGQADAAIAAAD4/wQAGQADAAMAAAD4/wMAGQADAAMAAAD5/wYAGQADAAIAAAD+/woAGQADAAMAAAD//wsAGQADAAMAAAAAAAoAGQADAAMAAAAAAAsAGQADAAMAAAD2/wIAGQADAAIAAAD1/wAAGQADAAIAAAD2/wEAGQADAAIAAAD3/wIAGQADAAIAAAD1/wIAGQADAAIAAAD2/wMAGQADAAIAAAD3/wQAGQADAAIAAAD4/wUAGQADAAIAAAD3/wMAGQADAAIAAAD1/wEAGQADAAIAAAD0/wEAGQADAAIAAAD0/wAAGQADAAIAAAD9/woAGQABAAMAAAD+/wsAGQABAAMAAAD//wwAGQABAAMAAAAKAAAAJgAHAAAAAAAKAP//JgAAAAAAAAAJAP//JgAHAAAAAAAJAP7/JgAAAAAAAAAIAP3/JgAEAAAAAAAHAPz/JgACAAAAAAAGAPz/JgAEAAAAAAAGAPv/JgACAAAAAAAFAPr/JgAHAAAAAAAEAPn/JgAIAAAAAAADAPn/JgAHAAAAAAACAPj/JgACAAAAAAABAPf/JgACAAAAAAAAAPb/JgAAAAAAAAD///X/JgAAAAAAAAD///T/JgAIAAAAAAAAAPX/JgAAAAAAAAABAPb/JgAEAAAAAAACAPf/JgAIAAAAAAADAPj/JgAIAAAAAAAHAP3/JgACAAAAAAAIAP7/JgACAAAAAAAKAP7/JgAAAAAAAAAJAP3/JgAAAAAAAAAIAPz/JgAEAAAAAAAHAPv/JgAAAAAAAAAGAPr/JgAAAAAAAAAFAPn/JgAEAAAAAAAEAPj/JgAEAAAAAAADAPf/JgAAAAAAAAACAPb/JgAEAAAAAAABAPX/JgAEAAAAAAAAAPT/JgAAAAAAAAD4//n/JgAIAAAAAAD4//r/JgAIAAAAAAD3//r/JgAIAAAAAAD3//n/JgAIAAAAAAD9//T/JgAIAAAAAAD8//X/JgAIAAAAAAD9//X/JgAIAAAAAAD+//T/JgAIAAAAAAAKAAMAJgAIAAAAAAALAAIAJgAIAAAAAAALAAEAJgAHAAAAAAALAAAAJgAHAAAAAAAMAAEAJgAIAAAAAAAKAAEAJgAHAAAAAAALAP//JgAHAAAAAAD1////GQACAAMAAAD1//7/GQADAAMAAAD0//7/GQADAAMAAAD0////GQACAAMAAADz//7/GQACAAMAAAD0//3/GQADAAMAAAD1//3/GQACAAMAAAD1//z/GwAEAAAAAAD2//3/GwACAAAAAAD2//z/GQAAAAIAAAD2//v/GQAEAAIAAAD0//z/GQADAAMAAADz////GQADAAMAAADz/wAAGQADAAMAAADy////GQADAAMAAADy//7/GQADAAMAAADz//3/GQADAAMAAADz//z/GQADAAMAAAD1//v/GQAAAAIAAAD2//r/GQAEAAIAAAD0//v/GwACAAAAAAD1//r/GQAEAAIAAAD2//n/GQAEAAIAAAD1//n/GQAEAAIAAAA=")
+tile_set = SubResource("TileSet_irmye")
+
+[node name="menu_Camera" type="Camera2D" parent="."]
+position = Vector2(7, 96)
+zoom = Vector2(0.25, 0.25)
+script = ExtResource("8_2l1xq")
 
 [node name="UI" type="CanvasLayer" parent="."]
+script = SubResource("GDScript_t7xdt")
 
 [node name="create_button" type="Button" parent="UI"]
-offset_left = 51.0
-offset_top = 129.0
-offset_right = 252.0
-offset_bottom = 208.0
-text = "创建房间"
+anchors_preset = -1
+anchor_left = -0.0121528
+anchor_top = 0.0154321
+anchor_right = -0.0121528
+anchor_bottom = 0.0246914
+offset_left = 441.0
+offset_top = 529.0
+offset_right = 738.0
+offset_bottom = 608.0
+theme_override_font_sizes/font_size = 50
+text = "Create room"
 metadata/_edit_use_anchors_ = true
 
 [node name="join_button" type="Button" parent="UI"]
-offset_left = 52.0
-offset_top = 42.0
-offset_right = 253.0
-offset_bottom = 116.0
-text = "加入房间"
+anchors_preset = -1
+anchor_left = -0.0251736
+anchor_right = -0.0251736
+anchor_bottom = 0.0185185
+offset_left = 40.0
+offset_top = 31.0
+offset_right = 309.0
+offset_bottom = 105.0
+theme_override_font_sizes/font_size = 50
+text = "Join Room"
 metadata/_edit_use_anchors_ = true
 
 [node name="Panel" type="Panel" parent="UI"]
@@ -35,18 +155,30 @@ offset_bottom = 394.0
 
 [node name="ip_line_edit" type="LineEdit" parent="UI"]
 anchors_preset = -1
+anchor_left = 0.184896
 anchor_top = -0.00925926
-anchor_bottom = -0.00925926
-offset_left = 268.0
-offset_top = 41.0
-offset_right = 1093.0
-offset_bottom = 121.0
+anchor_right = 0.196181
+anchor_bottom = -0.0015432
+offset_left = 76.0
+offset_top = 36.0
+offset_right = 901.0
+offset_bottom = 116.0
+theme_override_font_sizes/font_size = 50
 text = "127.0.0.1"
 metadata/_edit_use_anchors_ = true
 
 [node name="connect_timeout_timer" type="Timer" parent="UI"]
 wait_time = 0.5
 
+[node name="leave_button" type="Button" parent="UI"]
+offset_left = 44.0
+offset_top = 542.0
+offset_right = 152.0
+offset_bottom = 627.0
+theme_override_font_sizes/font_size = 50
+text = "back"
+
 [connection signal="pressed" from="UI/create_button" to="." method="_on_create_button_pressed"]
 [connection signal="pressed" from="UI/join_button" to="." method="_on_join_button_pressed"]
 [connection signal="timeout" from="UI/connect_timeout_timer" to="." method="_on_connect_timeout_timer_timeout"]
+[connection signal="pressed" from="UI/leave_button" to="." method="_on_leave_button_pressed"]

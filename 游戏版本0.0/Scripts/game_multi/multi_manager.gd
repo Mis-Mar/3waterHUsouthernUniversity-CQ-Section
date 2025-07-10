@@ -5,11 +5,12 @@ extends Node
 @onready var camera_2d: Camera2D = $"../Camera2D"
 @onready var timer_turn: Timer = $"../Timers/Timer_turn"
 @onready var move_manager: Node = $"../MoveManager"
+@onready var turn_count_label: Label = $"../UI/turn_count_label"
 
 var fullmap:=FullMap.new()
 var playermap:=PlayerMap.new()
 # server的函数
-var player_id=1
+var player_id=2
 # 网络id到player_id的映射表（playerid是从1自增的）
 var rpc_id_to_player_id: Dictionary = {}  
 # 玩家id到网络id的映射表（player_id → peer_id）
@@ -40,16 +41,18 @@ func start()->void:
 		_init_peer_player_maps()
 		# 初始化fullmap
 		fullmap=map.curr_map_to_fullmap()
-		
 		for _player_id in player_id_to_rpc_id:
 			rpc_init_playermap.rpc_id(player_id_to_rpc_id[_player_id],fullmap.export_init_data_for_player(_player_id))
-	# 激活移动脚本
-	print("激活移动脚本")
 	
-	move_manager.load_action.connect(rpc_load_action)
-	move_manager.activate(playermap)
+	# 连接信号
+	player_id=playermap.player_id
+	playermap.game_lose.connect(_on_game_lose)
+	playermap.game_win.connect(_on_game_win)
 	# 双方等待初始化完成
 	await get_tree().create_timer(0.5).timeout
+	# 激活移动脚本
+	move_manager.load_action.connect(upload_action)
+	move_manager.activate(playermap)
 	# 初始化完成，服务端开启计时器，游戏开始
 	if multiplayer.is_server():
 		timer_turn.start()
@@ -57,6 +60,8 @@ func start()->void:
 	# 初始化显示
 	map. display_playermap_fog(playermap)
 	map. display_playermap(playermap)
+	display_turn_count(playermap.turn_count)
+	center_camera_on_capital(playermap, map.main_layer, camera_2d)
 		
 	# 显示playermap
 
@@ -96,12 +101,23 @@ func _on_timer_turn_timeout() -> void:
 		rpc_update_playermap.rpc_id(player_id_to_rpc_id[_player_id],fullmap.export_player_delta(_player_id),fullmap.export_general_id_to_player_id())
 	fullmap.acted_coords.clear()
 	pass # Replace with function body.
-
+# 玩家胜利
+func _on_game_lose() -> void:
+	if !is_server:
+		get_tree().change_scene_to_file("res://Scenes/game_multi/lose.tscn")
+		pass
+# 玩家失败
+func _on_game_win() -> void:
+	await get_tree().create_timer(0.1).timeout
+	get_tree().change_scene_to_file("res://Scenes/game_multi/win.tscn")
+	pass
 # 结束——————————
 
 
 
 # ——————————rpc函数,双方都要有
+func upload_action(from_coords: Vector2i, direction_index: int, ratio: float)->void:
+	rpc_load_action.rpc_id(1,from_coords , direction_index , ratio )
 
 # server/client接受到更新信号
 @rpc("any_peer", "call_local")
@@ -113,6 +129,7 @@ func rpc_load_action(from_coords: Vector2i, direction_index: int, ratio: float)-
 func rpc_update_playermap(delta_cell: Dictionary,delta_general_id_to_player_id: Dictionary)->void:
 	playermap.update_player_map(delta_cell, delta_general_id_to_player_id)
 	map.display_playermap(playermap)
+	display_turn_count(playermap.turn_count)
 # server接受操作信号
 
 # server/client接受初始化函数
@@ -124,8 +141,21 @@ func rpc_init_playermap(init_data: Dictionary)->void:
 # 结束——————————
 
 # ——————————低级辅助函数
+# 开局时的摄像头居中首都
+func center_camera_on_capital(playermap: PlayerMap, main_layer: TileMapLayer, camera_2d: Camera2D) -> void:
+	if not playermap.general_to_capital.has(playermap.player_id):
+		push_warning("未找到玩家的首都坐标")
+		return
 
-# 
+	var capital_tile_coords: Vector2i = playermap.general_to_capital[playermap.player_id]
+	var capital_world_pos: Vector2 = main_layer.map_to_local(capital_tile_coords)
+	camera_2d.global_position = capital_world_pos
+# 显示回合数
+func display_turn_count(turn_count: int) -> void:
+	var text := "Turn %d" % int(turn_count / 2)
+	if turn_count % 2 != 0:
+		text += "."
+	turn_count_label.text = text
 
 # 初始化playerid和rpcid的双向表
 func _init_peer_player_maps() -> void:

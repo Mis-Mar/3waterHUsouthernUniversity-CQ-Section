@@ -13,11 +13,16 @@ config_version=5
 config/name="游戏版本0.0"
 run/main_scene="res://Scenes/game_multi/prepare.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
+boot_splash/bg_color=Color(0, 0, 0, 1)
 config/icon="res://icon.svg"
 
 [autoload]
 
 Global="*res://Scripts/DataStructure/Global.gd"
+
+[display]
+
+window/size/resizable=false
 
 [editor_plugins]
 
@@ -35,3 +40,7 @@ ui_accept={
 , Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":4194310,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
 ]
 }
+
+[rendering]
+
+viewport/transparent_background=true

@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://bbe66883wpdjc" path="res://Asserts/Sprites/Grids/Hex - Base (blank).png" id="7_dyd7c"]
 [ext_resource type="Script" path="res://Scripts/game_test/labels.gd" id="8_di2sg"]
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_yhjs0"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_i0qbe"]
 texture = ExtResource("7_dyd7c")
 texture_region_size = Vector2i(932, 810)
 0:0/next_alternative_id = 12
@@ -38,7 +38,7 @@ tile_shape = 3
 tile_layout = 5
 tile_offset_axis = 1
 tile_size = Vector2i(477, 413)
-sources/0 = SubResource("TileSetAtlasSource_yhjs0")
+sources/0 = SubResource("TileSetAtlasSource_i0qbe")
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_m4eum"]
 texture = ExtResource("7_dyd7c")

@@ -49,7 +49,10 @@ signal enemy_update_cell(pos:Vector2i,_cell_info:CellInfo,pre_general_id:int,gen
 # 视野损失，已完成
 signal lost_vision(pos:Vector2i,_cellinfo:CellInfo)
 
-
+# 游戏胜利
+signal game_lose()
+# 游戏失败
+signal game_win()
 
 # ——————————初始化
 # 通过fullmap player_id初始化，测试用
@@ -85,6 +88,7 @@ func init_from_fullmap(fullmap: FullMap, _player_id: int):
 # 通过服务器fullmap导出的data来初始化
 func init_from_dict(init_data: Dictionary) -> void:
 	player_id=init_data.get("player_id", 0)
+	print("初始化player——id",player_id)
 	turn_count = init_data.get("turn_count", 0)
 	general_id_to_player_id = init_data.get("general_id_to_player_id", {}).duplicate()
 	invis_state_map.clear()
@@ -200,18 +204,21 @@ func update_cell_from_delta(delta: Dictionary) -> void:
 		var coord = parse_vector2i(key)
 		var cell_info = CellInfo.from_dict(delta["newly_visible"][key])
 		cell_map[coord] = cell_info
+		
+		# 更新id到position等，那几个表,这个要先做
+		invis_state_map[coord]=cell_info.get_type()
+		if cell_info.get_type()==Global.TERRAIN_CAPITAL:
+			add_capital(cell_info.get_general_id(),coord)
+		elif cell_info.get_type()==Global.TERRAIN_CITY:
+			add_or_update_city(coord,cell_info.get_general_id())
+
 		# 新看见个格子是自己的，只有一种情况：占领了general，视野大幅拓展
 		if get_cell_player(cell_info)==player_id:
 			signal_manager_occupy(coord,cell_info,cell_info.get_general_id())
 		# 发现敌人格子
 		elif get_cell_player(cell_info)!=0:
 			emit_signal("enemy_find", coord,cell_info,get_cell_player(cell_info))
-		# 更新id到position等，那几个表
-		invis_state_map[coord]=cell_info.get_type()
-		if cell_info.get_type()==Global.TERRAIN_CAPITAL:
-			add_capital(cell_info.get_general_id(),coord)
-		elif cell_info.get_type()==Global.TERRAIN_CITY:
-			add_or_update_city(coord,cell_info.get_general_id())
+
 		# 发信号-新看见格子
 		emit_signal("tile_newly_visible", coord)
 		
@@ -232,6 +239,12 @@ func update_cell_from_delta(delta: Dictionary) -> void:
 			var pre_cell_info=cell_map[coord]
 			cell_map[coord] = cell_info
 			cell_map[coord].set_dirty_flag()
+			# 更新id到position等，那几个表
+			invis_state_map[coord]=cell_info.get_type()
+			if cell_info.get_type()==Global.TERRAIN_CAPITAL:
+				add_capital(cell_info.get_general_id(),coord)
+			elif cell_info.get_type()==Global.TERRAIN_CITY:
+				add_or_update_city(coord,cell_info.get_general_id())
 			# 对比更新前后的cellinfo判断占领和被占领信号待完成
 			if get_cell_player(cell_info)!=get_cell_player(pre_cell_info):
 				# 占领格子
@@ -243,33 +256,52 @@ func update_cell_from_delta(delta: Dictionary) -> void:
 				# 视野内敌人占领敌人
 				else:
 					emit_signal("enemy_update_cell", coord,cell_info,pre_cell_info.get_general_id(),cell_info.get_general_id())
-			# 更新id到position等，那几个表
-			invis_state_map[coord]=cell_info.get_type()
-			if cell_info.get_type()==Global.TERRAIN_CAPITAL:
-				add_capital(cell_info.get_general_id(),coord)
-			elif cell_info.get_type()==Global.TERRAIN_CITY:
-				add_or_update_city(coord,cell_info.get_general_id())
-			# 发信号
+			# 发cell更新信号
 			emit_signal("tile_updated", coord)
 
-# 更新（复制）general_id_to_player_id
+# 更新（复制）general_id_to_player_id，同时进行胜利失败判定
 func import_general_id_to_player_id(data: Dictionary) -> void:
+	var lost_general_ids: Array[int] = []
+	var captured_enemy_generals: Array[int] = []
+	# print("胜利判定")
 	for key in data.keys():
-		if general_id_to_player_id.has(key) and general_id_to_player_id[key]!=data[key]:
-			# 自己general被占领
-			if general_id_to_player_id[key]==player_id:
-				# 占领capital信号
-				emit_signal("occupy_capital", key,general_to_capital[key])
-				pass
-			# 占领别人general
-			elif data[key]==player_id:
-				emit_signal("be_occupied_capital", key,general_to_capital[key])
-				pass
-			# else 别人general被别人占领
-	
+		var old_owner :int= general_id_to_player_id.get(key, -1)
+		var new_owner :int= data[key]
+		
+		if old_owner != new_owner:
+			# 自己的 general 被占领
+			if old_owner == player_id:
+				lost_general_ids.append(key)
+				emit_signal("occupy_capital", key, general_to_capital[key])
+			# 占领了别人的 general
+			elif new_owner == player_id:
+				captured_enemy_generals.append(key)
+				emit_signal("be_occupied_capital", key, general_to_capital[key])
+			# 敌方之间互相占领，无需处理信号
+
+	# 更新 general_id_to_player_id 表
 	general_id_to_player_id.clear()
 	for key in data.keys():
 		general_id_to_player_id[key] = data[key]
+
+	# 胜利/失败判定
+	var alive_generals: Array[int] = []
+	for general_id in general_id_to_player_id.keys():
+		if general_id_to_player_id[general_id] == player_id:
+			alive_generals.append(general_id)
+	if alive_generals.size() == 0:
+		# 本方所有 general 被占领，游戏失败
+		emit_signal("game_lose")
+		
+	else:
+		var enemy_alive := false
+		for general_id in general_id_to_player_id.keys():
+			if general_id_to_player_id[general_id] != player_id and general_id != 0:
+				enemy_alive = true
+				break
+		if not enemy_alive:
+			# 敌方所有 general 被占领，游戏胜利
+			emit_signal("game_win")
 # 同步结束————————————
 
 

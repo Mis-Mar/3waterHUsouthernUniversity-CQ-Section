@@ -151,7 +151,7 @@ func parse_vector2i(key: String) -> Vector2i:
 func update_power_by_terrain() -> void:
 	turn_count += 1
 	# 奇数回合结算
-	if turn_count%2==0:
+	if turn_count%2!=0:
 		return
 	# 结算增减
 	for coords in cell_map.keys():
@@ -167,7 +167,7 @@ func update_power_by_terrain() -> void:
 
 		if cell_type == Global.TERRAIN_CITY or cell_type == Global.TERRAIN_CAPITAL:
 			cell.set_power(cell.get_power() + 1)
-		elif turn_count % 25 == 0 and cell_type == Global.TERRAIN_EMPTY:
+		elif turn_count % 50 == 0 and cell_type == Global.TERRAIN_EMPTY:
 			cell.set_power(cell.get_power() + 1)
 		elif cell_type == Global.TERRAIN_WATER:
 			var power := cell.get_power()

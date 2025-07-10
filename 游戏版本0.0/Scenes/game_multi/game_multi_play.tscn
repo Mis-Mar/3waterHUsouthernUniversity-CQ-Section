@@ -1,8 +1,9 @@
-[gd_scene load_steps=16 format=4 uid="uid://b1h1hwwvg3n55"]
+[gd_scene load_steps=18 format=4 uid="uid://b1h1hwwvg3n55"]
 
 [ext_resource type="Script" path="res://Scripts/game_multi/multi_manager.gd" id="1_460gw"]
 [ext_resource type="Script" path="res://Scripts/game_test/camera_2d.gd" id="1_fjl3a"]
-[ext_resource type="PackedScene" uid="uid://bgvro58iwef8p" path="res://Scenes/map.tscn" id="2_q4ib4"]
+[ext_resource type="PackedScene" uid="uid://bgvro58iwef8p" path="res://Scenes/items/map.tscn" id="2_q4ib4"]
+[ext_resource type="PackedScene" uid="uid://dmiafeevcshbs" path="res://Scenes/items/loading_item.tscn" id="3_d2we7"]
 [ext_resource type="Texture2D" uid="uid://bc4gcjaj7dea4" path="res://Asserts/Sprites/Grids/city0_Main.png" id="3_l7n6o"]
 [ext_resource type="Texture2D" uid="uid://p0p77jc1rift" path="res://Asserts/Sprites/Grid_group/citys.png" id="4_bn7wd"]
 [ext_resource type="Texture2D" uid="uid://bbc0r6muohce6" path="res://Asserts/Sprites/Grid_group/grounds.png" id="5_1orcu"]
@@ -10,12 +11,15 @@
 [ext_resource type="Texture2D" uid="uid://b0s5mnndejhul" path="res://Asserts/Sprites/Grid_group/waters.png" id="7_tomi0"]
 [ext_resource type="Script" path="res://Scripts/game_multi/move_manager.gd" id="9_jl7gd"]
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_f7hy3"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tdh4s"]
+bg_color = Color(0.215902, 0.215902, 0.215902, 0.529412)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_pcagl"]
 texture = ExtResource("3_l7n6o")
 texture_region_size = Vector2i(932, 810)
 0:0/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_clonj"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_g2of1"]
 texture = ExtResource("4_bn7wd")
 texture_region_size = Vector2i(932, 810)
 0:0/0 = 0
@@ -26,7 +30,7 @@ texture_region_size = Vector2i(932, 810)
 5:0/0 = 0
 6:0/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_bsjd0"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_c7nyg"]
 texture = ExtResource("5_1orcu")
 texture_region_size = Vector2i(932, 810)
 0:0/0 = 0
@@ -36,7 +40,7 @@ texture_region_size = Vector2i(932, 810)
 4:0/0 = 0
 5:0/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_7whhl"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_37vi7"]
 texture = ExtResource("6_i384b")
 texture_region_size = Vector2i(932, 810)
 0:0/0 = 0
@@ -46,7 +50,7 @@ texture_region_size = Vector2i(932, 810)
 4:0/0 = 0
 4:0/0/texture_origin = Vector2i(-47, -1)
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_nsafb"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_xwucd"]
 texture = ExtResource("7_tomi0")
 texture_region_size = Vector2i(932, 810)
 0:0/0 = 0
@@ -65,11 +69,11 @@ tile_shape = 3
 tile_layout = 5
 tile_offset_axis = 1
 tile_size = Vector2i(477, 413)
-sources/0 = SubResource("TileSetAtlasSource_f7hy3")
-sources/15 = SubResource("TileSetAtlasSource_clonj")
-sources/22 = SubResource("TileSetAtlasSource_bsjd0")
-sources/38 = SubResource("TileSetAtlasSource_nsafb")
-sources/27 = SubResource("TileSetAtlasSource_7whhl")
+sources/0 = SubResource("TileSetAtlasSource_pcagl")
+sources/15 = SubResource("TileSetAtlasSource_g2of1")
+sources/22 = SubResource("TileSetAtlasSource_c7nyg")
+sources/38 = SubResource("TileSetAtlasSource_xwucd")
+sources/27 = SubResource("TileSetAtlasSource_37vi7")
 tile_proxies/coords_level = [[1, Vector2i(0, 0)], [2, Vector2i(0, 0)], [8, Vector2i(0, 0)], [15, Vector2i(0, 0)], [9, Vector2i(0, 0)], [15, Vector2i(1, 0)], [10, Vector2i(0, 0)], [15, Vector2i(2, 0)], [11, Vector2i(0, 0)], [15, Vector2i(3, 0)], [12, Vector2i(0, 0)], [15, Vector2i(4, 0)], [13, Vector2i(0, 0)], [15, Vector2i(5, 0)], [14, Vector2i(0, 0)], [15, Vector2i(6, 0)], [16, Vector2i(0, 0)], [22, Vector2i(0, 0)], [17, Vector2i(0, 0)], [22, Vector2i(1, 0)], [18, Vector2i(0, 0)], [22, Vector2i(2, 0)], [19, Vector2i(0, 0)], [22, Vector2i(3, 0)], [20, Vector2i(0, 0)], [22, Vector2i(4, 0)], [21, Vector2i(0, 0)], [22, Vector2i(5, 0)], [23, Vector2i(0, 0)], [27, Vector2i(0, 0)], [24, Vector2i(0, 0)], [27, Vector2i(1, 0)], [25, Vector2i(0, 0)], [27, Vector2i(2, 0)], [26, Vector2i(0, 0)], [27, Vector2i(3, 0)], [27, Vector2i(0, 0)], [2, Vector2i(1, 0)], [27, Vector2i(1, 0)], [2, Vector2i(2, 0)], [27, Vector2i(2, 0)], [2, Vector2i(3, 0)], [27, Vector2i(3, 0)], [2, Vector2i(4, 0)], [28, Vector2i(0, 0)], [38, Vector2i(0, 0)], [29, Vector2i(0, 0)], [38, Vector2i(1, 0)], [30, Vector2i(0, 0)], [38, Vector2i(2, 0)], [31, Vector2i(0, 0)], [38, Vector2i(3, 0)], [32, Vector2i(0, 0)], [38, Vector2i(4, 0)], [33, Vector2i(0, 0)], [38, Vector2i(5, 0)], [34, Vector2i(0, 0)], [38, Vector2i(6, 0)], [35, Vector2i(0, 0)], [38, Vector2i(7, 0)], [36, Vector2i(0, 0)], [38, Vector2i(8, 0)], [37, Vector2i(0, 0)], [38, Vector2i(9, 0)]]
 
 [node name="game_multi_play" type="Node2D"]
@@ -83,12 +87,22 @@ script = ExtResource("1_fjl3a")
 
 [node name="UI" type="CanvasLayer" parent="."]
 
+[node name="turn_count_label" type="Label" parent="UI"]
+offset_right = 126.0
+offset_bottom = 50.0
+theme_override_font_sizes/font_size = 40
+theme_override_styles/normal = SubResource("StyleBoxFlat_tdh4s")
+
+[node name="loading_item" parent="UI" instance=ExtResource("3_d2we7")]
+position = Vector2(519, 199)
+
 [node name="Timers" type="Node" parent="."]
 
 [node name="Timer_turn" type="Timer" parent="Timers"]
-wait_time = 0.25
+wait_time = 0.33
 
 [node name="Map" parent="." instance=ExtResource("2_q4ib4")]
+visible = false
 offset_top = -10.0
 offset_bottom = -10.0
 

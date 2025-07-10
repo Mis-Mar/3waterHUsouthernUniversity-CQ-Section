@@ -18,6 +18,7 @@ func activate(_playermap:PlayerMap) -> void:
 	enable=true
 	playermap=_playermap
 	player_id=_playermap.player_id
+	print("移动初始化",player_id)
 	playermap.turn_updated.connect(_on_turn_updated)
 	pass
 

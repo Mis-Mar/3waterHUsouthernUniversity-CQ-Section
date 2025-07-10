@@ -69,3 +69,10 @@ func _on_connect_timeout_timer_timeout() -> void:
 func reset_multiplayer()->void:
 	multiplayer.multiplayer_peer = null
 	peer = ENetMultiplayerPeer.new()
+
+
+
+
+func _on_leave_button_pressed() -> void:
+	get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
+	pass # Replace with function body.
