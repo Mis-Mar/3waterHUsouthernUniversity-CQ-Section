@@ -88,10 +88,10 @@ func init_from_fullmap(fullmap: FullMap, _player_id: int):
 # 通过服务器fullmap导出的data来初始化
 func init_from_dict(init_data: Dictionary) -> void:
 	player_id=init_data.get("player_id", 0)
-	print("初始化player——id",player_id)
+
 	turn_count = init_data.get("turn_count", 0)
 	general_id_to_player_id = init_data.get("general_id_to_player_id", {}).duplicate()
-	print(general_id_to_player_id)
+
 	invis_state_map.clear()
 	cell_map.clear()
 
@@ -122,7 +122,7 @@ func get_neighbors_state1(center: Vector2i, general_id:int) -> Array[Vector2i]:
 		var neighbor_coords: Vector2i = center + dir
 		if cell_map.has(neighbor_coords):
 			var cell := get_cell(neighbor_coords)
-			if cell.get_type() != Global.TERRAIN_MOUNTAIN and cell.get_general() == general_id:
+			if cell.get_type() != Global.TERRAIN_MOUNTAIN and (cell.get_general_id() == general_id or cell.get_general_id() == 0):
 				neighbors.append(neighbor_coords)
 	return neighbors
 
@@ -133,9 +133,9 @@ func get_neighbors_state2(center: Vector2i, general_id:int) -> Array[Vector2i]:
 		var neighbor_coords: Vector2i = center + dir
 		if cell_map.has(neighbor_coords):
 			var cell := get_cell(neighbor_coords)
-			if cell.get_type() != Global.TERRAIN_MOUNTAIN and cell.get_general() == general_id :
+			if cell.get_type() != Global.TERRAIN_MOUNTAIN and (cell.get_general_id() == general_id or cell.get_general_id() == 0):
 				neighbors.append(neighbor_coords)
-		else:
+		elif invis_state_map.has(neighbor_coords):
 			neighbors.append(neighbor_coords)
 	return neighbors
 	
@@ -146,9 +146,9 @@ func get_neighbors_state3(center: Vector2i, general_id:int) -> Array[Vector2i]:
 		var neighbor_coords: Vector2i = center + dir
 		if cell_map.has(neighbor_coords):
 			var cell := get_cell(neighbor_coords)
-			if cell.get_type() != Global.TERRAIN_MOUNTAIN and cell.get_general() == general_id:
+			if cell.get_type() != Global.TERRAIN_MOUNTAIN and (cell.get_general_id() == general_id or cell.get_general_id() == 0):
 				neighbors.append(neighbor_coords)
-		elif self.invis_state_map[neighbor_coords] != Global.INVIS_MOUNTAIN:
+		elif invis_state_map.has(neighbor_coords) and self.invis_state_map[neighbor_coords] != Global.INVIS_MOUNTAIN:
 			neighbors.append(neighbor_coords)
 	return neighbors
 	
@@ -161,7 +161,7 @@ func get_neighbors_state4(center: Vector2i, general_id:int) -> Array[Vector2i]:
 			var cell := get_cell(neighbor_coords)
 			if cell.get_type() != Global.TERRAIN_MOUNTAIN :
 				neighbors.append(neighbor_coords)
-		elif self.invis_state_map[neighbor_coords] != Global.INVIS_MOUNTAIN:
+		elif invis_state_map.has(neighbor_coords) and self.invis_state_map[neighbor_coords] != Global.INVIS_MOUNTAIN:
 			neighbors.append(neighbor_coords)
 	return neighbors
 
@@ -172,9 +172,9 @@ func get_neighbors_state5(center: Vector2i, general_id:int) -> Array[Vector2i]:
 		var neighbor_coords: Vector2i = center + dir
 		if cell_map.has(neighbor_coords):
 			var cell := get_cell(neighbor_coords)
-			if cell.get_type() != Global.TERRAIN_MOUNTAIN and (cell.get_general() == general_id or cell.get_general_id() not in general_id_to_player_id[player_id] ):
+			if cell.get_type() != Global.TERRAIN_MOUNTAIN and (cell.get_general_id() == general_id or cell.get_general_id() not in general_id_to_player_id[player_id] ):
 				neighbors.append(neighbor_coords)
-			elif self.invis_state_map[neighbor_coords] != Global.INVIS_MOUNTAIN:
+			elif invis_state_map.has(neighbor_coords) and self.invis_state_map[neighbor_coords] != Global.INVIS_MOUNTAIN:
 				neighbors.append(neighbor_coords)
 	return neighbors
 	
@@ -185,7 +185,7 @@ func get_neighbors_state6(center: Vector2i, general_id:int) -> Array[Vector2i]:
 		var neighbor_coords: Vector2i = center + dir
 		if cell_map.has(neighbor_coords):
 			var cell := get_cell(neighbor_coords)
-			if cell.get_type() != Global.TERRAIN_MOUNTAIN and cell.get_general_id() in general_id_to_player_id[player_id]:
+			if cell.get_type() != Global.TERRAIN_MOUNTAIN and (cell.get_general_id() in general_id_to_player_id[player_id] or cell.get_general_id() == 0):
 				neighbors.append(neighbor_coords)
 	return neighbors
 	

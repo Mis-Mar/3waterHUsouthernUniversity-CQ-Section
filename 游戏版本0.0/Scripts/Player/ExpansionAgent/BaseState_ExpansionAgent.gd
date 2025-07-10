@@ -10,12 +10,13 @@ var player_id: int
 func get_agent() -> ExpansionAgent:
 	return state_machine.agent
 	
-func _init() -> void:
+func enter() -> void:
+	print("agent初始化")
 	agent = get_agent()
 	main_city = agent.main_city
 	player_id = agent.player_id
 
-func enter(): pass
+# func enter(): pass
 
 func exit(): pass
 

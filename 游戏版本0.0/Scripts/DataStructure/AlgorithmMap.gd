@@ -48,9 +48,6 @@ func _init(original: PlayerMap, _general_id: int) -> void:
 			value_map[coord] = -self.get_cell(coord).get_power()
 		distance_map[coord] = INF
 	
-	# 拷贝当前回合数
-	print("此时的basemap")
-	print(player_map.cell_map.keys())
 	turn_count = original.turn_count
 
 # 示例：设置某个坐标的value

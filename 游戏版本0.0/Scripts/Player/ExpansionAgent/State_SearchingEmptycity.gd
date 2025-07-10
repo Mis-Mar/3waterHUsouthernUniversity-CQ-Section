@@ -1,7 +1,7 @@
 extends BaseState_ExpansionAgent
 class_name State_SearchingEmptycity
 
-var Not_Found: Array[Vector2i] = agent.Not_Found
+var Not_Found: Array[Vector2i]
 var search_pattern: int = self.PATTERN_SLEEP
 
 const PATTERN_SLEEP := 0
@@ -16,6 +16,8 @@ func _ready() -> void:
 	pass
 	
 func enter() -> void:
+	
+	super.enter()
 	Not_Found = agent.Not_Found
 	search_pattern = self.PATTERN_SLEEP
 	while true:
@@ -33,7 +35,7 @@ func enter() -> void:
 func is_vision_sufficient() -> void:
 	#添加可抵达城市（视野之外
 	var distance_map: Dictionary = {}
-	for coord in agent.player_map.invis_state_map.keys():
+	for coord in agent.player_map.invis_state_map:
 		distance_map[coord] = INF
 	var queue: Array[Vector2i] = [main_city]
 	distance_map[main_city] = 0

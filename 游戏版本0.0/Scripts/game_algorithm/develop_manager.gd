@@ -42,9 +42,9 @@ func test_a()->void:
 	#TODO 补写generalid指定
 	var m2s=M2S_SearchAlgorithm. new(almap)
 	var pt:Array = m2s.M2S_Search(Vector2i(-3,4),30,3,1,0,50)
-	print(pt)
+	# print(pt)
 	var ans:Array[Vector2i]=m2s.get_path_coords() 
-	print(ans)
+	# print(ans)
 	for coord in ans:
 		map.highlight_cell(coord)
 		

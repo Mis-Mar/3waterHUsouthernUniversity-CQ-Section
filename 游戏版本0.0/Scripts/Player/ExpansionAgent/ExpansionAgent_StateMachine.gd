@@ -7,20 +7,19 @@ enum ExpansionAgent_State {
 	EXPANSION_COMPLETE
 }
 
-@export var initial_state: ExpansionAgent_State = ExpansionAgent_State.SEARCHING_EMPTYCITY
-@export var current_state: BaseState_ExpansionAgent  = null:
-	set(v):
-		owner.transition_state(current_state,v)
-		current_state=v
-@export var player_id: int
-var agent: ExpansionAgent = null
+var initial_state: ExpansionAgent_State = ExpansionAgent_State.SEARCHING_EMPTYCITY
+var current_state: BaseState_ExpansionAgent
+var player_id: int
+var agent: ExpansionAgent
 var states: Dictionary
 
-func _ready() -> void:
+func _init(_agent:ExpansionAgent) -> void:
+	agent=_agent
 	# 初始化所有状态
-	states[ExpansionAgent_State.SEARCHING_EMPTYCITY] = $State_SearchingEmptycity
-	states[ExpansionAgent_State.EMPTYCITY_OCCUPY] = $State_EmptycityOccupy
-	states[ExpansionAgent_State.EXPANSION_COMPLETE] = $State_ExpansionComplete
+	states = {} # 确保字典被初始化
+	states[ExpansionAgent_State.SEARCHING_EMPTYCITY] = State_SearchingEmptycity.new()
+	states[ExpansionAgent_State.EMPTYCITY_OCCUPY] = State_EmptycityOccupy.new()
+	states[ExpansionAgent_State.EXPANSION_COMPLETE] = State_ExpansionComplete.new()
 	
 	# 设置状态机引用
 	for state in states.values():
@@ -32,8 +31,11 @@ func _ready() -> void:
 func transition_to(new_state_key: ExpansionAgent_State) -> void:
 	if current_state:
 		current_state.exit()
-
+	
+	#print(states)
 	current_state = states[new_state_key]
+	
+	
 	current_state.enter()
 	
 # 主更新循环

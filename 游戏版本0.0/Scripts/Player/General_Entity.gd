@@ -59,9 +59,9 @@ func _init(_general_id: int,  _player_id: int, _player_map: PlayerMap) -> void:
 	self.player_map = _player_map
 	self.main_city = player_map.general_to_capital[self.general_id]
 	self.city_id_of_general = player_map.city_id_of_general[self.general_id]
-	Expansion_agent = ExpansionAgent.new(main_city, player_map)
+	Expansion_agent = ExpansionAgent.new(main_city, player_map,self)
 	Expansion_agent.general = self
-	Defence_agent = DefenceAgent.new(main_city, player_map)
+	Defence_agent = DefenceAgent.new(main_city, player_map,self)
 	Defence_agent.general = self
 	pass
 	

@@ -61,7 +61,8 @@ func _ready() -> void:
 	general.general_occupy_cell.connect(block_updated_positive)
 	general.general_occupy_cell.connect(on_be_occupied_cell)
 
-func _init(_main_city: Vector2i, _player_map: PlayerMap) -> void:
+func _init(_main_city: Vector2i, _player_map: PlayerMap,_general:General_Entity) -> void:
+	general=_general
 	self.player_id = general.player_id
 	self.main_city = _main_city
 	self.player_map = _player_map

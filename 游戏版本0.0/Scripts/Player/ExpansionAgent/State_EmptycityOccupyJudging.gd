@@ -1,7 +1,7 @@
 extends BaseState_ExpansionAgent
 class_name State_EmptycityOccupy
 
-var Not_Occupy: Array[Vector2i] = agent.Not_Occupy
+var Not_Occupy: Array[Vector2i]
 var path_class: int = 1
 
 var current_state: int = self.STATE_SLEEP
@@ -16,6 +16,7 @@ func _ready() -> void:
 	agent.general.general_occupy_city.connect(on_city_occupied)
 
 func enter() -> void:
+	super.enter()
 	Not_Occupy = agent.Not_Occupy
 	current_state = self.STATE_SLEEP
 	to_occupy_city()

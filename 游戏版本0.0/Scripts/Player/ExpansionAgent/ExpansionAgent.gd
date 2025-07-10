@@ -1,7 +1,7 @@
 extends Node
 class_name ExpansionAgent
 
-var state_machine :=ExpansionAgent_StateMachine.new()
+var state_machine :ExpansionAgent_StateMachine
 var agent_tpye: String = "Expansion"
 var search_algorithm: M2S_SearchAlgorithm
 var algorithm_map: AlgorithmMap
@@ -10,7 +10,7 @@ var main_city: Vector2i
 var Not_Found: Array[Vector2i] = []
 var Not_Occupy: Array[Vector2i] = []
 
-var general: General_Entity
+var general:General_Entity
 var player_id: int
 var player_map: PlayerMap
 
@@ -24,20 +24,27 @@ var is_path_manager_working: bool = false
 signal path_add(path_class: int, _path_operations: Array)
 
 func _ready() -> void:
-	path_add.connect(on_path_add)
-	general.general_be_occupied_cell.connect(on_be_occupied_cell)
+	pass
+	
+	
 
-func _init(_main_city: Vector2i, _player_map: PlayerMap) -> void:
-	self.player_id = general.player_id
+func _init(_main_city: Vector2i, _player_map: PlayerMap,_general:General_Entity) -> void:
+	path_add.connect(on_path_add)
+	general=_general
+	general.general_be_occupied_cell.connect(on_be_occupied_cell)
+	self.player_id = _player_map.player_id
 	self.main_city = _main_city
 	self.player_map = _player_map
 	algorithm_map = AlgorithmMap.new(self.player_map, general.general_id)
 	search_algorithm = M2S_SearchAlgorithm.new(self.algorithm_map)
-	state_machine.agent = self
+	state_machine=ExpansionAgent_StateMachine.new(self)
+
+	
 
 func _run() -> void:
+	# print("agent run")
 	self.path_operations_city.clear()
-	self.path.path_operations_city_class.clear()
+	self.path_operations_city_class.clear()
 	self.path_operations_search.clear()
 	self.path_current_class = -1
 	state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.SEARCHING_EMPTYCITY)

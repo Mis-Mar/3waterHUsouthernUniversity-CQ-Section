@@ -35,15 +35,18 @@ func run_all_general() -> void:
 
 func path_manager() -> void:
 	self.is_path_manager_working = true
+	print("path函数调用")
 	while not path_operations.is_empty():
 		for general_id in player_map.get_generals_of_player(player_id):
 			#FIXME 传递操作信号：path_operations[general_id].pop_front()
+			print("操作信号")
 			print(path_operations[general_id].pop_front())
 			pass
 		await player_map.turn_updated
 	self.is_path_manager_working = false
 
 func on_general_path_added(general_id: int, path_operate: Array) -> void:
+	print("on_general_path_add调用")
 	path_operations[general_id].append(path_operate)
 	if not self.is_path_manager_working:
 		path_manager()
