@@ -104,8 +104,8 @@ func kamikaze_search(start_point: Vector2i, sight_range: int) -> void:
 func Not_Found_in_sight_direction(start_point: Vector2i, sight_range: int) -> Vector2i:
 	var cells_in_sight: Array[Vector2i] = agent.player_map.spiral_rings_traversal(start_point, sight_range)
 	var direction_count: Dictionary = {}
-	direction_count[Vector2i(0,0)] = 0
-	var max_direction: Vector2i = Vector2i(0,0)
+	direction_count[Vector2i(1,0)] = 0
+	var max_direction: Vector2i = Vector2i(1,0)
 	for coord in cells_in_sight:
 		var direction:Vector2i = agent.player_map.get_direction(start_point, coord)
 		if agent.player_map.invis_state_map[coord] == Global.INVIS_MOUNTAIN:
@@ -144,11 +144,18 @@ func dynamic_Not_Found_in_sight_direction(start_point: Vector2i, sight_range: Ar
 	
 	var direction_count_Not_Found: Dictionary = {} #记录视野内含block节点数
 	var direction_count_cost: Dictionary = {} #记录视野内节点总代价:value_map,敌负我正
+	var sum_count_Not_Found: int
+	var sum_count_cost: int
+	var direction_ratio_Not_Found: Dictionary = {}
+	var direction_ratio_cost: Dictionary = {}
+	var direction_final_ratio: Dictionary = {}
+	
 	for direction in Global.HEX_DIRECTIONS:
 		direction_count_Not_Found[direction] = 0
 		direction_count_cost[direction] = 0
 		
-	var max_Not_Found_direction: Vector2i = Vector2i(0,0)
+	var max_Not_Found_direction: Vector2i = Vector2i(1,0)
+	var max_direction: Vector2i = Vector2i(1,0)
 	
 	for coord in cells_in_sight:
 		var direction:Vector2i = agent.player_map.get_direction(start_point, coord)
@@ -177,8 +184,18 @@ func dynamic_Not_Found_in_sight_direction(start_point: Vector2i, sight_range: Ar
 					direction_count_cost[direction] += 0
 				else:
 					direction_count_cost[direction] += agent.algorithm_map.value_map[coord]
-	#HACK 待完成 设计对比cost和block的估价方法
-	return max_Not_Found_direction
+	
+	for direction in direction_count_Not_Found:
+		sum_count_Not_Found += direction_count_Not_Found[direction]
+		sum_count_cost += direction_count_cost[direction]
+	for direction in direction_count_Not_Found:
+		direction_ratio_Not_Found[direction] = float(direction_count_Not_Found[direction] / sum_count_Not_Found)
+		direction_ratio_cost[direction] = float(direction_count_cost[direction] / sum_count_cost)
+		direction_final_ratio[direction] = float(direction_count_Not_Found[direction] + direction_ratio_cost[direction])
+		if direction_final_ratio[direction] > direction_final_ratio[max_direction]:
+			if agent.player_map.invis_state_map[start_point + max_direction] != Global.TERRAIN_MOUNTAIN:
+				max_direction = direction
+	return max_direction
 
 func on_city_find(cityid:int,citypos:Vector2i) -> void:
 	#add to not occupy

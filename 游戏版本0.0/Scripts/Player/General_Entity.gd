@@ -11,7 +11,10 @@ var player_id: int
 var player: Player_Entity
 var player_map: PlayerMap
 
-var path_operations: Array[Vector2i]
+var current_agent: String
+
+var path_operations_EA: Array
+var path_operations_DA: Array
 var zone_of_general: Array[Vector2i]
 var point_of_general: Array[Vector2i]
 var edge_of_general: int = 0
@@ -24,8 +27,11 @@ var city_id_in_zone : Array[int]
 var crucial_point_list : Array[Vector2i]
 var crucial_point_of_general : Array[Vector2i]
 
-signal agent_path_output(agent_type: String, path_operate: Vector2i)
+var is_path_manager_working: bool = false
+
+signal agent_path_output(agent_type: String, path_operate: Array)
 signal switch_to_Defence_pattern()
+signal switch_to_Expansion_pattern()
 
 signal general_find_city(cityid:int,citypos:Vector2i)
 signal general_occupy_cell(pos:Vector2i,_cell_info:CellInfo,enemy_general_id:int)
@@ -33,11 +39,11 @@ signal general_occupy_city(cityid:int,citypos:Vector2i,enemy_general_id:int)
 signal general_be_occupied_cell(pos:Vector2i,_cell_info:CellInfo,enemy_general_id:int)
 signal general_be_occupied_city(cityid:int,citypos:Vector2i,enemy_general_id:int)
 
-#HACK 构建EADA间转换逻辑
 
 func _ready() -> void:
 	agent_path_output.connect(on_path_add)
 	switch_to_Defence_pattern.connect(switch_to_Defence_agent)
+	switch_to_Expansion_pattern.connect(switch_to_Expansion_agent)
 	
 	player_map.find_city.connect(on_find_city)
 	player_map.occupy_cell.connect(on_occupy_cell)
@@ -63,7 +69,17 @@ func _run() -> void:
 	if player_id == 0:
 		pass
 	else:
+		self.current_agent = Expansion_agent.agent_tpye
 		Expansion_agent._run()
+
+
+func switch_to_Defence_agent() -> void:
+	self.current_agent = Defence_agent.agent_tpye
+	Defence_agent.defend_class_trend()
+	
+func switch_to_Expansion_agent() -> void:
+	self.current_agent = Expansion_agent.agent_tpye
+	Expansion_agent.run()
 
 func calculate_full_power() -> void:
 	var power: int = 0
@@ -121,18 +137,20 @@ func calculate_connection_degree() -> float:
 	return result
 
 func path_manager() -> void:
-	while !path_operations.is_empty():
-		var path_operate = path_operations.pop_front()
-		#HACK 待完成 send to player
-		pass
-	
-func switch_to_Defence_agent() -> void:
-	Defence_agent.run()
-		
-func on_path_add(agent_type:String, path_operate: Vector2i) -> void:
-	#HACK 待完成 agent调用、区分
-	path_operations.append(path_operate)
-	path_manager()
+	self.is_path_manager_working = true
+	if self.current_agent == Expansion_agent.agent_tpye:
+		while !path_operations_EA.is_empty():
+			var path = path_operations_EA.pop_front()
+			
+	self.is_path_manager_working = false
+
+func on_path_add(agent_type:String, path_operate: Array) -> void:
+	if agent_type == Expansion_agent.agent_tpye:
+		path_operations_EA.append(path_operate)
+	elif agent_type == Defence_agent.agent_tpye:
+		path_operations_DA.append(path_operate)
+	if not is_path_manager_working:
+		path_manager()
 
 func on_find_city(cityid:int,citypos:Vector2i,generalid:int) -> void:
 	if generalid == self.general_id:
