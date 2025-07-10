@@ -1,7 +1,8 @@
 extends BaseState_ExpansionAgent
 class_name State_SearchingEmptycity
 
-var Not_Found: Array[Vector2i]
+var Not_Found: Array[Vector2i] #想去的地方
+var search_to_Not_Found: Dictionary #想去已经动身计划则是true
 var search_pattern: int = self.PATTERN_SLEEP
 
 const PATTERN_SLEEP := 0
@@ -13,6 +14,7 @@ signal place_into_notfound()
 func _init(_agent:ExpansionAgent) -> void:
 	agent=_agent
 	place_into_notfound.connect(self.on_place_not_found)
+	agent.clear_search_path.connect(self.on_clear_search_path)
 	agent.general.general_find_city.connect(on_city_find)
 	pass
 	
@@ -59,6 +61,7 @@ func is_vision_sufficient() -> void:
 			if current not in Not_Found:
 				self.place_into_notfound.emit()
 				Not_Found.append(current)
+				search_to_Not_Found[current] = false
 		else:
 			# 获取所有邻居
 			var neighbors = agent.player_map.get_neighbors_state2(current,agent.general.general_id)
@@ -77,9 +80,13 @@ func to_found_empty_city() -> void:
 		#HACK 需要一个外部信号调整estimated_demand
 		print(target_point)
 		print(Not_Found)
+		if search_to_Not_Found[target_point]:
+			continue
 		if !search_empty_city(target_point,1,20):
 			# Not_Found.append(target_point)
 			await agent.player_map.turn_updated
+		else:
+			search_to_Not_Found[target_point] = true
 		#self.dynamic_kamikaze_search_Not_Found(main_city)
 	self.search_pattern = self.PATTERN_SLEEP
 
@@ -236,3 +243,7 @@ func send_path(path_operations: Array) -> void:
 	agent.path_add.emit(0, path_operations)
 	print(path_operations)
 	pass
+
+func on_clear_search_path() -> void:
+	for point in search_to_Not_Found:
+		search_to_Not_Found[point] = false

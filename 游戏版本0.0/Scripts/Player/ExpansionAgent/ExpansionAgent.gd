@@ -22,6 +22,7 @@ var path_current_class: int #当前path_manager操作等级
 var is_path_manager_working: bool = false
 
 signal path_add(path_class: int, _path_operations: Array)
+signal clear_search_path()
 
 func _ready() -> void:
 	pass
@@ -79,6 +80,7 @@ func on_path_add(_path_class: int, _path_operations: Array) -> void:
 		path_operations_city_class.append(_path_class)
 		if path_current_class == 0:
 			path_operations_search.clear()
+			self.clear_search_path.emit()
 			path_current_class = path_operations_city_class.front()
 	if not self.is_path_manager_working:
 		path_manager()
