@@ -17,6 +17,7 @@ func _ready() -> void:
 	
 func enter() -> void:
 	Not_Found = agent.Not_Found
+	search_pattern = self.PATTERN_SLEEP
 	while true:
 		#do while
 		is_vision_sufficient()

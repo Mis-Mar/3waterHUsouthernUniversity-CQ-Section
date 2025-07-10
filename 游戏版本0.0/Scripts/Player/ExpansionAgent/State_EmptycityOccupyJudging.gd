@@ -17,6 +17,7 @@ func _ready() -> void:
 
 func enter() -> void:
 	Not_Occupy = agent.Not_Occupy
+	current_state = self.STATE_SLEEP
 	to_occupy_city()
 
 func to_occupy_city() -> void:
@@ -24,12 +25,15 @@ func to_occupy_city() -> void:
 	while not Not_Occupy.is_empty():
 		if self.current_state != self.STATE_ACT:
 			break 
-		occupy_empty_city()
+		if not occupy_empty_city():
+			if agent.Not_Found.is_empty():
+				await agent.player_map.turn_updated
+			else:
+				break
 	self.current_state = self.STATE_SLEEP
 	end_to_searching()
 
-
-func occupy_empty_city() -> void:
+func occupy_empty_city() -> bool:
 	self.current_state = self.STATE_ACT
 	var path_all: Dictionary = {}
 	var min_path_city_id: int = -1
@@ -40,10 +44,13 @@ func occupy_empty_city() -> void:
 			if min_path_city_id == -1 or path_all[target_city_id].size() < path_all[min_path_city_id].size():
 				min_path_city_id = target_city_id
 	if self.current_state != self.STATE_ACT:
-		return 
+		return false
 	if min_path_city_id != -1:
 		path_class = min_path_city_id
 		agent.path_add.emit(path_class, path_all[min_path_city_id])
+		return true
+	else:
+		return false
 
 func could_occupy_empty_city(target_point:Vector2i) -> Array:
 	self.current_state = self.STATE_ACT

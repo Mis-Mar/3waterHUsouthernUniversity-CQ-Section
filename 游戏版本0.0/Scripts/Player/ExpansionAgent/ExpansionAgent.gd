@@ -36,6 +36,10 @@ func _init(_main_city: Vector2i, _player_map: PlayerMap) -> void:
 	state_machine.agent = self
 
 func _run() -> void:
+	self.path_operations_city.clear()
+	self.path.path_operations_city_class.clear()
+	self.path_operations_search.clear()
+	self.path_current_class = -1
 	state_machine.transition_to(ExpansionAgent_StateMachine.ExpansionAgent_State.SEARCHING_EMPTYCITY)
 
 func _process(delta: float) -> void:
