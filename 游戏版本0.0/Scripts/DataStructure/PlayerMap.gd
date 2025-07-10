@@ -91,6 +91,7 @@ func init_from_dict(init_data: Dictionary) -> void:
 	print("初始化player——id",player_id)
 	turn_count = init_data.get("turn_count", 0)
 	general_id_to_player_id = init_data.get("general_id_to_player_id", {}).duplicate()
+	print(general_id_to_player_id)
 	invis_state_map.clear()
 	cell_map.clear()
 
@@ -353,6 +354,7 @@ func add_capital(general_id: int, position: Vector2i) -> void:
 	# 若已有记录，直接替换
 	#print("capital++")
 	general_to_capital[general_id] = position
+	add_or_update_city(position, general_id)
 
 
 # 底层——添加city到表

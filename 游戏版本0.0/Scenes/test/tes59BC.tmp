@@ -1,0 +1,105 @@
+[gd_scene load_steps=15 format=4 uid="uid://bqxg14c07lbhd"]
+
+[ext_resource type="PackedScene" uid="uid://bgvro58iwef8p" path="res://Scenes/items/map.tscn" id="1_ih5qj"]
+[ext_resource type="PackedScene" uid="uid://cm18awoj15uto" path="res://Scenes/items/camera_2d.tscn" id="1_wp40v"]
+[ext_resource type="Texture2D" uid="uid://bc4gcjaj7dea4" path="res://Asserts/Sprites/Grids/city0_Main.png" id="2_nbhgu"]
+[ext_resource type="Texture2D" uid="uid://p0p77jc1rift" path="res://Asserts/Sprites/Grid_group/citys.png" id="3_gaf4v"]
+[ext_resource type="Texture2D" uid="uid://bbc0r6muohce6" path="res://Asserts/Sprites/Grid_group/grounds.png" id="4_15c5m"]
+[ext_resource type="Texture2D" uid="uid://b3fkiv6seg2n7" path="res://Asserts/Sprites/Grid_group/mountains.png" id="5_snqa2"]
+[ext_resource type="Texture2D" uid="uid://b0s5mnndejhul" path="res://Asserts/Sprites/Grid_group/waters.png" id="6_j57h7"]
+[ext_resource type="Script" path="res://Scenes/test/test_01_manager.gd" id="7_fjut0"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_1x3ut"]
+texture = ExtResource("2_nbhgu")
+texture_region_size = Vector2i(932, 810)
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_8dwt1"]
+texture = ExtResource("3_gaf4v")
+texture_region_size = Vector2i(932, 810)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+5:0/0 = 0
+6:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_hkuh8"]
+texture = ExtResource("4_15c5m")
+texture_region_size = Vector2i(932, 810)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+5:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_kr6cv"]
+texture = ExtResource("5_snqa2")
+texture_region_size = Vector2i(932, 810)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+3:0/0/texture_origin = Vector2i(-47, -1)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_6gqak"]
+texture = ExtResource("6_j57h7")
+texture_region_size = Vector2i(932, 810)
+0:0/0 = 0
+1:0/0 = 0
+2:0/0 = 0
+3:0/0 = 0
+4:0/0 = 0
+5:0/0 = 0
+6:0/0 = 0
+7:0/0 = 0
+8:0/0 = 0
+9:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_rflty"]
+tile_shape = 3
+tile_layout = 5
+tile_offset_axis = 1
+tile_size = Vector2i(477, 413)
+sources/0 = SubResource("TileSetAtlasSource_1x3ut")
+sources/15 = SubResource("TileSetAtlasSource_8dwt1")
+sources/22 = SubResource("TileSetAtlasSource_hkuh8")
+sources/27 = SubResource("TileSetAtlasSource_kr6cv")
+sources/38 = SubResource("TileSetAtlasSource_6gqak")
+tile_proxies/coords_level = [[8, Vector2i(0, 0)], [15, Vector2i(0, 0)], [9, Vector2i(0, 0)], [15, Vector2i(1, 0)], [10, Vector2i(0, 0)], [15, Vector2i(2, 0)], [11, Vector2i(0, 0)], [15, Vector2i(3, 0)], [12, Vector2i(0, 0)], [15, Vector2i(4, 0)], [13, Vector2i(0, 0)], [15, Vector2i(5, 0)], [14, Vector2i(0, 0)], [15, Vector2i(6, 0)], [16, Vector2i(0, 0)], [22, Vector2i(0, 0)], [17, Vector2i(0, 0)], [22, Vector2i(1, 0)], [18, Vector2i(0, 0)], [22, Vector2i(2, 0)], [19, Vector2i(0, 0)], [22, Vector2i(3, 0)], [20, Vector2i(0, 0)], [22, Vector2i(4, 0)], [21, Vector2i(0, 0)], [22, Vector2i(5, 0)], [23, Vector2i(0, 0)], [27, Vector2i(0, 0)], [24, Vector2i(0, 0)], [27, Vector2i(1, 0)], [25, Vector2i(0, 0)], [27, Vector2i(2, 0)], [26, Vector2i(0, 0)], [27, Vector2i(3, 0)], [28, Vector2i(0, 0)], [38, Vector2i(0, 0)], [29, Vector2i(0, 0)], [38, Vector2i(1, 0)], [30, Vector2i(0, 0)], [38, Vector2i(2, 0)], [31, Vector2i(0, 0)], [38, Vector2i(3, 0)], [32, Vector2i(0, 0)], [38, Vector2i(4, 0)], [33, Vector2i(0, 0)], [38, Vector2i(5, 0)], [34, Vector2i(0, 0)], [38, Vector2i(6, 0)], [35, Vector2i(0, 0)], [38, Vector2i(7, 0)], [36, Vector2i(0, 0)], [38, Vector2i(8, 0)], [37, Vector2i(0, 0)], [38, Vector2i(9, 0)]]
+
+[node name="test_01" type="Node2D"]
+
+[node name="test_01_manager" type="Node" parent="."]
+script = ExtResource("7_fjut0")
+
+[node name="Camera2D" parent="." instance=ExtResource("1_wp40v")]
+
+[node name="Map" parent="." instance=ExtResource("1_ih5qj")]
+
+[node name="MainLayer" type="TileMapLayer" parent="Map"]
+z_index = -2
+position = Vector2(-2, 0)
+tile_map_data = PackedByteArray("AAD//wAAAAAAAAAAAAD+////DwAAAAAAAAD+/wAAFgAAAAAAAAD//wEAFgAAAAAAAAAAAAEAFgAAAAAAAAABAAEAFgAAAAAAAAAAAAAAFgAAAAAAAAAAAP//FgAAAAAAAAD/////FgAAAAAAAAD+//7/FgAAAAAAAAD9//7/FgAAAAAAAAD9////FgAAAAAAAAD9/wAAFgAAAAAAAAD+/wEAFgAAAAAAAAAAAAIAFgAAAAAAAAABAAIAFgAAAAAAAAD//wIADwAAAAAAAAABAAAAFgAAAAAAAAD///7/FgAAAAAAAAD8//3/FgAAAAAAAAD8//7/FgAAAAAAAAD8////FgAAAAAAAAD8/wAAFgAAAAAAAAD9/wEAFgAAAAAAAAD+/wIAFgAAAAAAAAD//wMAFgAAAAAAAAAAAAMAFgAAAAAAAAABAAMAFgAAAAAAAAACAAMAFgAAAAAAAAACAAIAFgAAAAAAAAACAAEAFgAAAAAAAAACAAAADwAAAAAAAAABAP//FgAAAAAAAAAAAP7/FgAAAAAAAAD///3/FgAAAAAAAAD+//3/FgAAAAAAAAD9//3/FgAAAAAAAAA=")
+tile_set = SubResource("TileSet_rflty")
+
+[node name="Timers" type="Node" parent="."]
+
+[node name="Timer_turn" type="Timer" parent="Timers"]
+wait_time = 0.25
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 3
+offset = Vector2(100, 0)
+transform = Transform2D(1, 0, 0, 1, 100, 0)
+
+[node name="AutoTurnButton" type="Button" parent="UI"]
+z_index = 3
+offset_left = -87.0
+offset_top = 10.0
+offset_right = 33.0
+offset_bottom = 85.0
+theme_override_font_sizes/font_size = 50
+text = "手动(空格)"

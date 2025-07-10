@@ -31,7 +31,7 @@ func test_a()->void:
 	fullmap.update_general_index()
 	fullmap.compute_player_deltas()
 
-	playermap.update_cell_from_delta(fullmap.export_player_delta(1))
+	# playermap.update_cell_from_delta(fullmap.export_player_delta(1))
 	
 	var player_entity:=Player_Entity.new(playermap.player_id,playermap)
 	

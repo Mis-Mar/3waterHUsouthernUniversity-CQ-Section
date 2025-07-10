@@ -1,8 +1,8 @@
 extends Node
 class_name General_Entity
 
-@onready var Expansion_agent: ExpansionAgent = $ExpansionAgent
-@onready var Defence_agent: DefenceAgent = $DefenceAgent
+var Expansion_agent: ExpansionAgent
+var Defence_agent: DefenceAgent
 
 var general_id: int
 var main_city: Vector2i
@@ -55,13 +55,13 @@ func _ready() -> void:
 
 func _init(_general_id: int,  _player_id: int, _player_map: PlayerMap) -> void:
 	self.general_id = _general_id
-	self.main_city = player_map.general_to_capital[self.general_id]
-	self.city_id_of_general = player_map.city_id_of_general[self.general_id]
 	self.player_id = _player_id
 	self.player_map = _player_map
-	Expansion_agent._init(main_city,player_map)
+	self.main_city = player_map.general_to_capital[self.general_id]
+	self.city_id_of_general = player_map.city_id_of_general[self.general_id]
+	Expansion_agent = ExpansionAgent.new(main_city, player_map)
 	Expansion_agent.general = self
-	Defence_agent._init(main_city,player_map)
+	Defence_agent = DefenceAgent.new(main_city, player_map)
 	Defence_agent.general = self
 	pass
 	

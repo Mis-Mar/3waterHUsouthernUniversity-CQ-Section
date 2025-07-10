@@ -1,7 +1,7 @@
 extends Node
 class_name ExpansionAgent
 
-@onready var state_machine :ExpansionAgent_StateMachine = $ExpansionAgent_StateMachine
+var state_machine :=ExpansionAgent_StateMachine.new()
 var agent_tpye: String = "Expansion"
 var search_algorithm: M2S_SearchAlgorithm
 var algorithm_map: AlgorithmMap
