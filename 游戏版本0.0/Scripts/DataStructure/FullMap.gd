@@ -62,6 +62,8 @@ func random_init(radius: int, _player_count: int, _general_count: int) -> void:
 			general_id_to_player_id[general_id] = 0
 	# 更新general的领土表
 	update_general_index()
+	# 更新所有general的总兵力
+	update_all_general_total_power()
 
 # 根据现有map构建fullmap，详情看map类
 
@@ -73,6 +75,7 @@ func export_init_data_for_player(player_id: int) -> Dictionary:
 	init_data["player_id"]=player_id
 	init_data["turn_count"] = turn_count
 	init_data["general_id_to_player_id"] = general_id_to_player_id.duplicate()
+	init_data["general_total_power"] = general_total_power.duplicate()
 
 	# 导出地图范围 + 玩家可见区域的 cell_map 数据
 	var vis_coords = get_visible_tiles_for_player(player_id)
@@ -146,11 +149,14 @@ func compute_player_deltas() -> void:
 
 # 导出玩家视野变化以及操作引起的变化量，用于同步
 func export_player_delta(player_id: int) -> Dictionary:
-	return player_delta.get(player_id, {
+	var delta = player_delta.get(player_id, {
 		"newly_visible": [],
 		"now_invisible": [],
 		"changed": []
 	})
+	# 添加general总兵力数据
+	delta["general_total_power"] = general_total_power.duplicate()
+	return delta
 # 导出general_id_to_player_id表，用于同步
 func export_general_id_to_player_id() -> Dictionary:
 	return general_id_to_player_id.duplicate()
@@ -305,5 +311,7 @@ func execute_turn() -> void:
 	acted_generals.clear()
 	# 更新general可见表
 	update_general_index()
+	# 更新所有general的总兵力
+	update_all_general_total_power()
 	# 更新玩家可见表，并计算玩家视野delta
 	compute_player_deltas()

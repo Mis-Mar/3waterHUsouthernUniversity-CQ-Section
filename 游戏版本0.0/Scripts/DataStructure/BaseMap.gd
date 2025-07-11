@@ -6,7 +6,10 @@ class_name BaseMap
 var cell_map: Dictionary = {}  # Dictionary<Vector2i, GridCell>所有格子的字典，就当CellInfo类型的二维数组来用
 var general_id_to_player_id: Dictionary = {}# 表格，一个general有一个player，一个player对应多个general 值为0表示未被控制
 var turn_count: int = 0  # 回合总数
- 
+
+# 添加general总兵力字典
+var general_total_power: Dictionary = {}  # Dictionary<int, int> 键是general_id，值是general的全部兵力
+
 func get_cell(coords: Vector2i) -> CellInfo:
 	if cell_map.has(coords):
 		return cell_map[coords]
@@ -19,7 +22,25 @@ func get_all_coords() -> Array[Vector2i]:
 # 检查某个坐标是否存在
 func is_valid_coord(coord: Vector2i) -> bool:
 	return cell_map.has(coord)
+
+# 获取general的总兵力
+func get_general_total_power(general_id: int) -> int:
+	return general_total_power.get(general_id, 0)
+
+# 设置general的总兵力
+func set_general_total_power(general_id: int, power: int) -> void:
+	general_total_power[general_id] = power
+
+# 计算并更新所有general的总兵力
+func update_all_general_total_power() -> void:
+	general_total_power.clear()
 	
+	for coord in cell_map.keys():
+		var cell: CellInfo = cell_map[coord]
+		var general_id: int = cell.get_general_id()
+		if general_id > 0:  # 只计算有主的格子
+			var current_power = general_total_power.get(general_id, 0)
+			general_total_power[general_id] = current_power + cell.get_power()
 
 
 func get_direction(start_coord: Vector2i, end_coord: Vector2i) -> Vector2i:

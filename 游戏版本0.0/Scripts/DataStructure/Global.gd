@@ -71,6 +71,19 @@ const TERRAIN_TILE_INFO := {
 	},
 }
 
+
+var general_id_to_color = {
+	1: Color(0,1,1),
+	2: Color(1,0,1),
+	3: Color(1,1,0),
+	4: Color(1,0,0),
+	5: Color(0,1,0),
+	6: Color(0,0,1),
+	7: Color(1,0.5,0.5),
+	8: Color(0.5,1,0.5),
+	9: Color(0.5,0.5,1)
+}
+
 # rpc连接
 const MAX_CLIENTS:=7# 最大连接数（不算自己）
 # 游玩的地图选择

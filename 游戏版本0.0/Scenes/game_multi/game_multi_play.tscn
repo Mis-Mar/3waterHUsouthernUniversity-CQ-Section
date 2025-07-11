@@ -1,8 +1,9 @@
-[gd_scene load_steps=18 format=3 uid="uid://b1h1hwwvg3n55"]
+[gd_scene load_steps=19 format=3 uid="uid://b1h1hwwvg3n55"]
 
 [ext_resource type="Script" path="res://Scripts/game_multi/multi_manager.gd" id="1_460gw"]
 [ext_resource type="PackedScene" uid="uid://cm18awoj15uto" path="res://Scenes/items/camera_2d.tscn" id="2_7j6xb"]
 [ext_resource type="PackedScene" uid="uid://bgvro58iwef8p" path="res://Scenes/items/map.tscn" id="2_q4ib4"]
+[ext_resource type="PackedScene" uid="uid://bkpcu251ff7ad" path="res://Scenes/items/info_panel.tscn" id="3_14cph"]
 [ext_resource type="PackedScene" uid="uid://dmiafeevcshbs" path="res://Scenes/items/loading_item.tscn" id="3_d2we7"]
 [ext_resource type="Texture2D" uid="uid://bc4gcjaj7dea4" path="res://Asserts/Sprites/Grids/city0_Main.png" id="3_l7n6o"]
 [ext_resource type="Texture2D" uid="uid://p0p77jc1rift" path="res://Asserts/Sprites/Grid_group/citys.png" id="4_bn7wd"]
@@ -85,6 +86,8 @@ script = ExtResource("1_460gw")
 
 [node name="UI" type="CanvasLayer" parent="."]
 
+[node name="info_panel" parent="UI" instance=ExtResource("3_14cph")]
+
 [node name="turn_count_label" type="Label" parent="UI"]
 offset_right = 126.0
 offset_bottom = 50.0
@@ -100,6 +103,7 @@ position = Vector2(528, 199)
 wait_time = 0.33
 
 [node name="Map" parent="." instance=ExtResource("2_q4ib4")]
+visible = false
 offset_top = -10.0
 offset_bottom = -10.0
 

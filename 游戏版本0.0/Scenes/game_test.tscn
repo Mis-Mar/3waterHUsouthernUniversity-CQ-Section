@@ -9,12 +9,12 @@
 [ext_resource type="Texture2D" uid="uid://b0s5mnndejhul" path="res://Asserts/Sprites/Grid_group/waters.png" id="6_x8w64"]
 [ext_resource type="Script" path="res://Scripts/game_test/game_manager.gd" id="10_drru0"]
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_3j38f"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ylsh1"]
 texture = ExtResource("2_4rhyt")
 texture_region_size = Vector2i(932, 810)
 0:0/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vvei7"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_al3f4"]
 texture = ExtResource("3_xl4ir")
 texture_region_size = Vector2i(932, 810)
 0:0/0 = 0
@@ -25,7 +25,7 @@ texture_region_size = Vector2i(932, 810)
 5:0/0 = 0
 6:0/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_fa0un"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_a3udx"]
 texture = ExtResource("4_q3h7o")
 texture_region_size = Vector2i(932, 810)
 0:0/0 = 0
@@ -35,7 +35,7 @@ texture_region_size = Vector2i(932, 810)
 4:0/0 = 0
 5:0/0 = 0
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_74wcm"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_yst05"]
 texture = ExtResource("5_iytlx")
 texture_region_size = Vector2i(932, 810)
 0:0/0 = 0
@@ -44,7 +44,7 @@ texture_region_size = Vector2i(932, 810)
 3:0/0 = 0
 3:0/0/texture_origin = Vector2i(-47, -1)
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_jq8jr"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_oqei1"]
 texture = ExtResource("6_x8w64")
 texture_region_size = Vector2i(932, 810)
 0:0/0 = 0
@@ -63,11 +63,11 @@ tile_shape = 3
 tile_layout = 5
 tile_offset_axis = 1
 tile_size = Vector2i(477, 413)
-sources/0 = SubResource("TileSetAtlasSource_3j38f")
-sources/15 = SubResource("TileSetAtlasSource_vvei7")
-sources/22 = SubResource("TileSetAtlasSource_fa0un")
-sources/27 = SubResource("TileSetAtlasSource_74wcm")
-sources/38 = SubResource("TileSetAtlasSource_jq8jr")
+sources/0 = SubResource("TileSetAtlasSource_ylsh1")
+sources/15 = SubResource("TileSetAtlasSource_al3f4")
+sources/22 = SubResource("TileSetAtlasSource_a3udx")
+sources/27 = SubResource("TileSetAtlasSource_yst05")
+sources/38 = SubResource("TileSetAtlasSource_oqei1")
 tile_proxies/coords_level = [[8, Vector2i(0, 0)], [15, Vector2i(0, 0)], [9, Vector2i(0, 0)], [15, Vector2i(1, 0)], [10, Vector2i(0, 0)], [15, Vector2i(2, 0)], [11, Vector2i(0, 0)], [15, Vector2i(3, 0)], [12, Vector2i(0, 0)], [15, Vector2i(4, 0)], [13, Vector2i(0, 0)], [15, Vector2i(5, 0)], [14, Vector2i(0, 0)], [15, Vector2i(6, 0)], [16, Vector2i(0, 0)], [22, Vector2i(0, 0)], [17, Vector2i(0, 0)], [22, Vector2i(1, 0)], [18, Vector2i(0, 0)], [22, Vector2i(2, 0)], [19, Vector2i(0, 0)], [22, Vector2i(3, 0)], [20, Vector2i(0, 0)], [22, Vector2i(4, 0)], [21, Vector2i(0, 0)], [22, Vector2i(5, 0)], [23, Vector2i(0, 0)], [27, Vector2i(0, 0)], [24, Vector2i(0, 0)], [27, Vector2i(1, 0)], [25, Vector2i(0, 0)], [27, Vector2i(2, 0)], [26, Vector2i(0, 0)], [27, Vector2i(3, 0)], [28, Vector2i(0, 0)], [38, Vector2i(0, 0)], [29, Vector2i(0, 0)], [38, Vector2i(1, 0)], [30, Vector2i(0, 0)], [38, Vector2i(2, 0)], [31, Vector2i(0, 0)], [38, Vector2i(3, 0)], [32, Vector2i(0, 0)], [38, Vector2i(4, 0)], [33, Vector2i(0, 0)], [38, Vector2i(5, 0)], [34, Vector2i(0, 0)], [38, Vector2i(6, 0)], [35, Vector2i(0, 0)], [38, Vector2i(7, 0)], [36, Vector2i(0, 0)], [38, Vector2i(8, 0)], [37, Vector2i(0, 0)], [38, Vector2i(9, 0)]]
 
 [node name="game_test" type="Node2D"]

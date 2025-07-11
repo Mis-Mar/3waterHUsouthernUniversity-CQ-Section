@@ -31,13 +31,13 @@ func _ready():
 	
 	# 判断是房主还是成员
 	if multiplayer.is_server():
-		role="房主"
+		role="Host"
 		is_server=true
 		# 表中加入自己
 		player_ready[1]=false
 		map_selector.visible=true
 	else:
-		role="成员"
+		role="Customer"
 		multiplayer.server_disconnected.connect(_on_server_disconnected)
 
 	# 初始化显示
@@ -153,18 +153,17 @@ func load_map_preview(id: int) -> void:
 	var instance = scene.instantiate()
 	map_previewer.add_child(instance)
 
-
 func update_room_status() -> void:
 	var player_ids = multiplayer.get_peers()
 	player_ids.insert(0, multiplayer.get_unique_id())  # 加上自己
 	var count = player_ids.size()
-	label_player_info.text = "身份：%s\n当前房间人数：%d" % [role, count]
+	label_player_info.text = "You Are：%s\nCount：%d" % [role, count]
 
 func update_ready_button()->void:
 	if is_ready:
-		ready_button.text="取消准备"
+		ready_button.text="Cancle"
 	else:
-		ready_button.text="准备"
+		ready_button.text="Ready"
 
 func display_ready_info()->void:
 	update_ready_button()

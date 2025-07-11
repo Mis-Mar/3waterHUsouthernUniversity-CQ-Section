@@ -91,6 +91,9 @@ func init_from_dict(init_data: Dictionary) -> void:
 
 	turn_count = init_data.get("turn_count", 0)
 	general_id_to_player_id = init_data.get("general_id_to_player_id", {}).duplicate()
+	
+	# 接收general总兵力数据
+	general_total_power = init_data.get("general_total_power", {}).duplicate()
 
 	invis_state_map.clear()
 	cell_map.clear()
@@ -268,6 +271,10 @@ func update_player_map(delta_cell: Dictionary,delta_general_id_to_player_id: Dic
 
 # 更新视野，更新玩家操作的格子变化
 func update_cell_from_delta(delta: Dictionary) -> void:
+	# 更新general总兵力数据
+	if delta.has("general_total_power"):
+		general_total_power = delta["general_total_power"].duplicate()
+	
 	# 新可见的格子
 	for key in delta["newly_visible"].keys():
 		var coord = parse_vector2i(key)
@@ -392,6 +399,14 @@ func get_city_ids_of_general(general_id: int) -> Array[int]:
 		if city_id_to_general[city_id] == general_id:
 			result.append(city_id)
 	return result
+
+# 获取general的总兵力
+func get_general_total_power(general_id: int) -> int:
+	return general_total_power.get(general_id, 0)
+
+# 获取所有general的总兵力
+func get_all_general_total_power() -> Dictionary:
+	return general_total_power.duplicate()
 
 # 底层——添加capital到表
 func add_capital(general_id: int, position: Vector2i) -> void:

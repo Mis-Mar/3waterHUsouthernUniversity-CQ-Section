@@ -17,34 +17,39 @@ offset_left = 7.0
 offset_top = 583.0
 offset_right = 141.0
 offset_bottom = 641.0
-text = "离开房间"
+theme_override_font_sizes/font_size = 50
+text = "Exit"
 
 [node name="label_player_info" type="Label" parent="UI"]
 offset_right = 304.0
 offset_bottom = 117.0
+theme_override_font_sizes/font_size = 25
 
 [node name="ready_button" type="Button" parent="UI"]
 offset_left = 463.0
 offset_top = 520.0
 offset_right = 670.0
 offset_bottom = 574.0
-text = "准备"
+theme_override_font_sizes/font_size = 50
+text = "Ready"
 
 [node name="label-ready-info" type="Label" parent="UI"]
 offset_left = 486.0
 offset_top = 584.0
 offset_right = 642.0
 offset_bottom = 621.0
+theme_override_font_sizes/font_size = 30
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="start-button" type="Button" parent="UI"]
 visible = false
 offset_left = 503.0
-offset_top = 442.0
-offset_right = 624.0
+offset_top = 439.0
+offset_right = 636.0
 offset_bottom = 509.0
-text = "开始"
+theme_override_font_sizes/font_size = 50
+text = "Start"
 
 [node name="map_selector" type="OptionButton" parent="UI"]
 visible = false
@@ -52,12 +57,13 @@ offset_left = 968.0
 offset_top = 17.0
 offset_right = 1135.0
 offset_bottom = 83.0
+theme_override_font_sizes/font_size = 30
 item_count = 3
-popup/item_0/text = "地图2"
+popup/item_0/text = "Map2"
 popup/item_0/id = 2
-popup/item_1/text = "地图3"
+popup/item_1/text = "Map3"
 popup/item_1/id = 3
-popup/item_2/text = "地图4"
+popup/item_2/text = "Map4"
 popup/item_2/id = 4
 
 [node name="map_previewer" type="Control" parent="."]

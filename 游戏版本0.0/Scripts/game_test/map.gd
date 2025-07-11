@@ -12,6 +12,8 @@ var last_visible_tiles: Dictionary = {}
 # 改成普通变量，在 _ready 初始化一次
 var main_layer: TileMapLayer
 
+
+
 func _ready():
 	main_layer = $MainLayer
 
@@ -239,8 +241,6 @@ func display_playermap(player_map: PlayerMap) -> void:
 	for coord in current_visible_tiles:
 		last_visible_tiles[coord] = true
 
-
-
 # 屏幕坐标转格子坐标
 func get_tile_coords_from_screen_pos(screen_pos: Vector2) -> Vector2i:
 	var world_pos = main_layer.get_viewport_transform().affine_inverse() * screen_pos
@@ -252,7 +252,6 @@ func clear()->void:
 	labels.clear_all_numbers()
 	color_layer.clear()
 	pass
-
 
 #测试__________________________________________________________________________________________________________________________________________________________________
 # 接受tile坐标，输出信息//测试用

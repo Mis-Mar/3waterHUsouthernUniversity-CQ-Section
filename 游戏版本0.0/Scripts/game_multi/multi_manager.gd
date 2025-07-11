@@ -8,6 +8,7 @@ extends Node
 @onready var turn_count_label: Label = $"../UI/turn_count_label"
 @onready var loading_item: Node2D = $"../UI/loading_item"
 @onready var background: Node2D = $"../Camera2D/background"
+@onready var info_panel: Node2D = $"../UI/info_panel"
 
 
 var fullmap:=FullMap.new()
@@ -140,6 +141,7 @@ func rpc_update_playermap(delta_cell: Dictionary,delta_general_id_to_player_id: 
 	playermap.update_player_map(delta_cell, delta_general_id_to_player_id)
 	map.display_playermap(playermap)
 	display_turn_count(playermap.turn_count)
+	update_info_panel(playermap.general_total_power,playermap.general_id_to_player_id)
 # server接受操作信号
 
 # server/client接受初始化函数
@@ -151,6 +153,10 @@ func rpc_init_playermap(init_data: Dictionary)->void:
 # 结束——————————
 
 # ——————————低级辅助函数
+func update_info_panel(general_total_power: Dictionary,general_id_to_player_id: Dictionary)->void:
+	info_panel.populate_table(general_total_power,general_id_to_player_id)
+	pass
+
 # 按要求替换函数
 func replace_main_layer_with_map(map_id: int) -> void:
 	var path := "res://Scenes/game_maps/game_map_%d.tscn" % map_id
