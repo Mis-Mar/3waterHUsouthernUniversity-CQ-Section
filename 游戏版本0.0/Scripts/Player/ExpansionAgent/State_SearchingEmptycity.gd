@@ -81,7 +81,7 @@ func to_found_empty_city() -> void:
 	#FIXME 选择搜索方式，M2S搜索或者kamikaze搜索
 	for target_point in Not_Found:
 		#HACK 需要一个外部信号调整estimated_demand
-		# print(target_point)
+		print(target_point)
 		# print(Not_Found)
 		if search_to_Not_Found[target_point]:
 			continue
