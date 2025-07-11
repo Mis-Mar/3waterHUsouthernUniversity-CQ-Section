@@ -198,7 +198,7 @@ func dynamic_Not_Found_in_sight_direction(start_point: Vector2i, sight_range: Ar
 			else:
 				direction_count_cost[direction] += agent.algorithm_map.value_map[coord]
 		
-	while direction_count_Not_Found[max_Not_Found_direction] != 0:
+	while direction_count_Not_Found[max_Not_Found_direction] == 0:
 		sight_range[0] += 1
 		var new_sight: Array[Vector2i] = agent.player_map.ring_traversal(start_point, sight_range[0])
 		cells_in_sight.append(new_sight)
